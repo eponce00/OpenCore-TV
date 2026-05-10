@@ -1,0 +1,108 @@
+import 'package:opencore_tv/providers/settings_service.dart';
+import 'package:opencore_tv/widgets/settings/focusable_settings_tile.dart';
+import 'package:opencore_tv/widgets/settings/input_detail_page.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+class InputSettingsPage extends StatelessWidget {
+  static const String routeName = "input_settings_panel";
+
+  const InputSettingsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = context.watch<SettingsService>();
+
+    return Column(
+      children: [
+        Text("Inputs", style: Theme.of(context).textTheme.titleLarge),
+        const Divider(),
+        Expanded(
+          child: ListView.builder(
+            itemCount: OpenCoreInputConfig.inputs.length,
+            itemBuilder: (context, index) {
+              final input = OpenCoreInputConfig.inputs[index];
+              final label = settings.inputLabel(
+                input.packageName,
+                settings.defaultInputLabel(input.packageName),
+              );
+              final icon = settings.inputIcon(input.packageName);
+
+              return FocusableSettingsTile(
+                autofocus: index == 0,
+                leading: Icon(OpenCoreInputConfig.iconData(icon)),
+                title: Text(label),
+                trailing: const Icon(Icons.chevron_right),
+                onPressed: () => Navigator.of(context).pushNamed(
+                  InputDetailPage.routeName,
+                  arguments: input.packageName,
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class OpenCoreInputInfo {
+  final String packageName;
+  final String fallbackLabel;
+
+  const OpenCoreInputInfo(this.packageName, this.fallbackLabel);
+}
+
+class OpenCoreInputConfig {
+  static const inputs = [
+    OpenCoreInputInfo("opencore.input.hdmi1", "HDMI 1"),
+    OpenCoreInputInfo("opencore.input.hdmi2", "HDMI 2"),
+    OpenCoreInputInfo("opencore.input.hdmi3", "HDMI 3"),
+    OpenCoreInputInfo("opencore.input.hdmi4", "HDMI 4"),
+    OpenCoreInputInfo("opencore.input.antenna", "Antenna"),
+    OpenCoreInputInfo("opencore.input.composite", "Composite"),
+  ];
+
+  static const labelPresets = [
+    "HDMI 1",
+    "HDMI 2",
+    "HDMI 3",
+    "HDMI 4",
+    "PlayStation",
+    "Xbox",
+    "Nintendo Switch",
+    "Gaming PC",
+    "Apple TV",
+    "Cable Box",
+    "Blu-ray",
+    "Receiver",
+    "Antenna",
+    "Composite",
+  ];
+
+  static const iconPresets = [
+    "tv",
+    "game",
+    "switch",
+    "movie",
+    "computer",
+    "streaming",
+    "antenna",
+    "camera",
+    "receiver",
+  ];
+
+  static IconData iconData(String icon) {
+    return switch (icon) {
+      "game" => Icons.sports_esports_outlined,
+      "switch" => Icons.videogame_asset_outlined,
+      "movie" => Icons.movie_outlined,
+      "computer" => Icons.computer_outlined,
+      "streaming" => Icons.smart_display_outlined,
+      "antenna" => Icons.settings_input_antenna,
+      "camera" => Icons.videocam_outlined,
+      "receiver" => Icons.speaker_group_outlined,
+      _ => Icons.tv_outlined,
+    };
+  }
+}

@@ -1,0 +1,143 @@
+{
+    "aboutOpenCoreTV": "Acerca de OpenCoreTV",
+    "addCategory": "Agregar categoría",
+    "addSection": "Agregar sección",
+    "alphabetical": "Alfabético",
+    "appCardHighlightAnimation": "Resaltar aplicaciones",
+    "appInfo": "Datos de la aplicación",
+    "appKeyClick": "Sonido al presionar una tecla",
+    "applications": "Aplicaciones",
+    "autoHideAppBar": "Ocultar barra de estado automáticamente",
+    "category": "Categoría",
+    "categories": "Categorías",
+    "columnCount": "Cantidad de columnas",
+    "date": "Fecha",
+    "dateAndTimeFormat": "Formato de fecha y hora",
+    "delete": "Eliminar",
+    "dialogTextNoFileExplorer": "Por favor, instale un gestor de archivos para seleccionar una imagen.",
+    "disambiguateCategoryTitle": "{title} (Categoría)",
+    "@disambiguateCategoryTitle": {
+        "placeholders": {
+            "title": {
+                "type": "String"
+            }
+        }
+    },
+    "formattedDate": "Fecha con formato: {dateString}",
+    "@formattedDate": {
+        "placeholders": {
+            "dateString": {
+                "type": "String"
+            }
+        }
+    },
+    "formattedTime": "Hora con formato: {timeString}",
+    "@formattedTime": {
+        "placeholders": {
+            "timeString": {
+                "type": "String"
+            }
+        }
+    },
+    "gradient": "Gradiente",
+    "favoriteApps": "Favoritas",
+    "grid": "Cuadrícula",
+    "height": "Altura",
+    "hide": "Ocultar",
+    "hiddenApplications": "Aplicaciones ocultas",
+    "launcherSections": "Secciones",
+    "layout": "Distribución",
+    "loading": "Cargando",
+    "manual": "Manual",
+    "modifySection": "Modificar sección",
+    "mustNotBeEmpty": "No debe estar vacío",
+    "name": "Nombre",
+    "newSection": "Nueva sección",
+    "noDateFormatSpecified": "Sin formato de fecha",
+    "noTimeFormatSpecified": "Sin formato de hora",
+    "allApplications": "Todas las aplicaciones",
+    "nonTvApplications": "Otras aplicaciones",
+    "open": "Abrir",
+    "orSelectFormatSpecifiers": "O seleccione especificadores de formato",
+    "picture": "Imagen",
+    "removeFrom": "Remover de {name}",
+    "@removeFrom": {
+        "placeholders": {
+            "name": { "type": "String" }
+        }
+    },
+    "renameCategory": "Renombrar categoría",
+    "reorder": "Reordenar",
+    "row": "Row",
+    "rowHeight": "Row height",
+    "save": "Guardar",
+    "spacer": "Espaciador",
+    "spacerMaxHeightRequirement": "Debe ser mayor a cero y menor o igual a 500",
+    "statusBar": "Barra de estado",
+    "settings": "Ajustes",
+    "show": "Mostrar",
+    "showCategoryTitles": "Mostrar títulos de categorías",
+    "sort": "Orden",
+    "systemSettings": "Ajustes del sistema",
+    "updateCheck": "Buscar actualizaciones",
+    "updateNoUpdateTitle": "No hay actualizaciones",
+    "updateNoUpdateBody": "Ya tienes la última versión ({currentVersion}).",
+    "@updateNoUpdateBody": {
+        "placeholders": {
+            "currentVersion": {
+                "type": "String"
+            }
+        }
+    },
+    "updateAvailableTitle": "Actualización disponible",
+    "updateAvailableBody": "La versión {latestVersion} está disponible (actual: {currentVersion}).",
+    "@updateAvailableBody": {
+        "placeholders": {
+            "latestVersion": {
+                "type": "String"
+            },
+            "currentVersion": {
+                "type": "String"
+            }
+        }
+    },
+    "updateDownloadButton": "Descargar",
+    "updateReadyToInstallTitle": "Lista para instalar",
+    "updateReadyToInstallBody": "El APK de la versión {latestVersion} ya se descargó. ¿Instalar ahora?",
+    "@updateReadyToInstallBody": {
+        "placeholders": {
+            "latestVersion": {
+                "type": "String"
+            }
+        }
+    },
+    "updateInstallButton": "Instalar",
+    "updateInstallPermissionTitle": "Se requiere permiso de instalación",
+    "updateInstallPermissionBody": "Permite que OpenCore TV instale apps desconocidas y vuelve a intentar la actualización.",
+    "updateOpenPermissionSettingsButton": "Abrir ajustes de permisos",
+    "updateErrorGeneric": "La actualización falló. Inténtalo de nuevo.",
+    "textAboutDialog": "OpenCore TV es un lanzador de código abierto personalizado para Android TV y Fire TV.\n\nCódigo fuente disponible en {repoUrl}.",
+    "@textAboutDialog": {
+        "placeholders": {
+            "repoUrl": {
+                "type": "String"
+            }
+        }
+    },
+    "textEmptyCategory": "Esta categoría está vacía.",
+    "time": "Hora",
+    "titleStatusBarSettingsPage": "Elija la información a mostrar en la barra de estado",
+    "tvApplications": "Aplicaciones del televisor",
+    "type": "Tipo",
+    "typeInTheDateFormat": "Escriba el formato de fecha",
+    "typeInTheHourFormat": "Escriba el formato de hora",
+    "uninstall": "Desinstalar",
+    "wallpaper": "Fondo de pantalla",
+    "withEllipsisAddTo": "Añadir a...",
+    "timeBasedWallpaper": "Fondo de pantalla según la hora",
+    "pickDayWallpaper": "Elegir fondo de día",
+    "pickNightWallpaper": "Elegir fondo de noche",
+    "video": "Vídeo",
+    "pickDayVideoWallpaper": "Elegir vídeo de día",
+    "pickNightVideoWallpaper": "Elegir vídeo de noche"
+}
