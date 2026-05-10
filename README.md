@@ -6,9 +6,9 @@ This repo is tuned first for a Hisense Fire TV setup, especially Fire OS devices
 
 ## Screenshots
 
-| Home | Idle / Screensaver |
-| --- | --- |
-| ![OpenCore TV home](docs/images/opencore-home.png) | ![OpenCore TV idle mode](docs/images/opencore-idle.png) |
+| Home | Idle / Screensaver | Control Center |
+| --- | --- | --- |
+| ![OpenCore TV home](docs/images/opencore-home.png) | ![OpenCore TV idle mode](docs/images/opencore-idle.png) | ![OpenCore TV control center](docs/images/opencore-settings.png) |
 
 ## What It Does
 
