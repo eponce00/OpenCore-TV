@@ -69,6 +69,15 @@ Details and manual recovery commands live in [docs/HOME_GUARD_SETUP.md](docs/HOM
 - Home Guard setup: [docs/HOME_GUARD_SETUP.md](docs/HOME_GUARD_SETUP.md)
 - Settings audit: [docs/SETTINGS_AUDIT.md](docs/SETTINGS_AUDIT.md)
 
+## Credits
+
+OpenCore TV is now maintained as its own project, but it stands on work from several open-source Android TV launcher projects:
+
+- [FLauncher](https://gitlab.com/etienn01/flauncher) by etienn01: original project lineage.
+- [FLauncher fork](https://github.com/osrosal/flauncher) by osrosal: community fork with additional features.
+- [LTvLauncher](https://github.com/LeanBitLab/LTvLauncher) by LeanBitLab: base used by later forks.
+- [ArcLauncher](https://github.com/meddouribadis/arclauncher) by meddouribadis: direct starting point for OpenCore TV.
+
 ## License
 
 This project is GPL-3.0-or-later. See [LICENSE](LICENSE).

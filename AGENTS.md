@@ -4,7 +4,7 @@ Guidance for coding agents working on OpenCore TV.
 
 ## Project Identity
 
-OpenCore TV is a Flutter/Android launcher for Fire TV / Android TV devices. This fork has diverged from the upstream launcher and should be treated as its own project.
+OpenCore TV is a Flutter/Android launcher for Fire TV / Android TV devices. Treat it as its own project with its own UX, package identity, release process, and documentation.
 
 Primary target device:
 
@@ -78,6 +78,6 @@ adb shell dumpsys accessibility
 
 ## Git Safety
 
-- Do not reintroduce upstream launcher branding.
+- Do not reintroduce old launcher branding outside the README credits section.
 - Do not commit keystores, local properties, screenshots containing precise personal location data, or build outputs.
 - If publishing screenshots, redact exact ZIP/location text unless the user explicitly wants it public.

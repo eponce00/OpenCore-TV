@@ -31,7 +31,7 @@ Goal: turn this Hisense Fire TV into a clean, personal launcher for Jellyfin, Yo
 - Status: Remote Menu/context key should open the same app action panel as long-press Select when Fire OS exposes it to Flutter.
 - Status: Input app action panels now include a direct Customize Input entry.
 - Status: Weather settings now include Reno, Nevada and a City/ZIP search flow for specific locations.
-- Status: Native Android Dream metadata no longer points to the old upstream package for screensaver settings; OpenCore owns idle/screensaver settings internally.
+- Status: Native Android Dream metadata points at OpenCore-owned idle/screensaver settings instead of inherited package handlers.
 - Status: OpenCore idle wake now uses a global hardware-key handler so remote keys should dismiss the overlay instead of navigating behind it.
 - Status: OpenCore-owned input tiles no longer expose Android's broken gallery/file picker for custom banners.
 - Status: Synthetic input banners use a quiet OpenCore dark card style instead of the blue/circle generated artwork.
@@ -60,7 +60,7 @@ Goal: turn this Hisense Fire TV into a clean, personal launcher for Jellyfin, Yo
 - Status: Added OpenCore Health settings page to check/repair Home Guard from the TV UI when the installer has granted `WRITE_SECURE_SETTINGS`; OpenCore now also repairs Home Guard on resume when that grant exists. Added `docs/HOME_GUARD_SETUP.md` with the ADB/manual recovery boundary.
 - Status: Settings landing page was redesigned into a wider glassy OpenCore Control Center with time/date, Home Guard status, large quick tiles, and grouped settings cards.
 - Status: Settings Control Center styling was tightened for the OLED/minimal launcher theme: smaller cards, near-black surfaces, neutral focus outlines, and no oversized colored glow.
-- Status: Repository formalization started: added `AGENTS.md`, GitHub Releases publish script, README release link, and removed the old upstream remote.
+- Status: Repository formalization started: added `AGENTS.md`, GitHub Releases publish script, README release link, and removed inherited remote wiring.
 - Status: Public history cleanup requested: rewrite `main` as a clean OpenCore root commit and replace inherited tags/releases with OpenCore-owned releases.
 
 ## Backlog
