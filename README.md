@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/branding/opencore-tv-icon-preview.png" alt="OpenCore TV icon" width="120">
+</p>
+
 # OpenCore TV
 
 OpenCore TV is a custom Android/Fire TV launcher built around a clean home screen, high-resolution wallpapers, local input shortcuts, weather, and an integrated idle/screensaver mode.
