@@ -1,9 +1,7 @@
 package tv.opencore.launcher;
 
 import android.accessibilityservice.AccessibilityService;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Handler;
@@ -86,10 +84,6 @@ public class HomeGuardAccessibilityService extends AccessibilityService {
             return;
         }
         if (packageName != null && AMAZON_LAUNCHER_PACKAGE.contentEquals(packageName)) {
-            if (isAmazonSettingsFlowAllowed()) {
-                Log.w(TRACE_TAG, "allowing Amazon launcher/settings flow");
-                return;
-            }
             if (isAmazonSettingsClass(currentClassName)) {
                 return;
             }
@@ -249,12 +243,6 @@ public class HomeGuardAccessibilityService extends AccessibilityService {
 
     private boolean isAmazonSettingsClass(String className) {
         return className != null && className.contains("SettingsActivity");
-    }
-
-    private boolean isAmazonSettingsFlowAllowed() {
-        SharedPreferences prefs = getSharedPreferences(MainActivity.GUARD_PREFS, Context.MODE_PRIVATE);
-        long allowUntil = prefs.getLong(MainActivity.PREF_ALLOW_AMAZON_SETTINGS_UNTIL, 0L);
-        return System.currentTimeMillis() < allowUntil;
     }
 
     private boolean isInputMenuKey(int keyCode) {

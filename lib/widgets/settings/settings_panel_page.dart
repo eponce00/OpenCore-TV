@@ -18,6 +18,7 @@ import 'package:opencore_tv/widgets/settings/home_display_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/idle_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/input_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/launcher_sections_panel_page.dart';
+import 'package:opencore_tv/widgets/settings/native_fire_tv_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/opencore_about_dialog.dart';
 import 'package:opencore_tv/widgets/settings/opencore_clock_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/opencore_health_page.dart';
@@ -176,9 +177,9 @@ class _SettingsPanelPageState extends State<SettingsPanelPage> {
                     ),
                     _SettingsRow(
                       icon: Icons.settings_outlined,
-                      title: "Fire TV Settings",
-                      subtitle: "Open native device settings",
-                      onPressed: _openFireTvSettings,
+                      title: "Native Fire TV Settings",
+                      subtitle: "Open reachable Fire OS sections",
+                      routeName: NativeFireTvSettingsPage.routeName,
                     ),
                     _SettingsRow(
                       icon: Icons.info_outline,
@@ -196,21 +197,13 @@ class _SettingsPanelPageState extends State<SettingsPanelPage> {
     );
   }
 
-  Future<void> _openFireTvSettings() async {
-    final appsService = context.read<AppsService>();
-    Navigator.of(context, rootNavigator: true).pop();
-    await Future<void>.delayed(const Duration(milliseconds: 80));
-    await appsService.openSettings();
-  }
-
   void _showAbout() {
     showDialog(
       context: context,
       builder: (_) => FutureBuilder<PackageInfo>(
         future: PackageInfo.fromPlatform(),
         builder: (context, snapshot) =>
-            snapshot.connectionState == ConnectionState.done &&
-                    snapshot.hasData
+            snapshot.connectionState == ConnectionState.done && snapshot.hasData
                 ? OpenCoreTVAboutDialog(packageInfo: snapshot.data!)
                 : const SizedBox.shrink(),
       ),
@@ -249,7 +242,8 @@ class _SettingsHeader extends StatelessWidget {
       "Nov",
       "Dec",
     ][now.month - 1];
-    final hour = now.hour == 0 ? 12 : (now.hour > 12 ? now.hour - 12 : now.hour);
+    final hour =
+        now.hour == 0 ? 12 : (now.hour > 12 ? now.hour - 12 : now.hour);
     final minute = now.minute.toString().padLeft(2, "0");
     final period = now.hour >= 12 ? "PM" : "AM";
 
@@ -306,8 +300,9 @@ class _SettingsHeader extends StatelessWidget {
                 ? Icons.shield_outlined
                 : Icons.warning_amber_rounded,
             label: guardHealthy ? "Guard on" : "Check guard",
-            color:
-                guardHealthy ? const Color(0xFF9BE58C) : const Color(0xFFFFB35C),
+            color: guardHealthy
+                ? const Color(0xFF9BE58C)
+                : const Color(0xFFFFB35C),
           ),
         ],
       ),
@@ -491,9 +486,8 @@ class _SettingsRow extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
           color: focused ? Colors.white.withOpacity(0.075) : Colors.transparent,
           border: Border.all(
-            color: focused
-                ? Colors.white.withOpacity(0.62)
-                : Colors.transparent,
+            color:
+                focused ? Colors.white.withOpacity(0.62) : Colors.transparent,
             width: 1.35,
           ),
         ),

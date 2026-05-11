@@ -570,6 +570,9 @@ class AppsService extends ChangeNotifier {
 
   Future<void> openSettings() => _OpenCoreTVChannel.openSettings();
 
+  Future<void> launchActivityFromAction(String action) =>
+      _OpenCoreTVChannel.launchActivityFromAction(action);
+
   Future<bool> isHomeGuardEnabled() => _OpenCoreTVChannel.isHomeGuardEnabled();
 
   Future<bool> repairHomeGuard() => _OpenCoreTVChannel.repairHomeGuard();

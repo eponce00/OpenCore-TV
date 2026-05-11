@@ -37,6 +37,7 @@ import 'package:opencore_tv/widgets/settings/input_detail_page.dart';
 import 'package:opencore_tv/widgets/settings/input_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/idle_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/idle_timeout_page.dart';
+import 'package:opencore_tv/widgets/settings/native_fire_tv_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/opencore_health_page.dart';
 import 'package:opencore_tv/widgets/settings/weather_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/general_settings_page.dart';
@@ -172,6 +173,9 @@ class _SettingsPanelState extends State<SettingsPanel> {
                     case OpenCoreHealthPage.routeName:
                       return _FastPageRoute(
                           builder: (_) => const OpenCoreHealthPage());
+                    case NativeFireTvSettingsPage.routeName:
+                      return _FastPageRoute(
+                          builder: (_) => const NativeFireTvSettingsPage());
                     case AppDetailsPage.routeName:
                       return _FastPageRoute(
                           builder: (_) => AppDetailsPage(

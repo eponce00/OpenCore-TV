@@ -77,9 +77,6 @@ public class MainActivity extends FlutterActivity {
     private final String APPS_EVENT_CHANNEL = "tv.opencore.launcher/event_apps";
     private final String NETWORK_EVENT_CHANNEL = "tv.opencore.launcher/event_network";
     private static final String INPUT_PACKAGE_PREFIX = "opencore.input.";
-    static final String GUARD_PREFS = "opencore_guard";
-    static final String PREF_ALLOW_AMAZON_SETTINGS_UNTIL = "allow_amazon_settings_until";
-    private static final long AMAZON_SETTINGS_ALLOW_MS = 15_000;
     static final String ACTION_ENTER_IDLE = "tv.opencore.launcher.action.ENTER_IDLE";
     static final String ACTION_DISMISS_PANEL = "tv.opencore.launcher.action.DISMISS_PANEL";
     private static volatile boolean panelOpen = false;
@@ -549,7 +546,14 @@ public class MainActivity extends FlutterActivity {
     }
 
     private boolean launchActivityFromAction(String action) {
-        return tryStartActivity(new Intent(action));
+        Intent intent = new Intent(action)
+                .addCategory(Intent.CATEGORY_DEFAULT)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        if (action.startsWith("com.amazon.device.settings.action.")
+                || action.startsWith("android.settings.")) {
+            intent.setPackage("com.amazon.tv.settings.v2");
+        }
+        return tryStartActivity("action " + action, intent);
     }
 
     private boolean launchApp(String packageName) {
@@ -622,17 +626,6 @@ public class MainActivity extends FlutterActivity {
     private boolean openSettings() {
         panelOpen = false;
 
-        allowAmazonSettingsFlow();
-
-        Intent fireSettingsLauncher = new Intent(Intent.ACTION_MAIN)
-                .setComponent(new ComponentName(
-                        "com.amazon.tv.launcher",
-                        "com.amazon.tv.launcher.ui.SettingsActivity"))
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        if (tryStartActivity("Fire TV launcher settings", fireSettingsLauncher)) {
-            return true;
-        }
-
         Intent fireSettingsV2 = new Intent("com.amazon.device.settings.action.DEVICE")
                 .addCategory(Intent.CATEGORY_DEFAULT)
                 .setPackage("com.amazon.tv.settings.v2")
@@ -653,15 +646,6 @@ public class MainActivity extends FlutterActivity {
 
         Log.w(TRACE_TAG, "openSettings falling back to Android ACTION_SETTINGS; Fire OS may route this through Amazon launcher");
         return launchActivityFromAction(Settings.ACTION_SETTINGS);
-    }
-
-    private void allowAmazonSettingsFlow() {
-        long allowUntil = System.currentTimeMillis() + AMAZON_SETTINGS_ALLOW_MS;
-        getSharedPreferences(GUARD_PREFS, MODE_PRIVATE)
-                .edit()
-                .putLong(PREF_ALLOW_AMAZON_SETTINGS_UNTIL, allowUntil)
-                .apply();
-        Log.w(TRACE_TAG, "allowAmazonSettingsFlow until=" + allowUntil);
     }
 
     private boolean installApk(String apkPath) {
