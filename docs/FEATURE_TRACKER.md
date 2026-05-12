@@ -60,6 +60,7 @@ Goal: turn this Hisense Fire TV into a clean, personal launcher for Jellyfin, Yo
 - Status: Added OpenCore Health settings page to check/repair Home Guard from the TV UI when the installer has granted `WRITE_SECURE_SETTINGS`; OpenCore now also repairs Home Guard on resume when that grant exists. Added `docs/HOME_GUARD_SETUP.md` with the ADB/manual recovery boundary.
 - Status: Settings landing page was redesigned into a wider glassy OpenCore Control Center with time/date, Home Guard status, large quick tiles, and grouped settings cards.
 - Status: Settings Control Center styling was tightened for the OLED/minimal launcher theme: smaller cards, near-black surfaces, neutral focus outlines, and no oversized colored glow.
+- Status: Settings cleanup pass renamed the inherited `OpenCore System` catch-all into `Device Tools`, clarified its sections, and kept Fire TV native sections separate.
 - Status: Repository formalization started: added `AGENTS.md`, GitHub Releases publish script, README release link, and removed inherited remote wiring.
 - Status: Public history cleanup requested: rewrite `main` as a clean OpenCore root commit and replace inherited tags/releases with OpenCore-owned releases.
 

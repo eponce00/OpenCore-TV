@@ -17,7 +17,6 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'focusable_settings_tile.dart';
 import 'brightness_settings_page.dart';
 import 'date_time_format_page.dart';
@@ -30,41 +29,123 @@ class GeneralSettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalizations localizations = AppLocalizations.of(context)!;
-
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('System', style: Theme.of(context).textTheme.titleLarge),
+        Text('Device Tools', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 8),
+        Text(
+          'OpenCore-owned controls for device behavior that belongs inside the launcher. Native Fire TV sections live in their own menu.',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Colors.white.withOpacity(0.58),
+                height: 1.25,
+              ),
+        ),
+        const SizedBox(height: 12),
         const Divider(),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                _SectionLabel("Display"),
                 FocusableSettingsTile(
                   autofocus: true,
-                  leading: const Icon(Icons.brightness_6),
-                  title: Text('Brightness Scheduler',
-                      style: Theme.of(context).textTheme.bodyMedium),
+                  leading: const Icon(Icons.brightness_6_outlined),
+                  title: _TileText(
+                    title: "Brightness Scheduler",
+                    subtitle: "Optional day/night brightness automation",
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
                   onPressed: () => Navigator.of(context)
                       .pushNamed(BrightnessSettingsPage.routeName),
                 ),
+                const SizedBox(height: 8),
+                _SectionLabel("Date & Time"),
                 FocusableSettingsTile(
-                  leading: const Icon(Icons.date_range),
-                  title: Text(localizations.dateAndTimeFormat,
-                      style: Theme.of(context).textTheme.bodyMedium),
+                  leading: const Icon(Icons.schedule_outlined),
+                  title: _TileText(
+                    title: "Date & Time Format",
+                    subtitle: "Choose the clock/date format OpenCore displays",
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
                   onPressed: () => Navigator.of(context)
                       .pushNamed(DateTimeFormatPage.routeName),
                 ),
+                const SizedBox(height: 8),
+                _SectionLabel("Network"),
                 FocusableSettingsTile(
-                  leading: const Icon(Icons.wifi),
-                  title: Text('WiFi Usage Period',
-                      style: Theme.of(context).textTheme.bodyMedium),
+                  leading: const Icon(Icons.network_check_outlined),
+                  title: _TileText(
+                    title: "Network Usage Period",
+                    subtitle: "Daily, weekly, or monthly usage window",
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
                   onPressed: () => Navigator.of(context)
                       .pushNamed(WifiUsagePeriodPage.routeName),
+                ),
+                const SizedBox(height: 10),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Text(
+                    "Fire TV system settings are intentionally separate so this page stays limited to OpenCore controls.",
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.white.withOpacity(0.42),
+                          fontStyle: FontStyle.italic,
+                        ),
+                  ),
                 ),
               ],
             ),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SectionLabel extends StatelessWidget {
+  final String text;
+
+  const _SectionLabel(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(18, 14, 18, 4),
+      child: Text(
+        text,
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Colors.white.withOpacity(0.48),
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.6,
+            ),
+      ),
+    );
+  }
+}
+
+class _TileText extends StatelessWidget {
+  final String title;
+  final String subtitle;
+
+  const _TileText({required this.title, required this.subtitle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: Theme.of(context).textTheme.bodyMedium),
+        const SizedBox(height: 3),
+        Text(
+          subtitle,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Colors.white.withOpacity(0.50),
+              ),
         ),
       ],
     );

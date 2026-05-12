@@ -11,18 +11,21 @@ Goal: make settings feel like they belong to this Hisense Fire TV launcher, not 
 - Weather: units, current location, city/ZIP search, refresh status.
 - Inputs: HDMI/input names, icons, favorites organization, future custom icons.
 - Apps: show/hide apps, app categories, favorites, reorder.
-- Network: connection status, Wi-Fi usage visibility, usage period, link to Fire TV settings only as an escape hatch.
-- Remote / System: Back button behavior, brightness scheduler, Fire TV settings, about OpenCore.
+- Network: connection status, network indicator visibility, usage period, link to Fire TV settings only as an escape hatch.
+- Device Tools: brightness scheduler, date/time format, network usage period.
+- Native Fire TV Settings: direct callable Fire OS sections only, not the protected root hub.
+- About / Health: version, license, Home Guard status and repair.
 
 ## Current Cleanup Notes
 
 - `InterfaceSettingsPage` was removed because the top-level `OpenCore Settings` page now owns the structure.
-- `GeneralSettingsPage` still mixes unrelated behavior: brightness, date/time, and Wi-Fi usage period.
+- `GeneralSettingsPage` has been cleaned up into a user-facing `Device Tools` page while keeping the route stable.
 - `StatusBarPanelPage` was removed; useful Home/status toggles moved into `Home Display`, `Clock`, and `System`.
 - `MiscPanelPage` was renamed and refocused as `Home Display`.
 - Old screensaver clock styles were removed because OpenCore idle uses its own overlay now.
 - Old Back button action settings were removed because Back on Home should be a safe no-op, while settings panels already pop normally.
 - Any setting that launches broken Fire OS panels should either be removed or clearly labeled as an external escape hatch.
+- The protected Fire TV root settings hub is intentionally not exposed as a fake "main settings" shortcut because Fire OS redirects it through Amazon Home.
 
 ## Immediate Direction
 
@@ -30,3 +33,4 @@ Goal: make settings feel like they belong to this Hisense Fire TV launcher, not 
 - Prefer full-row picker pages over dropdowns.
 - Avoid Android file pickers unless there is no TV-safe alternative.
 - Keep settings labels user-facing and concrete: "Clock", "Inputs", "Weather", not "Miscellaneous" or "Status Bar".
+- Keep inherited route names only when useful for stability; user-facing labels should be OpenCore-owned.

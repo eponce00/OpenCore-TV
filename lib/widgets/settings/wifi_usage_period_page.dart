@@ -13,7 +13,7 @@ class WifiUsagePeriodPage extends StatelessWidget {
     return Consumer<SettingsService>(builder: (context, service, _) {
       return Column(
         children: [
-          Text('WiFi Usage Period',
+          Text('Network Usage Period',
               style: Theme.of(context).textTheme.titleLarge),
           const Divider(),
           Expanded(

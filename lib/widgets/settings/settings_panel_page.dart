@@ -171,14 +171,14 @@ class _SettingsPanelPageState extends State<SettingsPanelPage> {
                     ),
                     _SettingsRow(
                       icon: Icons.settings_suggest_outlined,
-                      title: "OpenCore System",
-                      subtitle: "Brightness, time, network tools",
+                      title: "Device Tools",
+                      subtitle: "Brightness, date/time, network usage",
                       routeName: GeneralSettingsPage.routeName,
                     ),
                     _SettingsRow(
                       icon: Icons.settings_outlined,
                       title: "Native Fire TV Settings",
-                      subtitle: "Open reachable Fire OS sections",
+                      subtitle: "Direct Fire OS sections that still work",
                       routeName: NativeFireTvSettingsPage.routeName,
                     ),
                     _SettingsRow(
