@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/brightness_service.dart';
+import '../../theme/opencore_theme.dart';
 import '../rounded_switch_list_tile.dart';
 
 class BrightnessSettingsPage extends StatelessWidget {
@@ -29,6 +30,7 @@ class BrightnessSettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
     return Consumer<BrightnessService>(
       builder: (context, brightnessService, _) {
         final isEnabled = brightnessService.isEnabled;
@@ -80,7 +82,7 @@ class BrightnessSettingsPage extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: Colors.black26,
+                                  color: colors.elevated,
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: SelectableText(
@@ -191,7 +193,7 @@ class BrightnessSettingsPage extends StatelessWidget {
                             'Note: Some Android TV devices may not support app-level brightness control.',
                             style:
                                 Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.white54,
+                                      color: colors.mutedText,
                                       fontStyle: FontStyle.italic,
                                     ),
                             textAlign: TextAlign.center,
@@ -255,6 +257,7 @@ class _TimeSlotSliderState extends State<_TimeSlotSlider> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
     return Actions(
       actions: <Type, Action<Intent>>{
         // Intercept left/right to control slider, let up/down pass through for navigation
@@ -282,9 +285,9 @@ class _TimeSlotSliderState extends State<_TimeSlotSlider> {
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           decoration: BoxDecoration(
             color: _focused
-                ? Colors.white10
+                ? colors.elevated
                 : (widget.isCurrentSlot
-                    ? Colors.white.withOpacity(0.05)
+                    ? colors.cardScrim
                     : Colors.transparent),
             borderRadius: BorderRadius.circular(8),
             border: widget.isCurrentSlot
@@ -307,7 +310,7 @@ class _TimeSlotSliderState extends State<_TimeSlotSlider> {
                         size: 18,
                         color: widget.isCurrentSlot
                             ? Theme.of(context).colorScheme.primary
-                            : Colors.white70,
+                            : colors.mutedText,
                       ),
                       const SizedBox(width: 8),
                       Text(

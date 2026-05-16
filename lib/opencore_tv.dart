@@ -19,7 +19,6 @@
 import 'dart:math';
 import 'dart:async';
 import 'dart:developer' as developer;
-import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:opencore_tv/actions.dart';
@@ -29,11 +28,13 @@ import 'package:opencore_tv/providers/apps_service.dart';
 import 'package:opencore_tv/providers/launcher_state.dart';
 import 'package:opencore_tv/providers/settings_service.dart';
 import 'package:opencore_tv/providers/wallpaper_service.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:opencore_tv/widgets/app_card.dart';
 import 'package:opencore_tv/widgets/category_clean_row.dart';
 import 'package:opencore_tv/widgets/category_row.dart';
 import 'package:opencore_tv/widgets/focus_aware_app_bar.dart';
 import 'package:opencore_tv/widgets/idle_overlay.dart';
+import 'package:opencore_tv/widgets/input_selector_dialog.dart';
 import 'package:opencore_tv/widgets/weather_widget.dart';
 import 'package:opencore_tv/widgets/wallpaper_video_background.dart';
 import 'package:flutter/material.dart';
@@ -55,12 +56,15 @@ class OpenCoreTV extends StatefulWidget {
 
 class _OpenCoreTVState extends State<OpenCoreTV> with WidgetsBindingObserver {
   final GlobalKey<FocusAwareAppBarState> _appBarKey = GlobalKey();
+  final FocusNode _weatherFocusNode = FocusNode();
+  final FocusNode _dockEndFocusNode = FocusNode();
   Timer? _idleTimer;
   SettingsService? _settingsService;
   Timer? _pendingEnterIdleTimer;
   bool _idle = false;
   bool _isResumed = true;
   bool _pendingEnterIdle = false;
+  bool _inputSelectorOpen = false;
   LogicalKeyboardKey? _wakeConsumedKey;
   DateTime? _ignoreActivationUntil;
 
@@ -70,6 +74,8 @@ class _OpenCoreTVState extends State<OpenCoreTV> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     OpenCoreTVChannel.setEnterIdleListener(_enterIdleNow);
     OpenCoreTVChannel.setDismissPanelListener(_dismissTopPanel);
+    OpenCoreTVChannel.setRemoteMenuListener(_openFocusedRemoteMenu);
+    OpenCoreTVChannel.setInputSelectorListener(_showInputSelector);
     HardwareKeyboard.instance.addHandler(_handleHardwareKey);
     WidgetsBinding.instance.addPostFrameCallback((_) => _resetIdleTimer());
   }
@@ -78,9 +84,13 @@ class _OpenCoreTVState extends State<OpenCoreTV> with WidgetsBindingObserver {
   void dispose() {
     OpenCoreTVChannel.setEnterIdleListener(null);
     OpenCoreTVChannel.setDismissPanelListener(null);
+    OpenCoreTVChannel.setRemoteMenuListener(null);
+    OpenCoreTVChannel.setInputSelectorListener(null);
     WidgetsBinding.instance.removeObserver(this);
     HardwareKeyboard.instance.removeHandler(_handleHardwareKey);
     _settingsService?.removeListener(_resetIdleTimer);
+    _weatherFocusNode.dispose();
+    _dockEndFocusNode.dispose();
     _pendingEnterIdleTimer?.cancel();
     _idleTimer?.cancel();
     super.dispose();
@@ -143,7 +153,11 @@ class _OpenCoreTVState extends State<OpenCoreTV> with WidgetsBindingObserver {
                   curve: Curves.easeOutCubic,
                   child: Scaffold(
                     backgroundColor: Colors.transparent,
-                    appBar: FocusAwareAppBar(key: _appBarKey),
+                    appBar: FocusAwareAppBar(
+                      key: _appBarKey,
+                      onFocusWeather: () => _weatherFocusNode.requestFocus(),
+                      onFocusDockEnd: () => _dockEndFocusNode.requestFocus(),
+                    ),
                     body: Selector<AppsService, (bool, int)>(
                       selector: (_, service) =>
                           (service.initialized, service.layoutVersion),
@@ -159,10 +173,16 @@ class _OpenCoreTVState extends State<OpenCoreTV> with WidgetsBindingObserver {
                   ),
                 ),
                 if (!_idle)
-                  const Positioned(
+                  Positioned(
                     top: 58,
                     right: 32,
-                    child: WeatherWidget(locationBelow: true),
+                    child: WeatherWidget(
+                      locationBelow: true,
+                      focusNode: _weatherFocusNode,
+                      onFocusLeft: () =>
+                          _appBarKey.currentState?.focusNetwork(),
+                      onFocusDown: () => _dockEndFocusNode.requestFocus(),
+                    ),
                   ),
                 AnimatedOpacity(
                   opacity: _idle ? 1.0 : 0.0,
@@ -170,6 +190,8 @@ class _OpenCoreTVState extends State<OpenCoreTV> with WidgetsBindingObserver {
                   curve: Curves.easeOutCubic,
                   child: const IdleOverlay(),
                 ),
+                if (_inputSelectorOpen)
+                  InputSelectorDialog(onClose: _closeInputSelector),
               ],
             ),
           ),
@@ -186,6 +208,21 @@ class _OpenCoreTVState extends State<OpenCoreTV> with WidgetsBindingObserver {
     }
 
     if (event is! KeyDownEvent) return false;
+
+    if (_inputSelectorOpen) {
+      if (event.logicalKey == LogicalKeyboardKey.escape ||
+          event.logicalKey == LogicalKeyboardKey.goBack ||
+          event.logicalKey == LogicalKeyboardKey.browserBack ||
+          event.logicalKey == LogicalKeyboardKey.gameButtonB ||
+          event.logicalKey == LogicalKeyboardKey.home ||
+          event.logicalKey == LogicalKeyboardKey.contextMenu ||
+          event.logicalKey == LogicalKeyboardKey.gameButtonStart) {
+        _closeInputSelector();
+        return true;
+      }
+      _resetIdleTimer();
+      return false;
+    }
 
     if (_idle) {
       _wakeConsumedKey = event.logicalKey;
@@ -251,7 +288,31 @@ class _OpenCoreTVState extends State<OpenCoreTV> with WidgetsBindingObserver {
 
   void _dismissTopPanel() {
     if (!mounted) return;
+    if (_inputSelectorOpen) {
+      _closeInputSelector();
+      return;
+    }
     Navigator.of(context).maybePop();
+  }
+
+  void _openFocusedRemoteMenu() {
+    final focusContext = FocusManager.instance.primaryFocus?.context;
+    if (focusContext == null) return;
+    Actions.maybeInvoke(focusContext, const RemoteMenuIntent());
+  }
+
+  void _showInputSelector() {
+    if (!mounted) return;
+    if (_inputSelectorOpen) return;
+    _wakeFromIdle();
+    setState(() => _inputSelectorOpen = true);
+    OpenCoreTVChannel().setPanelOpen(true);
+  }
+
+  void _closeInputSelector() {
+    if (!_inputSelectorOpen) return;
+    setState(() => _inputSelectorOpen = false);
+    OpenCoreTVChannel().setPanelOpen(false);
   }
 
   void _resetIdleTimer() {
@@ -353,14 +414,7 @@ class _OpenCoreTVState extends State<OpenCoreTV> with WidgetsBindingObserver {
                 padding: const EdgeInsets.only(left: 40, bottom: 8, top: 8),
                 child: Text(
                   category.name,
-                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                    shadows: const [
-                      Shadow(
-                          color: Colors.black54,
-                          offset: Offset(1, 1),
-                          blurRadius: 8),
-                    ],
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
               );
             }
@@ -476,45 +530,33 @@ class _OpenCoreTVState extends State<OpenCoreTV> with WidgetsBindingObserver {
     List<App> apps,
     AppsService appsService,
   ) {
-    final backdropDisabled = context.select<SettingsService, bool>(
-      (s) => s.dockBackdropFilterDisabled,
-    );
-
+    final colors = context.openCoreColors;
+    final isLight = Theme.of(context).brightness == Brightness.light;
     final content = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: Colors.white.withOpacity(0.15), width: 1.5),
-        //boxShadow: [
-        //  BoxShadow(
-        //    color: Colors.black.withOpacity(0.3),
-        //    blurRadius: 20,
-        //    offset: const Offset(0, 10),
-        //  )
-        //],
+        color: colors.cardScrim,
+        borderRadius: BorderRadius.circular(26),
+        border: Border.all(color: colors.line, width: 1),
+        boxShadow: [
+          if (isLight)
+            BoxShadow(
+              color: colors.shadow,
+              blurRadius: 26,
+              offset: const Offset(0, 10),
+            ),
+        ],
       ),
       child: CategoryCleanRow(
         category: category,
         applications: apps,
-        isFirstSection: false,
+        isFirstSection: true,
         scrollAlignment: 1.0,
+        endFocusNode: _dockEndFocusNode,
       ),
     );
 
-    return Center(
-      //child: RepaintBoundary(
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(32),
-        child: backdropDisabled
-            ? content
-            : BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                child: content,
-              ),
-        //),
-      ),
-    );
+    return Center(child: content);
   }
 
   Widget _wallpaper(BuildContext context, WallpaperService wallpaperService) {

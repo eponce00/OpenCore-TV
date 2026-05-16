@@ -19,6 +19,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:video_player/video_player.dart';
 
 class WallpaperVideoBackground extends StatefulWidget {
@@ -104,7 +105,7 @@ class _WallpaperVideoBackgroundState extends State<WallpaperVideoBackground>
   Widget build(BuildContext context) {
     final controller = _controller;
     if (controller == null || !controller.value.isInitialized) {
-      return const ColoredBox(color: Colors.black);
+      return ColoredBox(color: context.openCoreColors.page);
     }
 
     final size = controller.value.size;

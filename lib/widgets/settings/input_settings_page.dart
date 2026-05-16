@@ -1,6 +1,7 @@
 import 'package:opencore_tv/providers/settings_service.dart';
 import 'package:opencore_tv/widgets/settings/focusable_settings_tile.dart';
 import 'package:opencore_tv/widgets/settings/input_detail_page.dart';
+import 'package:opencore_tv/widgets/settings/settings_page_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -14,9 +15,12 @@ class InputSettingsPage extends StatelessWidget {
     final settings = context.watch<SettingsService>();
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text("Inputs", style: Theme.of(context).textTheme.titleLarge),
-        const Divider(),
+        const SettingsPageHeader(
+          title: "Inputs",
+          subtitle: "Rename HDMI and tuner tiles, then choose their icons.",
+        ),
         Expanded(
           child: ListView.builder(
             itemCount: OpenCoreInputConfig.inputs.length,
@@ -31,7 +35,10 @@ class InputSettingsPage extends StatelessWidget {
               return FocusableSettingsTile(
                 autofocus: index == 0,
                 leading: Icon(OpenCoreInputConfig.iconData(icon)),
-                title: Text(label),
+                title: SettingsTileText(
+                  title: label,
+                  subtitle: input.fallbackLabel,
+                ),
                 trailing: const Icon(Icons.chevron_right),
                 onPressed: () => Navigator.of(context).pushNamed(
                   InputDetailPage.routeName,

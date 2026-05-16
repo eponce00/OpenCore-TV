@@ -19,6 +19,7 @@
 import 'dart:typed_data';
 
 import 'package:opencore_tv/providers/apps_service.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 
 import 'package:opencore_tv/widgets/ensure_visible.dart';
 import 'package:flutter/material.dart';
@@ -171,6 +172,10 @@ class _ApplicationsPanelPageState extends State<ApplicationsPanelPage> {
 
   Widget navButton(
       bool selected, bool focused, int index, String title, IconData icon) {
+    final colors = context.openCoreColors;
+    final focusRing = Theme.of(context).brightness == Brightness.light
+        ? Theme.of(context).colorScheme.primary
+        : colors.focusFill;
     // ... (same)
     return InkWell(
       onTap: () {
@@ -181,17 +186,14 @@ class _ApplicationsPanelPageState extends State<ApplicationsPanelPage> {
         height: 48,
         decoration: BoxDecoration(
           color: selected
-              ? Colors.white.withOpacity(0.15)
-              : (focused ? Colors.white.withOpacity(0.1) : Colors.transparent),
+              ? colors.elevated
+              : (focused ? colors.elevated : Colors.transparent),
           borderRadius: BorderRadius.circular(12),
-          border: focused
-              ? Border.all(
-                  color: Theme.of(context).colorScheme.primary, width: 2)
-              : null,
+          border: focused ? Border.all(color: focusRing, width: 1) : null,
         ),
         child: Icon(
           icon,
-          color: (selected || focused) ? Colors.white : Colors.white60,
+          color: (selected || focused) ? colors.text : colors.mutedText,
         ),
       ),
     );
@@ -363,6 +365,7 @@ class _EmptyListPlaceholderState extends State<_EmptyListPlaceholder> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
     return Shortcuts(
       shortcuts: <LogicalKeySet, Intent>{
         LogicalKeySet(LogicalKeyboardKey.arrowUp): const MoveFocusToTabIntent(),
@@ -372,7 +375,7 @@ class _EmptyListPlaceholderState extends State<_EmptyListPlaceholder> {
         child: Center(
           child: Text(
             widget.message,
-            style: const TextStyle(color: Colors.white60), // Basic styling
+            style: TextStyle(color: colors.mutedText),
           ),
         ),
       ),
@@ -448,26 +451,26 @@ class _AppListItemState extends State<_AppListItem> {
           },
           child: Builder(builder: (context) {
             final focused = Focus.of(context).hasFocus;
-            final primaryColor = Theme.of(context).colorScheme.primary;
-            return AnimatedContainer(
-                duration: const Duration(milliseconds: 50),
+            final colors = context.openCoreColors;
+            final primaryColor =
+                Theme.of(context).brightness == Brightness.light
+                    ? Theme.of(context).colorScheme.primary
+                    : colors.focusFill;
+            return Container(
                 decoration: BoxDecoration(
-                  color: focused
-                      ? Colors.white.withOpacity(0.05)
-                      : Colors.white.withOpacity(
-                          0.05), // Keep background consistent or same logic
+                  color: focused ? colors.elevated : colors.elevated,
                   borderRadius: BorderRadius.circular(12),
                   border: focused
                       ? Border.all(color: primaryColor, width: 2)
-                      : Border.all(color: Colors.transparent, width: 2),
-                  boxShadow: focused
-                      ? const [
-                          BoxShadow(
-                              color: Colors.black54,
-                              blurRadius: 8,
-                              spreadRadius: 1)
-                        ]
-                      : null,
+                      : Border.all(color: colors.line, width: 1),
+                  boxShadow: [
+                    if (focused)
+                      BoxShadow(
+                        color: colors.shadow,
+                        blurRadius: 18,
+                        offset: const Offset(0, 6),
+                      ),
+                  ],
                 ),
                 child: Material(
                     // Needed for InkWell to show ripple on top of container color if needed, or inside.
@@ -504,7 +507,7 @@ class _AppListItemState extends State<_AppListItem> {
                                   .textTheme
                                   .bodyMedium
                                   ?.copyWith(
-                                      color: Colors.white,
+                                      color: colors.text,
                                       fontWeight: focused
                                           ? FontWeight.bold
                                           : FontWeight.normal),
@@ -514,7 +517,8 @@ class _AppListItemState extends State<_AppListItem> {
                             leading: appIcon,
                             trailing: Icon(Icons.chevron_right,
                                 size: 20,
-                                color: focused ? primaryColor : Colors.white30),
+                                color:
+                                    focused ? primaryColor : colors.faintText),
                           );
                         },
                       ),

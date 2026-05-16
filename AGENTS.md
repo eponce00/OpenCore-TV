@@ -63,10 +63,11 @@ At minimum for code changes:
 
 ```powershell
 . .\scripts\arc-env.ps1
+flutter test --no-pub
 flutter build apk --release
 ```
 
-`flutter analyze` currently reports pre-existing failures from stale inherited tests, so release build is the practical gate until tests are cleaned up.
+`flutter analyze` may still surface inherited cleanup work; the maintained OpenCore test suite plus release build are the practical gates.
 
 For TV behavior, use ADB diagnostics instead of screenshots when possible:
 

@@ -22,10 +22,12 @@ import 'package:opencore_tv/widgets/settings/native_fire_tv_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/opencore_about_dialog.dart';
 import 'package:opencore_tv/widgets/settings/opencore_clock_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/opencore_health_page.dart';
+import 'package:opencore_tv/widgets/settings/remote_buttons_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/wallpaper_panel_page.dart';
 import 'package:opencore_tv/widgets/settings/weather_settings_page.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 
 class SettingsPanelPage extends StatefulWidget {
   static const String routeName = "settings_panel";
@@ -71,20 +73,15 @@ class _SettingsPanelPageState extends State<SettingsPanelPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _SettingsHeader(now: _now, guardHealthy: guardHealthy),
-        const SizedBox(height: 18),
+        _SettingsHeader(now: _now),
+        const SizedBox(height: 14),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                GridView.count(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 2.75,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
+                _SectionLabel("OpenCore"),
+                _SettingsListCard(
                   children: [
                     _ControlTile(
                       autofocus: true,
@@ -94,36 +91,29 @@ class _SettingsPanelPageState extends State<SettingsPanelPage> {
                       routeName: IdleSettingsPage.routeName,
                     ),
                     _ControlTile(
-                      icon: Icons.wallpaper_outlined,
-                      title: "Wallpaper",
-                      subtitle: "Library",
-                      routeName: WallpaperPanelPage.routeName,
-                    ),
-                    _ControlTile(
                       icon: Icons.input_outlined,
                       title: "Inputs",
-                      subtitle: "HDMI labels",
+                      subtitle: "HDMI labels and icons",
                       routeName: InputSettingsPage.routeName,
+                    ),
+                    _ControlTile(
+                      icon: Icons.settings_remote_outlined,
+                      title: "Remote Buttons",
+                      subtitle: "Netflix, Prime, Disney, Peacock",
+                      routeName: RemoteButtonsSettingsPage.routeName,
                     ),
                     _ControlTile(
                       icon: guardHealthy
                           ? Icons.verified_user_outlined
                           : Icons.warning_amber_rounded,
-                      title: "Health",
+                      title: "Home Guard",
                       subtitle: guardHealthy ? "Protected" : "Check guard",
                       routeName: OpenCoreHealthPage.routeName,
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                Text(
-                  "Personalize",
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white.withOpacity(0.82),
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 16),
+                _SectionLabel("Home"),
                 _SettingsListCard(
                   children: [
                     _SettingsRow(
@@ -150,17 +140,16 @@ class _SettingsPanelPageState extends State<SettingsPanelPage> {
                       subtitle: "Location, units, provider",
                       routeName: WeatherSettingsPage.routeName,
                     ),
+                    _SettingsRow(
+                      icon: Icons.wallpaper_outlined,
+                      title: "Wallpaper",
+                      subtitle: "Library and rotation",
+                      routeName: WallpaperPanelPage.routeName,
+                    ),
                   ],
                 ),
-                const SizedBox(height: 18),
-                Text(
-                  "System",
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white.withOpacity(0.82),
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 14),
+                _SectionLabel("Device"),
                 _SettingsListCard(
                   children: [
                     _SettingsRow(
@@ -172,13 +161,13 @@ class _SettingsPanelPageState extends State<SettingsPanelPage> {
                     _SettingsRow(
                       icon: Icons.settings_suggest_outlined,
                       title: "Device Tools",
-                      subtitle: "Brightness, date/time, network usage",
+                      subtitle: "Brightness, date/time, usage",
                       routeName: GeneralSettingsPage.routeName,
                     ),
                     _SettingsRow(
-                      icon: Icons.settings_outlined,
-                      title: "Native Fire TV Settings",
-                      subtitle: "Direct Fire OS sections that still work",
+                      icon: Icons.wifi_outlined,
+                      title: "Native Fire TV",
+                      subtitle: "Network and system sections",
                       routeName: NativeFireTvSettingsPage.routeName,
                     ),
                     _SettingsRow(
@@ -213,12 +202,12 @@ class _SettingsPanelPageState extends State<SettingsPanelPage> {
 
 class _SettingsHeader extends StatelessWidget {
   final DateTime now;
-  final bool guardHealthy;
 
-  const _SettingsHeader({required this.now, required this.guardHealthy});
+  const _SettingsHeader({required this.now});
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
     final weekday = const [
       "Mon",
       "Tue",
@@ -248,19 +237,10 @@ class _SettingsHeader extends StatelessWidget {
     final period = now.hour >= 12 ? "PM" : "AM";
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(4, 2, 4, 14),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withOpacity(0.060),
-            Colors.white.withOpacity(0.025),
-            Colors.black.withOpacity(0.18),
-          ],
-        ),
-        border: Border.all(color: Colors.white.withOpacity(0.075)),
+        color: colors.panel,
+        border: Border(bottom: BorderSide(color: colors.line)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,75 +252,31 @@ class _SettingsHeader extends StatelessWidget {
                 Text(
                   "$weekday, $month ${now.day.toString().padLeft(2, "0")}",
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white.withOpacity(0.82),
-                        fontWeight: FontWeight.w600,
+                        color: colors.mutedText,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  "$hour:$minute $period",
+                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                        color: colors.text,
+                        fontSize: 32,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.6,
                       ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "$hour:$minute $period",
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.8,
-                      ),
-                ),
-                const SizedBox(height: 12),
-                Text(
                   "Control Center",
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.white.withOpacity(0.58),
+                        color: colors.faintText,
+                        fontSize: 13,
                       ),
                 ),
               ],
             ),
-          ),
-          _StatusPill(
-            icon: guardHealthy
-                ? Icons.shield_outlined
-                : Icons.warning_amber_rounded,
-            label: guardHealthy ? "Guard on" : "Check guard",
-            color: guardHealthy
-                ? const Color(0xFF9BE58C)
-                : const Color(0xFFFFB35C),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatusPill extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-
-  const _StatusPill({
-    required this.icon,
-    required this.label,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.14),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withOpacity(0.42)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 18, color: color),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.white.withOpacity(0.88),
-                  fontWeight: FontWeight.w700,
-                ),
           ),
         ],
       ),
@@ -365,47 +301,23 @@ class _ControlTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final focusedMuted = isLight ? colors.mutedText : colors.focusMutedText;
     return _PressableSurface(
       autofocus: autofocus,
-      borderRadius: 22,
+      borderRadius: 18,
       onPressed: () => Navigator.of(context).pushNamed(routeName),
-      builder: (context, focused) => AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
-        curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(22),
-          color: focused
-              ? Colors.white.withOpacity(0.105)
-              : Colors.white.withOpacity(0.045),
-          border: Border.all(
-            color: focused
-                ? Colors.white.withOpacity(0.78)
-                : Colors.white.withOpacity(0.065),
-            width: focused ? 1.8 : 1,
-          ),
-          boxShadow: focused
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.22),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  )
-                ]
-              : null,
-        ),
+      builder: (context, focused) => _MenuRowSurface(
+        focused: focused,
         child: Row(
           children: [
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withOpacity(focused ? 0.16 : 0.08),
-              ),
-              child: Icon(icon, color: Colors.white, size: 22),
+            Icon(
+              icon,
+              color: focused ? colors.focusText : colors.mutedText,
+              size: 19,
             ),
-            const SizedBox(width: 13),
+            const SizedBox(width: 11),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -416,24 +328,53 @@ class _ControlTile extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
+                          color: focused ? colors.focusText : colors.text,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
                         ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 1),
                   Text(
                     subtitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.white.withOpacity(0.54),
+                          color: focused ? focusedMuted : colors.mutedText,
                         ),
                   ),
                 ],
               ),
             ),
+            Icon(
+              Icons.chevron_right,
+              size: 20,
+              color: focused ? colors.focusText : colors.faintText,
+            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _SectionLabel extends StatelessWidget {
+  final String label;
+
+  const _SectionLabel(this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
+    return Padding(
+      padding: const EdgeInsets.only(left: 2, bottom: 7),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: colors.faintText,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.2,
+            ),
       ),
     );
   }
@@ -446,11 +387,14 @@ class _SettingsListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.18),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: Colors.white.withOpacity(0.055)),
+        color: Colors.transparent,
+        border: Border(
+          top: BorderSide(color: colors.line),
+          bottom: BorderSide(color: colors.line),
+        ),
       ),
       child: Column(children: children),
     );
@@ -474,27 +418,22 @@ class _SettingsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final focusedMuted = isLight ? colors.mutedText : colors.focusMutedText;
     return _PressableSurface(
       borderRadius: 18,
       onPressed: onPressed ?? () => Navigator.of(context).pushNamed(routeName!),
-      builder: (context, focused) => AnimatedContainer(
-        duration: const Duration(milliseconds: 140),
-        curve: Curves.easeOutCubic,
-        margin: const EdgeInsets.all(4),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(18),
-          color: focused ? Colors.white.withOpacity(0.075) : Colors.transparent,
-          border: Border.all(
-            color:
-                focused ? Colors.white.withOpacity(0.62) : Colors.transparent,
-            width: 1.35,
-          ),
-        ),
+      builder: (context, focused) => _MenuRowSurface(
+        focused: focused,
         child: Row(
           children: [
-            Icon(icon, color: Colors.white.withOpacity(0.80), size: 21),
-            const SizedBox(width: 12),
+            Icon(
+              icon,
+              color: focused ? colors.focusText : colors.mutedText,
+              size: 18,
+            ),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -502,17 +441,18 @@ class _SettingsRow extends StatelessWidget {
                   Text(
                     title,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
+                          color: focused ? colors.focusText : colors.text,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
                         ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 1),
                   Text(
                     subtitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.white.withOpacity(0.48),
+                          color: focused ? focusedMuted : colors.mutedText,
                         ),
                   ),
                 ],
@@ -520,11 +460,48 @@ class _SettingsRow extends StatelessWidget {
             ),
             Icon(
               Icons.chevron_right,
-              color: Colors.white.withOpacity(focused ? 0.82 : 0.34),
+              size: 19,
+              color: focused ? colors.focusText : colors.faintText,
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _MenuRowSurface extends StatelessWidget {
+  final bool focused;
+  final Widget child;
+
+  const _MenuRowSurface({required this.focused, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
+    final focusRing = Theme.of(context).brightness == Brightness.light
+        ? Theme.of(context).colorScheme.primary
+        : colors.focusFill;
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
+      decoration: BoxDecoration(
+        color: focused ? colors.focusFill : Colors.transparent,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: focused ? focusRing : Colors.transparent,
+          width: 1,
+        ),
+        boxShadow: [
+          if (focused)
+            BoxShadow(
+              color: colors.shadow,
+              blurRadius: 18,
+              offset: const Offset(0, 6),
+            ),
+        ],
+      ),
+      child: child,
     );
   }
 }
@@ -566,7 +543,7 @@ class _PressableSurfaceState extends State<_PressableSurface> {
           focusColor: Colors.transparent,
           hoverColor: Colors.transparent,
           highlightColor: Colors.transparent,
-          splashColor: Colors.white.withOpacity(0.06),
+          splashColor: context.openCoreColors.focusFill.withOpacity(0.12),
           onTap: widget.onPressed,
           child: widget.builder(context, _focused),
         ),

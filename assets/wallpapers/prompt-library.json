@@ -1,0 +1,135 @@
+{
+  "model": "fal-ai/kling-image/o3/text-to-image",
+  "resolution": "4K",
+  "aspectRatio": "16:9",
+  "outputFormat": "png",
+  "countPerCategoryTheme": 10,
+  "darkDominance": "Black and near-black tones must cover 85 to 90 percent of the image area. Use true black, charcoal black, black-brown, black-blue, and black-green as the dominant fields. Color is limited to small controlled accents only: thin lines, narrow highlights, tiny mineral marks, small petals, or a small architectural edge. No large pale regions, no bright sky, no white field, no beige field, no broad daylight illumination, no high-key exposure.",
+  "globalNegative": "No text, no letters, no numbers, no logos, no icons, no interface elements, no frames, no border, no watermark, no people, no faces, no animals, no vehicles, no aircraft, no buildings shaped like spaceships, no fantasy scenery, no science-fiction scenery, no neon glow, no cartoon rendering, no anime rendering, no extra objects outside the described scene.",
+  "categories": [
+    {
+      "id": "earth",
+      "name": "Earth Views",
+      "tags": ["earth", "landscape", "satellite"],
+      "themes": {
+        "dark": [
+          { "style": "satellite", "prompt": "A vertical braided river system seen from high altitude, black volcanic rock covering most of the frame, thin silver river channels branching from upper left to lower right, small muted teal water pools, sparse rust-orange mineral edges, crisp dry terrain texture, no clouds." },
+          { "style": "satellite", "prompt": "High altitude view of desert ridges and salt flats, black-charcoal mountain folds covering most of the frame, pale ivory salt basin kept small in the lower right, narrow cobalt-blue dry lake lines as minor accents, sparse warm ochre sand veins, sharp natural topographic detail, low overall brightness." },
+          { "style": "satellite", "prompt": "Glacial valley system from above, dark graphite rock dominating the frame, jagged white ice fields cutting diagonally from top right to center, muted blue-gray meltwater, fine fracture lines in the ice, cold restrained palette." },
+          { "style": "satellite", "prompt": "Overhead river delta, nearly black wetland soil as the dominant tone, branching moss-green channels, thin cream sandbars, small teal lagoons, fan-shaped composition spreading from the upper center toward both lower corners." },
+          { "style": "satellite", "prompt": "Mountain range from high altitude, almost entirely black-green forest bands and charcoal ridgelines, one inky black lake shape near the lower third, only hairline pale snow traces along a few ridge tops, diagonal folds creating a quiet abstract pattern, no bright valley floor." },
+          { "style": "oil_landscape", "prompt": "Oil painting dominated by a nearly solid black-blue night sky and black umber land, together covering more than ninety percent of the canvas. Deep pine green hills are barely visible inside the shadows. The only light color is one very thin dull silver river line through the center and a few tiny gray cloud strokes. No open bright sky, no broad green field, no beige ground." },
+          { "style": "oil_landscape", "prompt": "Oil painting of coastal cliffs under heavy clouds, black navy sea occupying the lower half, charcoal cliffs at left, muted cream foam as thin accents, brown and olive cliff grass, broad palette-knife strokes." },
+          { "style": "minimal_landscape", "prompt": "Minimal landscape with a single low horizon, matte black earth silhouette across the bottom fifth, smoky blue-gray sky above, faint ivory light on the horizon, smooth grainy texture, wide empty upper field." },
+          { "style": "satellite", "prompt": "Canyon network seen from above, black basalt ground covering at least three quarters of the image, pale beige river scars forming thin angular paths, sparse copper mineral stains only along a few canyon edges, one small muted green basin near center, precise eroded rock texture, low overall brightness." },
+          { "style": "satellite", "prompt": "Island coastline from high altitude at nightlike exposure, near-black navy water covering the right two thirds, dark forest-green island mass on the left, thin white reef arcs and narrow pale sand shelves as accents, soft charcoal cloud shadows, restrained natural contrast." }
+        ],
+        "clear": [
+          { "style": "satellite", "prompt": "Tropical coastline from high altitude, warm white sandbars crossing turquoise shallow water, deeper cobalt water at the upper right, dense emerald wetland shapes at the lower left, crisp shoreline geometry, bright clean daylight." },
+          { "style": "satellite", "prompt": "Agricultural valley from above, pale green fields in rectangular bands, golden wheat plots as warm accents, a blue river winding from left to right through the middle, soft tan roads as thin lines, orderly calm composition." },
+          { "style": "satellite", "prompt": "Salt flat and desert mineral pools seen from above, dominant warm white salt crust, terracotta desert ridges along the top edge, aqua and teal pools clustered in the lower third, delicate cracked surface detail." },
+          { "style": "satellite", "prompt": "Snowy mountain terrain from above, bright white snowfields across the upper half, clear blue glacier lakes in the lower right, dark pine valleys as narrow green ribbons, high crisp daylight contrast." },
+          { "style": "satellite", "prompt": "River delta on pale sand, cream and light tan ground dominating the frame, branching green water channels, small blue-gray pools, fan composition opening from top center to lower left and lower right." },
+          { "style": "oil_landscape", "prompt": "Oil painting of a sunlit meadow, cream sky occupying the upper half, sage green field below, distant blue-gray hills, small ochre wildflower marks, thick soft brush strokes with visible linen texture." },
+          { "style": "oil_landscape", "prompt": "Oil painting of a bright limestone coast, pale blue water across the lower half, white stone cliffs on the left, warm beige path on the right, soft cloud shapes, buttery impasto highlights." },
+          { "style": "minimal_landscape", "prompt": "Minimal pale landscape, warm white sky, very low light-gray horizon line, soft sage field as a flat band at the bottom, faint tan path entering from lower left, smooth matte texture." },
+          { "style": "satellite", "prompt": "Desert dune field from above, orange and apricot dune waves covering most of the frame, pale dry lake bed in the upper right, cool blue shadows in dune troughs, fine wind-carved lines." },
+          { "style": "satellite", "prompt": "Coral reef system from high altitude, white sand flats, turquoise lagoon gradients, darker blue channels, small emerald island vegetation at left, curved reef structures forming a natural spiral." }
+        ]
+      }
+    },
+    {
+      "id": "fine_art",
+      "name": "Fine Art",
+      "tags": ["art", "fine_art", "classical"],
+      "themes": {
+        "dark": [
+          { "style": "oil_still_life", "prompt": "Classical oil still life with red and cream tulips in an unmarked matte ceramic vase, solid black-brown field covering the entire canvas behind the vase, warm amber light only on petal edges, deep green leaves, thick impasto petal ridges, vase placed slightly left of center." },
+          { "style": "oil_landscape", "prompt": "Classical oil landscape of old stone terraces and cypress trees, black-green shadows covering most of the image, deep umber ground, dark olive cypress silhouettes, small cream highlights only on a few stone edges, layered brush strokes, low horizon." },
+          { "style": "oil_still_life", "prompt": "Baroque still life of white tulips on dark linen, black walnut table and black-brown field covering most of the image, ivory petals as small bright shapes, muted sage leaves, soft amber side light, heavy paint ridges." },
+          { "style": "oil_cloud_study", "prompt": "Tonal oil cloud study with black-blue sky covering nearly the entire canvas, charcoal gray cloud masses layered across the center, a very thin dark pine-green field along the bottom edge, one small warm ivory break near the upper right, muted blue undertones, broad horizontal brushwork, no visible sun." },
+          { "style": "oil_architecture", "prompt": "Old stone archway painted as a black-dominant oil scene. A black interior opening fills almost the entire image. The surrounding stone is swallowed by black-brown shadow. Warm ochre stone is visible only as a very thin broken edge border, less than ten percent of the image. One narrow cream highlight traces a short part of the left arch curve. Thick textured brush marks, no bright wall, no large beige area." },
+          { "style": "oil_landscape", "prompt": "Abstracted old-master landscape with black-green ground covering the lower two thirds, black-brown sky mass across the upper third, muted ochre hill shape near center as the main accent, tiny cream horizon marks, broad palette-knife strokes with dark brown underpainting." },
+          { "style": "oil_still_life", "prompt": "Tulip still life on a solid charcoal field, three cream tulips and two dark red tulips arranged diagonally, deep green leaves, faint umber tabletop line, tactile canvas and thick petal paint." },
+          { "style": "oil_seascape", "prompt": "Classical oil seascape, dark navy water across the lower half, gray storm clouds above, thin ivory foam lines, muted olive shoreline at far left, heavy horizontal brush strokes." },
+          { "style": "fresco_texture", "prompt": "Aged fresco surface with abstract hillside forms, dark olive and umber pigment, cracked plaster texture, charcoal shadow patches, small faded cream mineral marks, flat frontal composition." },
+          { "style": "oil_still_life", "prompt": "Single pale tulip stem on a black-brown field, flower head in the upper left third, long muted green stem descending diagonally, small ivory petal highlights, thick quiet oil texture." }
+        ],
+        "clear": [
+          { "style": "oil_still_life", "prompt": "Classical oil still life with red and cream tulips in a plain white ceramic vase, warm ivory field, soft gray cast shadow to the right, sage green leaves, thick visible brush ridges, centered calm composition." },
+          { "style": "oil_landscape", "prompt": "Sunlit countryside oil painting, cream sky across the upper half, sage and olive fields below, distant blue-gray hills, small ochre earth path, soft layered brush strokes and linen texture." },
+          { "style": "oil_architecture", "prompt": "Quiet stone courtyard painted in oil, white plaster walls, pale limestone floor, warm sunlight rectangle on the right wall, muted green plant mass in one corner, clean classical geometry." },
+          { "style": "oil_still_life", "prompt": "Old-master tulip study on pale linen, ivory tulips with blush-pink edges, muted green leaves, warm white cloth folds, soft amber light, thick paint on petals and thin glazed shadows." },
+          { "style": "oil_cloud_study", "prompt": "Soft cloud study in oil, creamy white sky with pale blue-gray shadows, low beige horizon, one large cloud mass placed off center, delicate bristle texture and smooth transitions." },
+          { "style": "fresco_texture", "prompt": "Pale fresco surface with abstract landscape forms, lime white plaster, faded sage hills, thin ochre lines, tiny cracks, matte mineral pigment, flat balanced composition." },
+          { "style": "oil_landscape", "prompt": "Olive grove oil painting, warm white sky, pale stone path entering from lower right, sage olive trees, soft blue hills, ochre soil accents, textured but restrained brushwork." },
+          { "style": "oil_still_life", "prompt": "Two tulips on a solid warm white field, one crimson flower and one ivory flower, stems crossing near the lower center, soft gray shadow, thick petal strokes, sparse composition." },
+          { "style": "oil_seascape", "prompt": "Bright classical seascape, pale blue water, cream cloud light, warm beige shore strip, soft gray-green distant headland, horizontal oil brush texture, quiet open sky." },
+          { "style": "oil_landscape", "prompt": "Old-master inspired abstract landscape, warm cream field, ochre hill shape across the lower third, sage green brush masses, muted blue-gray distance, tactile canvas and soft edges." }
+        ]
+      }
+    },
+    {
+      "id": "abstract_art",
+      "name": "Abstract Art",
+      "tags": ["art", "abstract", "minimal"],
+      "themes": {
+        "dark": [
+          { "style": "impasto", "prompt": "Abstract oil surface with matte black dominant field, deep pine green strokes crossing diagonally from lower left to upper right, small ochre marks near center, thick raised impasto ridges, visible bristle texture." },
+          { "style": "minimal", "prompt": "Minimal abstract composition, charcoal field, one large warm cream rectangle in the upper left, one muted olive shape in the lower right, soft uneven painted edges, subtle linen grain." },
+          { "style": "geometric", "prompt": "Geometric abstract painting with matte black base, slate-gray vertical block on the left, ivory horizontal block across the center, muted moss-green square near lower right, flat acrylic texture." },
+          { "style": "impasto", "prompt": "Abstract earth-strata painting, dominant umber and black horizontal layers, moss-green middle band, pale mineral-white scratches, heavy palette-knife texture, compressed geological composition." },
+          { "style": "wash", "prompt": "Soft abstract ink and oil wash, black field with smoky gray bloom from center outward, muted blue undertone, three small warm ivory highlights, feathered edges and fine paper grain." },
+          { "style": "minimal", "prompt": "Single cream brush stroke across a solid black painted field, stroke begins thick at lower left and thins toward upper right, visible bristles, tiny ochre specks in the paint." },
+          { "style": "color_field", "prompt": "Color-field painting with deep olive rectangle covering the left half, charcoal band along the bottom, muted clay square near upper right, thin ivory vertical line as accent, matte canvas texture." },
+          { "style": "impasto", "prompt": "Tulip-inspired abstract oil forms, black field, thick crimson and ivory petal-like strokes clustered in the center, deep green strokes below, no literal vase, heavy impasto texture." },
+          { "style": "organic", "prompt": "Organic abstract composition inspired by rivers in stone, matte black ground, pale mineral-white vein lines branching through center, dark teal pools, rough dry-brush texture." },
+          { "style": "minimal", "prompt": "Low-contrast black abstract surface, graphite brush marks layered horizontally, one small off-white edge highlight at far right, subtle oil sheen, quiet monochrome composition." }
+        ],
+        "clear": [
+          { "style": "impasto", "prompt": "Abstract oil surface with warm white dominant field, thick sage green and pale ochre strokes crossing near the center, small charcoal accent at lower left, raised impasto ridges and canvas grain." },
+          { "style": "minimal", "prompt": "Minimal abstract composition on ivory field, one large charcoal plane in the lower left, one muted moss-green brush stroke in the upper right, soft tan underpainting at the edges." },
+          { "style": "geometric", "prompt": "Geometric abstract painting with warm white base, light stone-gray block on the left, pale clay rectangle across the lower third, sage green square near center, matte acrylic texture." },
+          { "style": "impasto", "prompt": "Abstract earth-layer painting on cream canvas, ochre and sage horizontal bands, slate-gray thin line, white palette-knife scrapes, thick tactile paint ridges." },
+          { "style": "wash", "prompt": "Pale abstract wash, warm white field, soft gray bloom from upper left, faint sage green cloud near lower right, thin ochre line through center, delicate paper and oil texture." },
+          { "style": "minimal", "prompt": "Single dark green brush stroke on a solid warm white field, stroke arcs from lower right toward upper left, thick bristle ridges, tiny ivory gaps through the paint." },
+          { "style": "color_field", "prompt": "Color-field painting with warm white dominant area, muted blue-gray rectangle at top, sage green band along the bottom, pale clay square at right, subtle linen texture." },
+          { "style": "impasto", "prompt": "Tulip-inspired abstract oil forms on white field, thick crimson, blush pink, ivory, and leaf-green strokes clustered diagonally, no vase, no stems, heavy palette-knife texture." },
+          { "style": "organic", "prompt": "Organic abstract composition inspired by coastlines, warm white ground, thin pale blue lines, sage land shapes, ochre sand accents, smooth matte paint with fine grain." },
+          { "style": "minimal", "prompt": "Low-contrast ivory abstract surface, layered white and cream brush marks, one soft umber edge at lower right, faint sage undertone, quiet monochrome texture." }
+        ]
+      }
+    },
+    {
+      "id": "architecture",
+      "name": "Architecture",
+      "tags": ["architecture", "minimal"],
+      "themes": {
+        "dark": [
+          { "style": "minimal_architecture", "prompt": "Quiet concrete facade at night, charcoal wall plane covering most of the image, one narrow warm amber window slit at the upper right, deep black recess along the left edge, fine concrete grain." },
+          { "style": "classical_architecture", "prompt": "Old stone archway, black empty opening in the center, ochre limestone blocks around it, muted green moss in joints, single cream light edge on the left curve, frontal symmetrical composition." },
+          { "style": "interior", "prompt": "Minimal plaster interior, black shadow filling the left half, dark stone floor at the bottom, one warm beige wall plane on the right, soft diagonal light boundary, limewash texture." },
+          { "style": "brutalist", "prompt": "Brutalist concrete planes, dominant dark gray slab crossing diagonally, black rectangular recess near center, lighter graphite top edge, rough poured-concrete pores, severe geometric composition." },
+          { "style": "courtyard", "prompt": "Old courtyard at dusk, dark clay wall across the back, black doorway at center, cypress shadow on the left, muted terracotta floor, small warm cream light patch near the threshold." },
+          { "style": "oil_architecture", "prompt": "Oil painting of a simple old doorway, near-black wooden door filling almost the entire frame, black-brown shadow inside the doorway, warm umber stone visible only as a narrow edge border, olive shadow at the base, one small cream highlight on the lintel, thick palette-knife strokes." },
+          { "style": "minimal_architecture", "prompt": "Stone stair geometry in shadow, black steps rising from lower left to upper right, matte charcoal wall behind, one cool blue-gray side plane, precise hard-edged composition." },
+          { "style": "classical_architecture", "prompt": "Classical column detail in low light, black shadow between columns, aged beige stone shafts, muted gray capitals, thin warm highlights along vertical fluting, close cropped composition." },
+          { "style": "interior", "prompt": "Dark plaster alcove, black curved recess at center, charcoal wall around it, small ivory shelf plane at the bottom, subtle limewash marks, still frontal composition." },
+          { "style": "courtyard", "prompt": "Clay wall and wooden door, deep brown-black door on the right, dark umber wall on the left, muted amber light along the door edge, rough handmade plaster texture." }
+        ],
+        "clear": [
+          { "style": "minimal_architecture", "prompt": "White plaster facade in daylight, warm white wall plane covering most of the image, soft gray rectangular shadow at lower left, pale limestone trim, fine limewash texture, clean geometric composition." },
+          { "style": "classical_architecture", "prompt": "Classical stone archway in sunlight, pale limestone blocks, warm ivory sky through the opening, soft tan shadow inside the arch, subtle moss-green marks in joints, centered composition." },
+          { "style": "interior", "prompt": "Minimal interior with white plaster wall, pale stone floor across the bottom third, soft window-light rectangle on the right, faint gray shadow gradient, smooth limewash texture." },
+          { "style": "brutalist", "prompt": "Concrete architecture detail in daylight, pale gray slabs forming three overlapping rectangles, soft charcoal shadow in one recess, fine aggregate texture, calm hard-edged geometry." },
+          { "style": "courtyard", "prompt": "Quiet Mediterranean courtyard, white plaster walls, warm terracotta floor, soft sage plant mass in the far left corner, pale blue sky sliver at top, no furniture." },
+          { "style": "oil_architecture", "prompt": "Oil painting of a sunlit old doorway, whitewashed wall, warm ochre stone threshold, pale blue-gray shadow inside the door opening, thick brush texture on plaster." },
+          { "style": "minimal_architecture", "prompt": "Pale stone stair geometry, cream steps rising from lower right to upper left, warm white wall plane, soft gray shadows under each step, precise minimal composition." },
+          { "style": "classical_architecture", "prompt": "Column and arch detail in bright diffuse light, aged pale stone, cream highlights, soft gray recesses, cropped vertical rhythm, fine chisel marks and dust texture." },
+          { "style": "interior", "prompt": "Plaster alcove in warm white light, cream curved recess at center, pale stone shelf at bottom, gentle gray shadow along the arch, visible limewash brush marks." },
+          { "style": "courtyard", "prompt": "Clay wall and wooden door in daylight, pale peach plaster wall, warm brown unmarked door, soft sage shadow from unseen leaves, handmade stucco texture and quiet symmetry." }
+        ]
+      }
+    }
+  ]
+}

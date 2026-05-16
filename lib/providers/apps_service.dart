@@ -562,6 +562,14 @@ class AppsService extends ChangeNotifier {
     return future;
   }
 
+  Future<void> launchPackage(String packageName) async {
+    final app = _applications[packageName];
+    if (app != null) {
+      return launchApp(app);
+    }
+    return _OpenCoreTVChannel.launchApp(packageName);
+  }
+
   Future<void> openAppInfo(App app) =>
       _OpenCoreTVChannel.openAppInfo(app.packageName);
 

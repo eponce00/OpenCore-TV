@@ -19,6 +19,7 @@
 import 'dart:async';
 
 import 'package:opencore_tv/providers/apps_service.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -137,6 +138,7 @@ class LauncherSectionPanelPage extends StatelessWidget {
 
   Widget build(BuildContext context) {
     AppLocalizations localizations = AppLocalizations.of(context)!;
+    final colors = context.openCoreColors;
 
     return ChangeNotifierProvider(
         create: (_) {
@@ -204,19 +206,22 @@ class LauncherSectionPanelPage extends StatelessWidget {
                                               (states) {
                                         if (states
                                             .contains(MaterialState.disabled)) {
-                                          return Colors.white10;
+                                          return colors.elevated;
                                         }
-                                        return Color(
-                                            0xFF6366F1); // Indigo (Modern Primary)
+                                        return Theme.of(context)
+                                            .colorScheme
+                                            .primary;
                                       }),
                                       foregroundColor:
                                           MaterialStateProperty.resolveWith(
                                               (states) {
                                         if (states
                                             .contains(MaterialState.disabled)) {
-                                          return Colors.white38;
+                                          return colors.faintText;
                                         }
-                                        return Colors.white;
+                                        return Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary;
                                       }),
                                       shape: MaterialStatePropertyAll(
                                           RoundedRectangleBorder(
@@ -227,7 +232,8 @@ class LauncherSectionPanelPage extends StatelessWidget {
                                         if (states
                                             .contains(MaterialState.focused)) {
                                           return BorderSide(
-                                              color: Colors.white, width: 2);
+                                              color: _focusRing(context),
+                                              width: 2);
                                         }
                                         return null;
                                       }),
@@ -244,8 +250,8 @@ class LauncherSectionPanelPage extends StatelessWidget {
                                 horizontal: 16, vertical: 8),
                             child: FilledButton(
                               style: ButtonStyle(
-                                  backgroundColor: MaterialStatePropertyAll(
-                                      Color(0xFF27272A)), // Zinc 800
+                                  backgroundColor:
+                                      MaterialStatePropertyAll(colors.elevated),
                                   foregroundColor: MaterialStatePropertyAll(
                                       Color(0xFFEF4444)), // Red 500
                                   shape: MaterialStatePropertyAll(
@@ -257,7 +263,7 @@ class LauncherSectionPanelPage extends StatelessWidget {
                                     if (states
                                         .contains(MaterialState.focused)) {
                                       return BorderSide(
-                                          color: Colors.white, width: 2);
+                                          color: _focusRing(context), width: 2);
                                     }
                                     return null;
                                   }),
@@ -386,7 +392,8 @@ class _CategorySettingsState extends State<_CategorySettings> {
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 2)),
+                      borderSide:
+                          BorderSide(color: _focusRing(context), width: 2)),
                   contentPadding:
                       EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
@@ -428,7 +435,8 @@ class _CategorySettingsState extends State<_CategorySettings> {
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white, width: 2)),
+                        borderSide:
+                            BorderSide(color: _focusRing(context), width: 2)),
                     contentPadding:
                         EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
@@ -446,7 +454,8 @@ class _CategorySettingsState extends State<_CategorySettings> {
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white, width: 2)),
+                        borderSide:
+                            BorderSide(color: _focusRing(context), width: 2)),
                     contentPadding:
                         EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
@@ -485,7 +494,8 @@ class _CategorySettingsState extends State<_CategorySettings> {
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white, width: 2)),
+                        borderSide:
+                            BorderSide(color: _focusRing(context), width: 2)),
                     contentPadding:
                         EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
@@ -519,7 +529,7 @@ class _CategorySettingsState extends State<_CategorySettings> {
                       border: OutlineInputBorder(),
                       focusedBorder: OutlineInputBorder(
                           borderSide:
-                              BorderSide(color: Colors.white, width: 2)),
+                              BorderSide(color: _focusRing(context), width: 2)),
                       contentPadding:
                           EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     ),
@@ -552,7 +562,7 @@ class _CategorySettingsState extends State<_CategorySettings> {
                       border: OutlineInputBorder(),
                       focusedBorder: OutlineInputBorder(
                           borderSide:
-                              BorderSide(color: Colors.white, width: 2)),
+                              BorderSide(color: _focusRing(context), width: 2)),
                       contentPadding:
                           EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     ),
@@ -697,7 +707,8 @@ class _LauncherSpacerSettingsState extends State<_LauncherSpacerSettings> {
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white, width: 2)),
+                    borderSide:
+                        BorderSide(color: _focusRing(context), width: 2)),
                 contentPadding:
                     EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
@@ -754,3 +765,8 @@ Widget _listTile(BuildContext context, Widget title, Widget subtitle,
           subtitle: subtitle,
           trailing: trailing,
         ));
+
+Color _focusRing(BuildContext context) =>
+    Theme.of(context).brightness == Brightness.light
+        ? Theme.of(context).colorScheme.primary
+        : context.openCoreColors.focusFill;

@@ -17,6 +17,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'focusable_settings_tile.dart';
 import 'brightness_settings_page.dart';
 import 'date_time_format_page.dart';
@@ -29,6 +30,7 @@ class GeneralSettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -37,7 +39,7 @@ class GeneralSettingsPage extends StatelessWidget {
         Text(
           'OpenCore-owned controls for device behavior that belongs inside the launcher. Native Fire TV sections live in their own menu.',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.white.withOpacity(0.58),
+                color: colors.mutedText,
                 height: 1.25,
               ),
         ),
@@ -91,7 +93,7 @@ class GeneralSettingsPage extends StatelessWidget {
                   child: Text(
                     "Fire TV system settings are intentionally separate so this page stays limited to OpenCore controls.",
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.white.withOpacity(0.42),
+                          color: colors.faintText,
                           fontStyle: FontStyle.italic,
                         ),
                   ),
@@ -112,12 +114,13 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
     return Padding(
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 4),
       child: Text(
         text,
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.white.withOpacity(0.48),
+              color: colors.faintText,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.6,
             ),
@@ -134,6 +137,7 @@ class _TileText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -144,7 +148,7 @@ class _TileText extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.white.withOpacity(0.50),
+                color: colors.mutedText,
               ),
         ),
       ],

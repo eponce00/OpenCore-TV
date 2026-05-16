@@ -1,6 +1,6 @@
 # OpenCore Home Guard Setup
 
-OpenCore uses `HomeGuardAccessibilityService` to keep the Fire TV Home button on OpenCore. Fire OS still resolves HOME to Amazon's protected launcher, and this TV blocks disabling or uninstalling Amazon Home without elevated privileges, so Home Guard is the non-root rescue layer.
+OpenCore uses `HomeGuardAccessibilityService` to keep the Fire TV Home button on OpenCore and to rescue a few Fire OS-owned remote-button flows. Fire OS still resolves HOME to Amazon's protected launcher, and this TV blocks disabling or uninstalling Amazon Home without elevated privileges, so Home Guard is the non-root rescue layer.
 
 ## What The App Can Do
 
@@ -9,12 +9,15 @@ OpenCore uses `HomeGuardAccessibilityService` to keep the Fire TV Home button on
 - Repair Home Guard on OpenCore resume when that ADB-granted permission is available.
 - Open Android/Fire OS Accessibility settings so Home Guard can be enabled manually.
 - Mask brief Amazon Home flashes with the accessibility overlay while it rescues OpenCore.
+- Redirect Amazon's input/source UI to OpenCore's own input selector when the user is outside OpenCore Home.
+- Rescue branded remote-button launches to the user-selected remap target when Fire OS exposes enough activity/log detail.
 
 ## What The App Cannot Do By Itself
 
 - Silently enable Accessibility forever on a normal consumer install.
 - Grant itself `WRITE_SECURE_SETTINGS`, `READ_LOGS`, or overlay app-ops.
 - Disable `com.amazon.tv.launcher` on this Fire OS 8.1.7.1 build.
+- Guarantee perfect interception of protected hardware buttons before Fire OS briefly reacts.
 
 Those actions require ADB, root, or system/privileged app status. For our development TV, the install scripts grant what OpenCore needs after each APK install.
 

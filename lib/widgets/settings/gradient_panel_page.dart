@@ -18,6 +18,7 @@
 
 import 'package:opencore_tv/gradients.dart';
 import 'package:opencore_tv/providers/wallpaper_service.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:opencore_tv/widgets/ensure_visible.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -68,7 +69,7 @@ class GradientPanelPage extends StatelessWidget {
                 Expanded(
                   child: Card(
                     clipBehavior: Clip.antiAlias,
-                    shape: _cardBorder(Focus.of(context).hasFocus),
+                    shape: _cardBorder(context, Focus.of(context).hasFocus),
                     child: InkWell(
                       autofocus:
                           OpenCoreTVGradient == OpenCoreTVGradients.greatWhale,
@@ -86,8 +87,9 @@ class GradientPanelPage extends StatelessWidget {
                   child: AnimatedDefaultTextStyle(
                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
                           decoration: TextDecoration.underline,
-                          color:
-                              Focus.of(context).hasFocus ? Colors.white : null,
+                          color: Focus.of(context).hasFocus
+                              ? context.openCoreColors.text
+                              : null,
                         ),
                     duration: const Duration(milliseconds: 50),
                     child: Text(OpenCoreTVGradient.name,
@@ -100,9 +102,15 @@ class GradientPanelPage extends StatelessWidget {
         ),
       );
 
-  ShapeBorder? _cardBorder(bool hasFocus) => hasFocus
-      ? RoundedRectangleBorder(
-          side: const BorderSide(color: Colors.white, width: 2),
-          borderRadius: BorderRadius.circular(12))
-      : RoundedRectangleBorder(borderRadius: BorderRadius.circular(12));
+  ShapeBorder? _cardBorder(BuildContext context, bool hasFocus) {
+    final colors = context.openCoreColors;
+    final focusRing = Theme.of(context).brightness == Brightness.light
+        ? Theme.of(context).colorScheme.primary
+        : colors.focusFill;
+    return hasFocus
+        ? RoundedRectangleBorder(
+            side: BorderSide(color: focusRing, width: 2),
+            borderRadius: BorderRadius.circular(12))
+        : RoundedRectangleBorder(borderRadius: BorderRadius.circular(12));
+  }
 }

@@ -69,6 +69,14 @@ class _FocusKeyboardListenerState extends State<FocusKeyboardListener> {
       );
 
   KeyEventResult _handleKey(BuildContext context, RawKeyEvent rawKeyEvent) {
+    if (_isAndroidMenuKey(rawKeyEvent)) {
+      if (rawKeyEvent is RawKeyDownEvent) {
+        return widget.onLongPress?.call(LogicalKeyboardKey.contextMenu) ??
+            KeyEventResult.ignored;
+      }
+      return KeyEventResult.handled;
+    }
+
     switch (rawKeyEvent.runtimeType) {
       case RawKeyDownEvent:
         return _keyDownEvent(context, rawKeyEvent.logicalKey);
@@ -76,6 +84,11 @@ class _FocusKeyboardListenerState extends State<FocusKeyboardListener> {
         return _keyUpEvent(context, rawKeyEvent.logicalKey);
     }
     return KeyEventResult.handled;
+  }
+
+  bool _isAndroidMenuKey(RawKeyEvent event) {
+    final data = event.data;
+    return data is RawKeyEventDataAndroid && data.keyCode == 82;
   }
 
   KeyEventResult _keyDownEvent(BuildContext context, LogicalKeyboardKey key) {

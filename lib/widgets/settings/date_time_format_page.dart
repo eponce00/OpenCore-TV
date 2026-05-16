@@ -25,6 +25,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../theme/opencore_theme.dart';
+
 // Date format presets
 const List<(String format, String example)> dateFormatPresets = [
   ('EEEE d', 'Friday 17'),
@@ -62,6 +64,7 @@ class _DateTimeFormatPageState extends State<DateTimeFormatPage> {
   @override
   Widget build(BuildContext context) {
     AppLocalizations localizations = AppLocalizations.of(context)!;
+    final colors = context.openCoreColors;
 
     return Consumer<SettingsService>(builder: (context, service, _) {
       return Column(
@@ -97,15 +100,15 @@ class _DateTimeFormatPageState extends State<DateTimeFormatPage> {
                           : Icons.radio_button_unchecked,
                       color: isSelected
                           ? Theme.of(context).colorScheme.secondary
-                          : Colors.grey,
+                          : colors.faintText,
                     ),
                     title: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(entry.value.$2),
                         Text(entry.value.$1,
-                            style: const TextStyle(
-                                fontSize: 12, color: Colors.grey)),
+                            style: TextStyle(
+                                fontSize: 12, color: colors.mutedText)),
                       ],
                     ),
                     onPressed: () => service.setDateTimeFormat(
@@ -135,15 +138,15 @@ class _DateTimeFormatPageState extends State<DateTimeFormatPage> {
                           : Icons.radio_button_unchecked,
                       color: isSelected
                           ? Theme.of(context).colorScheme.secondary
-                          : Colors.grey,
+                          : colors.faintText,
                     ),
                     title: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(preset.$2),
                         Text(preset.$1,
-                            style: const TextStyle(
-                                fontSize: 12, color: Colors.grey)),
+                            style: TextStyle(
+                                fontSize: 12, color: colors.mutedText)),
                       ],
                     ),
                     onPressed: () => service.setDateTimeFormat(
@@ -179,7 +182,7 @@ class _DateTimeFormatPageState extends State<DateTimeFormatPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.black26,
+        color: context.openCoreColors.elevated,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(

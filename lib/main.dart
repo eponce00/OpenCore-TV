@@ -21,6 +21,8 @@ import 'dart:async';
 import 'package:opencore_tv/database.dart';
 import 'package:opencore_tv/opencore_tv_channel.dart';
 import 'package:opencore_tv/providers/apps_service.dart';
+import 'package:opencore_tv/providers/ambient_light_service.dart';
+import 'package:opencore_tv/providers/appearance_service.dart';
 import 'package:opencore_tv/providers/launcher_state.dart';
 import 'package:opencore_tv/providers/network_service.dart';
 import 'package:opencore_tv/providers/settings_service.dart';
@@ -49,10 +51,8 @@ Future<void> main() async {
         create: (_) => AppsService(openCoreTVChannel, openCoreTVDatabase)),
     ChangeNotifierProvider(create: (_) => LauncherState()),
     ChangeNotifierProvider(create: (_) => NetworkService(openCoreTVChannel)),
-    ChangeNotifierProvider(create: (context) {
-      SettingsService settingsService = Provider.of(context, listen: false);
-      return WallpaperService(openCoreTVChannel, settingsService);
-    }),
+    ChangeNotifierProvider(
+        create: (_) => AmbientLightService(openCoreTVChannel), lazy: false),
     ChangeNotifierProvider(
         create: (_) => BrightnessService(sharedPreferences), lazy: false),
     ChangeNotifierProvider(
@@ -61,5 +61,18 @@ Future<void> main() async {
           return WeatherService(settingsService);
         },
         lazy: false),
+    ChangeNotifierProvider(
+        create: (context) => AppearanceService(
+              Provider.of<SettingsService>(context, listen: false),
+              Provider.of<AmbientLightService>(context, listen: false),
+              Provider.of<WeatherService>(context, listen: false),
+            ),
+        lazy: false),
+    ChangeNotifierProvider(create: (context) {
+      SettingsService settingsService = Provider.of(context, listen: false);
+      AppearanceService appearanceService = Provider.of(context, listen: false);
+      return WallpaperService(
+          openCoreTVChannel, settingsService, appearanceService);
+    }),
   ], child: OpenCoreTVApp()));
 }

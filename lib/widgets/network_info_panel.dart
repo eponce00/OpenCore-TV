@@ -1,7 +1,8 @@
-import 'package:opencore_tv/providers/apps_service.dart';
 import 'package:opencore_tv/providers/network_service.dart';
+import 'package:opencore_tv/widgets/settings/focusable_settings_tile.dart';
 import 'package:opencore_tv/widgets/side_panel_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:provider/provider.dart';
 
 class NetworkInfoPanel extends StatelessWidget {
@@ -20,29 +21,44 @@ class NetworkInfoPanel extends StatelessWidget {
         children: [
           Text("Network", style: Theme.of(context).textTheme.titleLarge),
           const Divider(),
-          ListTile(
+          FocusableSettingsTile(
+            autofocus: true,
             leading: Icon(_networkIcon(network.networkType)),
-            title: Text(type),
-            subtitle: Text(network.hasInternetAccess
-                ? "Internet available"
-                : "No internet detected"),
+            title: _PanelTileText(
+              title: type,
+              subtitle: network.hasInternetAccess
+                  ? "Internet available"
+                  : "No internet detected",
+            ),
           ),
           if (network.networkType == NetworkType.Wifi)
-            ListTile(
+            FocusableSettingsTile(
               leading: const Icon(Icons.signal_wifi_4_bar),
-              title: const Text("Wi‑Fi signal"),
-              subtitle: Text("${network.wirelessNetworkSignalLevel + 1} / 5"),
+              title: _PanelTileText(
+                title: "Wi-Fi signal",
+                subtitle: "${network.wirelessNetworkSignalLevel + 1} / 5",
+              ),
             ),
           const Divider(),
-          ListTile(
+          FocusableSettingsTile(
             leading: const Icon(Icons.settings_outlined),
-            title: const Text("Open Fire TV Settings"),
-            subtitle: const Text("Use only when you need system Wi‑Fi setup."),
-            onTap: () => context.read<AppsService>().openSettings(),
+            title: const _PanelTileText(
+              title: "Open Fire TV Network Settings",
+              subtitle: "Wi-Fi and network connection setup.",
+            ),
+            trailing: const Icon(Icons.open_in_new, size: 18),
+            onPressed: () => _openWifiSettings(context),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _openWifiSettings(BuildContext context) async {
+    final networkService = context.read<NetworkService>();
+    Navigator.of(context, rootNavigator: true).pop();
+    await Future<void>.delayed(const Duration(milliseconds: 90));
+    await networkService.openWifiSettings();
   }
 
   IconData _networkIcon(NetworkType type) {
@@ -63,5 +79,35 @@ class NetworkInfoPanel extends StatelessWidget {
       NetworkType.Cellular => "Cellular",
       NetworkType.Unknown => "Unknown network",
     };
+  }
+}
+
+class _PanelTileText extends StatelessWidget {
+  final String title;
+  final String subtitle;
+
+  const _PanelTileText({
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: Theme.of(context).textTheme.bodyMedium),
+        const SizedBox(height: 3),
+        Text(
+          subtitle,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: colors.mutedText,
+              ),
+        ),
+      ],
+    );
   }
 }

@@ -1,0 +1,1138 @@
+[
+  {
+    "id": "wallpaper_01",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/wallpaper_01.webp",
+    "brightness": "dark",
+    "categories": [
+      "art"
+    ],
+    "default": true
+  },
+  {
+    "id": "wallpaper_02",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/wallpaper_02.webp",
+    "brightness": "dark",
+    "categories": [
+      "art"
+    ],
+    "default": null
+  },
+  {
+    "id": "wallpaper_03",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/wallpaper_03.webp",
+    "brightness": "dark",
+    "categories": [
+      "art"
+    ],
+    "default": null
+  },
+  {
+    "id": "wallpaper_04",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/wallpaper_04.webp",
+    "brightness": "dark",
+    "categories": [
+      "art"
+    ],
+    "default": null
+  },
+  {
+    "id": "wallpaper_05",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/wallpaper_05.webp",
+    "brightness": "dark",
+    "categories": [
+      "art"
+    ],
+    "default": null
+  },
+  {
+    "id": "wallpaper_06",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/wallpaper_06.webp",
+    "brightness": "dark",
+    "categories": [
+      "art"
+    ],
+    "default": null
+  },
+  {
+    "id": "wallpaper_07",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/wallpaper_07.webp",
+    "brightness": "dark",
+    "categories": [
+      "art"
+    ],
+    "default": null
+  },
+  {
+    "id": "wallpaper_08",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/wallpaper_08.webp",
+    "brightness": "dark",
+    "categories": [
+      "art"
+    ],
+    "default": null
+  },
+  {
+    "id": "wallpaper_09",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/wallpaper_09.webp",
+    "brightness": "dark",
+    "categories": [
+      "art"
+    ],
+    "default": null
+  },
+  {
+    "id": "wallpaper_10",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/wallpaper_10.webp",
+    "brightness": "dark",
+    "categories": [
+      "art"
+    ],
+    "default": null
+  },
+  {
+    "id": "wallpaper_11",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/wallpaper_11.webp",
+    "brightness": "dark",
+    "categories": [
+      "art"
+    ],
+    "default": null
+  },
+  {
+    "id": "wallpaper_12",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/wallpaper_12.webp",
+    "brightness": "dark",
+    "categories": [
+      "art"
+    ],
+    "default": null
+  },
+  {
+    "id": "wallpaper_13",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/wallpaper_13.webp",
+    "brightness": "dark",
+    "categories": [
+      "art"
+    ],
+    "default": null
+  },
+  {
+    "id": "wallpaper_14",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/wallpaper_14.webp",
+    "brightness": "dark",
+    "categories": [
+      "art"
+    ],
+    "default": null
+  },
+  {
+    "id": "wallpaper_15",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/wallpaper_15.webp",
+    "brightness": "dark",
+    "categories": [
+      "art"
+    ],
+    "default": null
+  },
+  {
+    "id": "wallpaper_16",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/wallpaper_16.webp",
+    "brightness": "dark",
+    "categories": [
+      "art"
+    ],
+    "default": null
+  },
+  {
+    "id": "wallpaper_17",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/wallpaper_17.webp",
+    "brightness": "dark",
+    "categories": [
+      "art"
+    ],
+    "default": null
+  },
+  {
+    "id": "wallpaper_18",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/wallpaper_18.webp",
+    "brightness": "dark",
+    "categories": [
+      "art"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_earth_01",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_earth_01.webp",
+    "brightness": "dark",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_earth_03",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_earth_03.webp",
+    "brightness": "dark",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_earth_08",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_earth_08.webp",
+    "brightness": "dark",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite",
+      "minimal_landscape"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_earth_02",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_earth_02.webp",
+    "brightness": "dark",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_earth_05",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_earth_05.webp",
+    "brightness": "dark",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_earth_06",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_earth_06.webp",
+    "brightness": "dark",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_earth_10",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_earth_10.webp",
+    "brightness": "dark",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite",
+      "oil_landscape"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_earth_11",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_earth_11.webp",
+    "brightness": "dark",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite",
+      "minimal_landscape"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_earth_01",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_earth_01.webp",
+    "brightness": "light",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_earth_02",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_earth_02.webp",
+    "brightness": "light",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_earth_03",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_earth_03.webp",
+    "brightness": "light",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_earth_04",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_earth_04.webp",
+    "brightness": "light",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_earth_05",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_earth_05.webp",
+    "brightness": "light",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_earth_06",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_earth_06.webp",
+    "brightness": "light",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite",
+      "oil_landscape"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_earth_07",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_earth_07.webp",
+    "brightness": "light",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite",
+      "oil_landscape"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_earth_08",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_earth_08.webp",
+    "brightness": "light",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite",
+      "minimal_landscape"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_earth_09",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_earth_09.webp",
+    "brightness": "light",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_earth_10",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_earth_10.webp",
+    "brightness": "light",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_fine_art_07",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_fine_art_07.webp",
+    "brightness": "dark",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "oil_still_life"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_fine_art_08",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_fine_art_08.webp",
+    "brightness": "dark",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "oil_seascape"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_fine_art_09",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_fine_art_09.webp",
+    "brightness": "dark",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "fresco_texture"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_fine_art_10",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_fine_art_10.webp",
+    "brightness": "dark",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "oil_still_life"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_fine_art_01",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_fine_art_01.webp",
+    "brightness": "light",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "oil_still_life"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_fine_art_02",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_fine_art_02.webp",
+    "brightness": "light",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "oil_landscape"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_fine_art_03",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_fine_art_03.webp",
+    "brightness": "light",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "oil_architecture"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_fine_art_04",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_fine_art_04.webp",
+    "brightness": "light",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "oil_still_life"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_fine_art_05",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_fine_art_05.webp",
+    "brightness": "light",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "oil_cloud_study"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_fine_art_06",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_fine_art_06.webp",
+    "brightness": "light",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "fresco_texture"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_fine_art_07",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_fine_art_07.webp",
+    "brightness": "light",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "oil_landscape"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_fine_art_08",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_fine_art_08.webp",
+    "brightness": "light",
+    "categories": [
+      "fine_art",
+      "art",
+      "classical",
+      "oil_still_life"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_fine_art_09",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_fine_art_09.webp",
+    "brightness": "light",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "oil_seascape"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_fine_art_10",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_fine_art_10.webp",
+    "brightness": "light",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "oil_landscape"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_abstract_art_01",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_abstract_art_01.webp",
+    "brightness": "dark",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal",
+      "impasto"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_abstract_art_02",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_abstract_art_02.webp",
+    "brightness": "dark",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_abstract_art_03",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_abstract_art_03.webp",
+    "brightness": "dark",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal",
+      "geometric"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_abstract_art_04",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_abstract_art_04.webp",
+    "brightness": "dark",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal",
+      "impasto"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_abstract_art_05",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_abstract_art_05.webp",
+    "brightness": "dark",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal",
+      "wash"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_abstract_art_06",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_abstract_art_06.webp",
+    "brightness": "dark",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_abstract_art_07",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_abstract_art_07.webp",
+    "brightness": "dark",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal",
+      "color_field"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_abstract_art_08",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_abstract_art_08.webp",
+    "brightness": "dark",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal",
+      "impasto"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_abstract_art_09",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_abstract_art_09.webp",
+    "brightness": "dark",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal",
+      "organic"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_abstract_art_10",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_abstract_art_10.webp",
+    "brightness": "dark",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_abstract_art_01",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_abstract_art_01.webp",
+    "brightness": "light",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal",
+      "impasto"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_abstract_art_02",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_abstract_art_02.webp",
+    "brightness": "light",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_abstract_art_03",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_abstract_art_03.webp",
+    "brightness": "light",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal",
+      "geometric"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_abstract_art_04",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_abstract_art_04.webp",
+    "brightness": "light",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal",
+      "impasto"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_abstract_art_05",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_abstract_art_05.webp",
+    "brightness": "light",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal",
+      "wash"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_abstract_art_06",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_abstract_art_06.webp",
+    "brightness": "light",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_abstract_art_07",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_abstract_art_07.webp",
+    "brightness": "light",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal",
+      "color_field"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_abstract_art_08",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_abstract_art_08.webp",
+    "brightness": "light",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal",
+      "impasto"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_abstract_art_09",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_abstract_art_09.webp",
+    "brightness": "light",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal",
+      "organic"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_abstract_art_10",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_abstract_art_10.webp",
+    "brightness": "light",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_architecture_01",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_architecture_01.webp",
+    "brightness": "dark",
+    "categories": [
+      "architecture",
+      "minimal",
+      "minimal_architecture"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_architecture_02",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_architecture_02.webp",
+    "brightness": "dark",
+    "categories": [
+      "architecture",
+      "minimal",
+      "classical_architecture"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_architecture_03",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_architecture_03.webp",
+    "brightness": "dark",
+    "categories": [
+      "architecture",
+      "minimal",
+      "interior"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_architecture_04",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_architecture_04.webp",
+    "brightness": "dark",
+    "categories": [
+      "architecture",
+      "minimal",
+      "brutalist"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_architecture_05",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_architecture_05.webp",
+    "brightness": "dark",
+    "categories": [
+      "architecture",
+      "minimal",
+      "courtyard"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_architecture_07",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_architecture_07.webp",
+    "brightness": "dark",
+    "categories": [
+      "architecture",
+      "minimal",
+      "minimal_architecture"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_architecture_08",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_architecture_08.webp",
+    "brightness": "dark",
+    "categories": [
+      "architecture",
+      "minimal",
+      "classical_architecture"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_architecture_09",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_architecture_09.webp",
+    "brightness": "dark",
+    "categories": [
+      "architecture",
+      "minimal",
+      "interior"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_architecture_10",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_architecture_10.webp",
+    "brightness": "dark",
+    "categories": [
+      "architecture",
+      "minimal",
+      "courtyard"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_architecture_01",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_architecture_01.webp",
+    "brightness": "light",
+    "categories": [
+      "architecture",
+      "minimal",
+      "minimal_architecture"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_architecture_02",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_architecture_02.webp",
+    "brightness": "light",
+    "categories": [
+      "architecture",
+      "minimal",
+      "classical_architecture"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_architecture_03",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_architecture_03.webp",
+    "brightness": "light",
+    "categories": [
+      "architecture",
+      "minimal",
+      "interior"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_architecture_04",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_architecture_04.webp",
+    "brightness": "light",
+    "categories": [
+      "architecture",
+      "minimal",
+      "brutalist"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_architecture_05",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_architecture_05.webp",
+    "brightness": "light",
+    "categories": [
+      "architecture",
+      "minimal",
+      "courtyard"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_architecture_06",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_architecture_06.webp",
+    "brightness": "light",
+    "categories": [
+      "architecture",
+      "minimal",
+      "oil_architecture"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_architecture_07",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_architecture_07.webp",
+    "brightness": "light",
+    "categories": [
+      "architecture",
+      "minimal",
+      "minimal_architecture"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_architecture_08",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_architecture_08.webp",
+    "brightness": "light",
+    "categories": [
+      "architecture",
+      "minimal",
+      "classical_architecture"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_architecture_09",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_architecture_09.webp",
+    "brightness": "light",
+    "categories": [
+      "architecture",
+      "minimal",
+      "interior"
+    ],
+    "default": null
+  },
+  {
+    "id": "light_architecture_10",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/light/light_architecture_10.webp",
+    "brightness": "light",
+    "categories": [
+      "architecture",
+      "minimal",
+      "courtyard"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_earth_12",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_earth_12.webp",
+    "brightness": "dark",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_earth_13",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_earth_13.webp",
+    "brightness": "dark",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_fine_art_04",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_fine_art_04.webp",
+    "brightness": "dark",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "oil_cloud_study"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_fine_art_06",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_fine_art_06.webp",
+    "brightness": "dark",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "oil_landscape"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_earth_04",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_earth_04.webp",
+    "brightness": "dark",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_fine_art_01",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_fine_art_01.webp",
+    "brightness": "dark",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "oil_still_life"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_fine_art_02",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_fine_art_02.webp",
+    "brightness": "dark",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "oil_landscape"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_fine_art_03",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_fine_art_03.webp",
+    "brightness": "dark",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "oil_still_life"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_earth_07",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_earth_07.webp",
+    "brightness": "dark",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_architecture_06",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_architecture_06.webp",
+    "brightness": "dark",
+    "categories": [
+      "architecture",
+      "minimal",
+      "oil_architecture"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_earth_09",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_earth_09.webp",
+    "brightness": "dark",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite",
+      "oil_landscape"
+    ],
+    "default": null
+  },
+  {
+    "id": "dark_fine_art_05",
+    "url": "https://raw.githubusercontent.com/eponce00/OpenCore-TV/main/assets/wallpapers/dark/dark_fine_art_05.webp",
+    "brightness": "dark",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "oil_architecture"
+    ],
+    "default": null
+  }
+]

@@ -62,6 +62,7 @@ key.properties
 # Logs
 build_log.txt
 release_build_log.txt
+assets/wallpapers/fal-requests.jsonl
 
 # Gemini
 .geminiignore
@@ -74,6 +75,7 @@ QWEN.md
 
 # Local Project Docs & Tools
 pdocs/
+LOCAL_SETUP.md
 build_log.txt
 release_build_log.txt
 

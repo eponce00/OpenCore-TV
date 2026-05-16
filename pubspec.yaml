@@ -54,6 +54,16 @@ flutter:
   generate: true
   uses-material-design: true
   assets:
-    - assets/
-    - assets/wallpapers/
+    - assets/icon.png
+    - assets/wallpapers/catalog.json
+    - assets/wallpapers/dark/dark_abstract_art_10.webp
+    - assets/wallpapers/dark/dark_architecture_06.webp
+    - assets/wallpapers/dark/dark_earth_07.webp
+    - assets/wallpapers/dark/dark_earth_09.webp
+    - assets/wallpapers/dark/dark_fine_art_05.webp
+    - assets/wallpapers/light/light_abstract_art_01.webp
+    - assets/wallpapers/light/light_architecture_01.webp
+    - assets/wallpapers/light/light_earth_01.webp
+    - assets/wallpapers/light/light_earth_08.webp
+    - assets/wallpapers/light/light_fine_art_01.webp
     - lib/l10n/

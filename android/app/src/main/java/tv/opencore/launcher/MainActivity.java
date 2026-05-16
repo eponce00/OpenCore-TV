@@ -34,9 +34,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.Pair;
+import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
@@ -76,12 +79,15 @@ public class MainActivity extends FlutterActivity {
     private final String METHOD_CHANNEL = "tv.opencore.launcher/method";
     private final String APPS_EVENT_CHANNEL = "tv.opencore.launcher/event_apps";
     private final String NETWORK_EVENT_CHANNEL = "tv.opencore.launcher/event_network";
-    private static final String INPUT_PACKAGE_PREFIX = "opencore.input.";
+    private final String LIGHT_SENSOR_EVENT_CHANNEL = "tv.opencore.launcher/event_light_sensor";
     static final String ACTION_ENTER_IDLE = "tv.opencore.launcher.action.ENTER_IDLE";
     static final String ACTION_DISMISS_PANEL = "tv.opencore.launcher.action.DISMISS_PANEL";
+    static final String ACTION_SHOW_INPUT_SELECTOR = "tv.opencore.launcher.action.SHOW_INPUT_SELECTOR";
+    static final String ACTION_RETURN_HOME = "tv.opencore.launcher.action.RETURN_HOME";
     private static volatile boolean panelOpen = false;
     private MethodChannel methodChannel;
     private boolean activityResumed = false;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
@@ -164,6 +170,9 @@ public class MainActivity extends FlutterActivity {
         new EventChannel(messenger, NETWORK_EVENT_CHANNEL).setStreamHandler(
                 new NetworkEventStreamHandler(this));
 
+        new EventChannel(messenger, LIGHT_SENSOR_EVENT_CHANNEL).setStreamHandler(
+                new LightSensorEventStreamHandler(this));
+
         Log.w(TRACE_TAG, "configureFlutterEngine initialIntent=" + describeIntent(getIntent()));
         handleIntent(getIntent(), false);
     }
@@ -183,6 +192,9 @@ public class MainActivity extends FlutterActivity {
         activityResumed = true;
         Log.w(TRACE_TAG, "MainActivity onResume");
         repairHomeGuard();
+        if (ACTION_SHOW_INPUT_SELECTOR.equals(getIntent().getAction())) {
+            mainHandler.postDelayed(this::sendShowInputSelectorToFlutter, 250);
+        }
     }
 
     @Override
@@ -190,6 +202,20 @@ public class MainActivity extends FlutterActivity {
         activityResumed = false;
         Log.w(TRACE_TAG, "MainActivity onPause");
         super.onPause();
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN && methodChannel != null) {
+                methodChannel.invokeMethod("remoteMenu", null);
+            }
+            return true;
+        }
+        if (isInputMenuKey(event.getKeyCode())) {
+            return true;
+        }
+        return super.dispatchKeyEvent(event);
     }
 
     private void handleIntent(Intent intent, boolean fromNewIntent) {
@@ -211,6 +237,17 @@ public class MainActivity extends FlutterActivity {
             return;
         }
 
+        if (ACTION_SHOW_INPUT_SELECTOR.equals(intent.getAction())) {
+            Log.w(TRACE_TAG, "handleIntent showInputSelector action fromNewIntent=" + fromNewIntent);
+            sendShowInputSelectorToFlutter();
+            return;
+        }
+
+        if (ACTION_RETURN_HOME.equals(intent.getAction())) {
+            Log.w(TRACE_TAG, "handleIntent returnHome action fromNewIntent=" + fromNewIntent);
+            return;
+        }
+
         if (fromNewIntent && activityResumed && isHomeIntent(intent)) {
             Log.w(TRACE_TAG, "handleIntent repeated HOME while resumed -> enterIdle");
             sendEnterIdleToFlutter("repeatedHome");
@@ -224,6 +261,12 @@ public class MainActivity extends FlutterActivity {
     private boolean isHomeIntent(Intent intent) {
         return Intent.ACTION_MAIN.equals(intent.getAction())
                 && intent.hasCategory(Intent.CATEGORY_HOME);
+    }
+
+    private boolean isInputMenuKey(int keyCode) {
+        return keyCode == KeyEvent.KEYCODE_TV_INPUT
+                || keyCode == KeyEvent.KEYCODE_STB_INPUT
+                || keyCode == KeyEvent.KEYCODE_AVR_INPUT;
     }
 
     static boolean isPanelOpen() {
@@ -319,6 +362,26 @@ public class MainActivity extends FlutterActivity {
             @Override
             public void notImplemented() {
                 Log.w(TRACE_TAG, "dismissPanel not implemented in Flutter");
+            }
+        });
+    }
+
+    private void sendShowInputSelectorToFlutter() {
+        methodChannel.invokeMethod("showInputSelector", null, new MethodChannel.Result() {
+            @Override
+            public void success(Object result) {
+                Log.w(TRACE_TAG, "showInputSelector delivered to Flutter");
+            }
+
+            @Override
+            public void error(String errorCode, String errorMessage, Object errorDetails) {
+                Log.w(TRACE_TAG, "showInputSelector Flutter error code=" + errorCode
+                        + " message=" + errorMessage);
+            }
+
+            @Override
+            public void notImplemented() {
+                Log.w(TRACE_TAG, "showInputSelector not implemented in Flutter");
             }
         });
     }
@@ -441,7 +504,7 @@ public class MainActivity extends FlutterActivity {
     }
 
     private byte[] getApplicationBanner(String packageName) {
-        if (isSyntheticInputPackage(packageName)) {
+        if (OpenCoreInputs.isSyntheticInputPackage(packageName)) {
             return buildSyntheticInputImage(packageName, true);
         }
 
@@ -462,7 +525,7 @@ public class MainActivity extends FlutterActivity {
     }
 
     private byte[] getApplicationIcon(String packageName) {
-        if (isSyntheticInputPackage(packageName)) {
+        if (OpenCoreInputs.isSyntheticInputPackage(packageName)) {
             return buildSyntheticInputImage(packageName, false);
         }
 
@@ -483,8 +546,8 @@ public class MainActivity extends FlutterActivity {
     }
 
     private boolean applicationExists(String packageName) {
-        if (isSyntheticInputPackage(packageName)) {
-            return inputIdForSyntheticPackage(packageName) != null;
+        if (OpenCoreInputs.isSyntheticInputPackage(packageName)) {
+            return OpenCoreInputs.inputIdForPackage(packageName) != null;
         }
 
         int flags;
@@ -557,7 +620,7 @@ public class MainActivity extends FlutterActivity {
     }
 
     private boolean launchApp(String packageName) {
-        if (isSyntheticInputPackage(packageName)) {
+        if (OpenCoreInputs.isSyntheticInputPackage(packageName)) {
             return launchSyntheticInput(packageName);
         }
 
@@ -573,16 +636,13 @@ public class MainActivity extends FlutterActivity {
 
     private List<Map<String, Serializable>> buildInputAppMaps() {
         List<Map<String, Serializable>> inputs = new ArrayList<>();
-        inputs.add(buildSyntheticInputApp("opencore.input.hdmi1", "HDMI 1"));
-        inputs.add(buildSyntheticInputApp("opencore.input.hdmi2", "HDMI 2"));
-        inputs.add(buildSyntheticInputApp("opencore.input.hdmi3", "HDMI 3"));
-        inputs.add(buildSyntheticInputApp("opencore.input.hdmi4", "HDMI 4"));
-        inputs.add(buildSyntheticInputApp("opencore.input.antenna", "Antenna"));
-        inputs.add(buildSyntheticInputApp("opencore.input.composite", "Composite"));
+        for (OpenCoreInputs.Shortcut shortcut : OpenCoreInputs.SHORTCUTS) {
+            inputs.add(buildSyntheticInputApp(shortcut.packageName));
+        }
         return inputs;
     }
 
-    private Map<String, Serializable> buildSyntheticInputApp(String packageName, String name) {
+    private Map<String, Serializable> buildSyntheticInputApp(String packageName) {
         Map<String, Serializable> appMap = new HashMap<>();
         appMap.put("name", syntheticInputLabel(packageName));
         appMap.put("packageName", packageName);
@@ -591,12 +651,8 @@ public class MainActivity extends FlutterActivity {
         return appMap;
     }
 
-    private boolean isSyntheticInputPackage(String packageName) {
-        return packageName != null && packageName.startsWith(INPUT_PACKAGE_PREFIX);
-    }
-
     private boolean launchSyntheticInput(String packageName) {
-        String inputId = inputIdForSyntheticPackage(packageName);
+        String inputId = OpenCoreInputs.inputIdForPackage(packageName);
         if (inputId == null) {
             return false;
         }
@@ -609,18 +665,6 @@ public class MainActivity extends FlutterActivity {
                         | Intent.FLAG_ACTIVITY_CLEAR_TOP
                         | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         return tryStartActivity(intent);
-    }
-
-    private String inputIdForSyntheticPackage(String packageName) {
-        return switch (packageName) {
-            case "opencore.input.hdmi1" -> "com.mediatek.tis/.HdmiInputService/HW2";
-            case "opencore.input.hdmi2" -> "com.mediatek.tis/.HdmiInputService/HW3";
-            case "opencore.input.hdmi3" -> "com.mediatek.tis/.HdmiInputService/HW4";
-            case "opencore.input.hdmi4" -> "com.mediatek.tis/.HdmiInputService/HW5";
-            case "opencore.input.antenna" -> "com.mediatek.dtv.tvinput.atsctuner/.AtscTunerInputService/HW0";
-            case "opencore.input.composite" -> "com.mediatek.tis/.CompositeInputService/HW6";
-            default -> null;
-        };
     }
 
     private boolean openSettings() {
@@ -789,15 +833,7 @@ public class MainActivity extends FlutterActivity {
     }
 
     private String syntheticInputLabel(String packageName) {
-        String fallback = switch (packageName) {
-            case "opencore.input.hdmi1" -> "HDMI 1";
-            case "opencore.input.hdmi2" -> "HDMI 2";
-            case "opencore.input.hdmi3" -> "HDMI 3";
-            case "opencore.input.hdmi4" -> "HDMI 4";
-            case "opencore.input.antenna" -> "Antenna";
-            case "opencore.input.composite" -> "Composite";
-            default -> "Input";
-        };
+        String fallback = OpenCoreInputs.fallbackLabelForPackage(packageName);
         return flutterPrefs().getString("flutter.input_label_" + packageName, fallback);
     }
 
@@ -1006,22 +1042,29 @@ public class MainActivity extends FlutterActivity {
     }
 
     private boolean openWifiSettings() {
-        // 1. Try Android Q+ WiFi panel
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Intent panelIntent = new Intent(Settings.Panel.ACTION_WIFI);
-            if (tryStartActivity(panelIntent)) {
-                return true;
-            }
+        // Fire OS 8 routes the standard Wi-Fi action to this native network submenu.
+        Intent fireTvNetwork = new Intent(Settings.ACTION_WIFI_SETTINGS)
+                .addCategory(Intent.CATEGORY_DEFAULT)
+                .setComponent(new ComponentName(
+                        "com.amazon.tv.settings.v2",
+                        "com.amazon.tv.settings.v2.tv.network.NetworkActivity"))
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        if (tryStartActivity("Fire TV NetworkActivity", fireTvNetwork)) {
+            return true;
         }
 
-        // 2. Try standard WiFi settings
-        Intent wifiIntent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+        Intent wifiIntent = new Intent(Settings.ACTION_WIFI_SETTINGS)
+                .addCategory(Intent.CATEGORY_DEFAULT)
+                .setPackage("com.amazon.tv.settings.v2")
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         if (tryStartActivity(wifiIntent)) {
             return true;
         }
 
-        // 3. Fallback to general wireless settings
-        Intent wirelessIntent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+        Intent wirelessIntent = new Intent(Settings.ACTION_WIRELESS_SETTINGS)
+                .addCategory(Intent.CATEGORY_DEFAULT)
+                .setPackage("com.amazon.tv.settings.v2")
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         if (tryStartActivity(wirelessIntent)) {
             return true;
         }

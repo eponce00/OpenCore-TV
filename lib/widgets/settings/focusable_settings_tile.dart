@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 
 class FocusableSettingsTile extends StatefulWidget {
   final Widget title;
@@ -25,8 +26,19 @@ class _FocusableSettingsTileState extends State<FocusableSettingsTile> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
+    final themedContext = Theme.of(context);
+    final isLight = themedContext.brightness == Brightness.light;
+    final contentColor = _focused ? colors.focusText : colors.text;
+    final secondaryColor = _focused
+        ? (isLight ? colors.mutedText : colors.focusMutedText)
+        : colors.mutedText;
+    final focusRing = Theme.of(context).brightness == Brightness.light
+        ? Theme.of(context).colorScheme.primary
+        : colors.focusFill;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 0),
       child: RepaintBoundary(
         child: Actions(
           actions: <Type, Action<Intent>>{
@@ -40,34 +52,65 @@ class _FocusableSettingsTileState extends State<FocusableSettingsTile> {
             onFocusChange: (hasFocus) => setState(() => _focused = hasFocus),
             child: InkWell(
               onTap: widget.onPressed,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(18),
               focusColor: Colors.transparent,
               child: Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
                 decoration: BoxDecoration(
-                  color: _focused
-                      ? Colors.white.withOpacity(0.05)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(12),
-                  border: _focused
-                      ? Border.all(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 2)
-                      : Border.all(color: Colors.transparent, width: 2),
-                ),
-                child: Row(
-                  children: [
-                    if (widget.leading != null) ...[
-                      widget.leading!,
-                      const SizedBox(width: 16),
-                    ],
-                    Expanded(child: widget.title),
-                    if (widget.trailing != null) ...[
-                      const SizedBox(width: 16),
-                      widget.trailing!,
-                    ],
+                  // Shared settings rows invert on focus so every submenu matches the main control center.
+                  color: _focused ? colors.focusFill : Colors.transparent,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: _focused ? focusRing : Colors.transparent,
+                    width: 1,
+                  ),
+                  boxShadow: [
+                    if (_focused)
+                      BoxShadow(
+                        color: colors.shadow,
+                        blurRadius: 18,
+                        offset: const Offset(0, 6),
+                      ),
                   ],
+                ),
+                child: Theme(
+                  data: themedContext.copyWith(
+                    iconTheme: IconThemeData(size: 18, color: secondaryColor),
+                    textTheme: themedContext.textTheme.apply(
+                      bodyColor: contentColor,
+                      displayColor: contentColor,
+                    ),
+                    switchTheme: themedContext.switchTheme.copyWith(
+                      thumbColor: WidgetStateProperty.resolveWith((states) =>
+                          states.contains(WidgetState.selected)
+                              ? contentColor
+                              : secondaryColor),
+                      trackColor: WidgetStateProperty.resolveWith((states) =>
+                          states.contains(WidgetState.selected)
+                              ? contentColor.withOpacity(0.28)
+                              : secondaryColor.withOpacity(0.22)),
+                    ),
+                  ),
+                  child: DefaultTextStyle.merge(
+                    style: TextStyle(color: contentColor),
+                    child: IconTheme(
+                      data: IconThemeData(size: 18, color: secondaryColor),
+                      child: Row(
+                        children: [
+                          if (widget.leading != null) ...[
+                            widget.leading!,
+                            const SizedBox(width: 10),
+                          ],
+                          Expanded(child: widget.title),
+                          if (widget.trailing != null) ...[
+                            const SizedBox(width: 10),
+                            widget.trailing!,
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),

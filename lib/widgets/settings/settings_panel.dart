@@ -23,7 +23,9 @@ import 'package:opencore_tv/widgets/settings/gradient_panel_page.dart';
 import 'package:opencore_tv/widgets/settings/launcher_section_panel_page.dart';
 import 'package:opencore_tv/widgets/settings/settings_panel_page.dart';
 import 'package:opencore_tv/widgets/settings/wallpaper_panel_page.dart';
+import 'package:opencore_tv/widgets/settings/wallpaper_category_page.dart';
 import 'package:opencore_tv/widgets/settings/wallpaper_library_page.dart';
+import 'package:opencore_tv/widgets/settings/wallpaper_mode_page.dart';
 import 'package:opencore_tv/widgets/settings/wallpaper_rotation_frequency_page.dart';
 import 'package:opencore_tv/widgets/settings/weather_location_search_page.dart';
 import 'package:opencore_tv/widgets/settings/wifi_usage_period_page.dart';
@@ -39,11 +41,13 @@ import 'package:opencore_tv/widgets/settings/idle_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/idle_timeout_page.dart';
 import 'package:opencore_tv/widgets/settings/native_fire_tv_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/opencore_health_page.dart';
+import 'package:opencore_tv/widgets/settings/remote_buttons_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/weather_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/general_settings_page.dart';
 import 'package:opencore_tv/opencore_tv_channel.dart';
 import 'package:opencore_tv/models/app.dart';
 import 'package:flutter/material.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 
 class SettingsPanel extends StatefulWidget {
   final String? initialRoute;
@@ -72,6 +76,7 @@ class _SettingsPanelState extends State<SettingsPanel> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
@@ -87,7 +92,7 @@ class _SettingsPanelState extends State<SettingsPanel> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.black54, // Dim the background
+        backgroundColor: colors.overlay,
         body: Stack(
           children: [
             // Tap outside to close
@@ -97,7 +102,7 @@ class _SettingsPanelState extends State<SettingsPanel> {
             ),
             // The side panel
             SidePanelDialog(
-              width: 500,
+              width: 400,
               isRightSide: false,
               child: Navigator(
                 key: _navigatorKey,
@@ -114,6 +119,12 @@ class _SettingsPanelState extends State<SettingsPanel> {
                     case WallpaperPanelPage.routeName:
                       return _FastPageRoute(
                           builder: (_) => WallpaperPanelPage());
+                    case WallpaperModePage.routeName:
+                      return _FastPageRoute(
+                          builder: (_) => const WallpaperModePage());
+                    case WallpaperCategoryPage.routeName:
+                      return _FastPageRoute(
+                          builder: (_) => const WallpaperCategoryPage());
                     case WallpaperLibraryPage.routeName:
                       return _FastPageRoute(
                           builder: (_) => const WallpaperLibraryPage());
@@ -176,6 +187,13 @@ class _SettingsPanelState extends State<SettingsPanel> {
                     case NativeFireTvSettingsPage.routeName:
                       return _FastPageRoute(
                           builder: (_) => const NativeFireTvSettingsPage());
+                    case RemoteButtonsSettingsPage.routeName:
+                      return _FastPageRoute(
+                          builder: (_) => const RemoteButtonsSettingsPage());
+                    case RemoteButtonTargetPage.routeName:
+                      return _FastPageRoute(
+                          builder: (_) => RemoteButtonTargetPage(
+                              buttonId: settings.arguments as String));
                     case AppDetailsPage.routeName:
                       return _FastPageRoute(
                           builder: (_) => AppDetailsPage(

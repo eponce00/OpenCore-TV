@@ -19,7 +19,9 @@ This repo is tuned first for a Hisense Fire TV setup, especially Fire OS devices
 - Replaces the stock TV home flow with a custom launcher experience.
 - Shows apps and HDMI/source shortcuts together so inputs can live in Favorites.
 - Lets input tiles use custom labels and icons.
+- Opens an OpenCore-owned input selector from the physical Input/Source button when you are outside the launcher home screen.
 - Uses bundled high-resolution wallpapers instead of relying on broken Android TV wallpaper pickers.
+- Organizes wallpapers through a catalog with brightness and category tags for dark/light appearance modes.
 - Adds weather, clock, and location-aware home/idle widgets.
 - Turns the launcher into its own idle/screensaver surface instead of depending on Fire OS screensaver routing.
 - Includes Home Guard accessibility support to pull the TV back into OpenCore TV when Fire OS tries to show the stock launcher.
@@ -68,10 +70,12 @@ Details and manual recovery commands live in [docs/HOME_GUARD_SETUP.md](docs/HOM
 
 - Package id: `tv.opencore.launcher`
 - Flutter package: `opencore_tv`
+- Current maintained test gate: `. .\scripts\arc-env.ps1; flutter test --no-pub`
 - Agent/project guide: [AGENTS.md](AGENTS.md)
 - Feature tracker: [docs/FEATURE_TRACKER.md](docs/FEATURE_TRACKER.md)
 - Home Guard setup: [docs/HOME_GUARD_SETUP.md](docs/HOME_GUARD_SETUP.md)
 - Settings audit: [docs/SETTINGS_AUDIT.md](docs/SETTINGS_AUDIT.md)
+- Wallpaper catalog: [docs/WALLPAPER_CATALOG.md](docs/WALLPAPER_CATALOG.md)
 
 ## Credits
 

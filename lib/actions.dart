@@ -98,6 +98,10 @@ class MoveFocusToSettingsIntent extends Intent {
   const MoveFocusToSettingsIntent();
 }
 
+class RemoteMenuIntent extends Intent {
+  const RemoteMenuIntent();
+}
+
 class BackIntent extends Intent {
   const BackIntent();
 }

@@ -31,6 +31,7 @@ class CategoryCleanRow extends StatelessWidget {
 
   final bool isFirstSection;
   final double scrollAlignment;
+  final FocusNode? endFocusNode;
 
   CategoryCleanRow({
     Key? key,
@@ -38,6 +39,7 @@ class CategoryCleanRow extends StatelessWidget {
     required this.applications,
     this.isFirstSection = false,
     this.scrollAlignment = 0.5,
+    this.endFocusNode,
   }) : super(key: key);
 
   @override
@@ -57,6 +59,8 @@ class CategoryCleanRow extends StatelessWidget {
                   category: category,
                   application: applications[index],
                   autofocus: index == 0,
+                  focusNode:
+                      index == applications.length - 1 ? endFocusNode : null,
                   handleUpNavigationToSettings: isFirstSection,
                   scrollAlignment: scrollAlignment,
                   onMove: (direction) => _onMove(context, direction, index),

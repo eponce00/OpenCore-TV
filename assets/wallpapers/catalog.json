@@ -1,0 +1,111 @@
+[
+  {
+    "id": "light_earth_01",
+    "asset": "assets/wallpapers/light/light_earth_01.webp",
+    "brightness": "light",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite"
+    ],
+    "default": true
+  },
+  {
+    "id": "light_earth_08",
+    "asset": "assets/wallpapers/light/light_earth_08.webp",
+    "brightness": "light",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite",
+      "minimal_landscape"
+    ]
+  },
+  {
+    "id": "light_fine_art_01",
+    "asset": "assets/wallpapers/light/light_fine_art_01.webp",
+    "brightness": "light",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "oil_still_life"
+    ]
+  },
+  {
+    "id": "dark_abstract_art_10",
+    "asset": "assets/wallpapers/dark/dark_abstract_art_10.webp",
+    "brightness": "dark",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal"
+    ]
+  },
+  {
+    "id": "light_abstract_art_01",
+    "asset": "assets/wallpapers/light/light_abstract_art_01.webp",
+    "brightness": "light",
+    "categories": [
+      "abstract_art",
+      "art",
+      "abstract",
+      "minimal",
+      "impasto"
+    ]
+  },
+  {
+    "id": "light_architecture_01",
+    "asset": "assets/wallpapers/light/light_architecture_01.webp",
+    "brightness": "light",
+    "categories": [
+      "architecture",
+      "minimal",
+      "minimal_architecture"
+    ]
+  },
+  {
+    "id": "dark_earth_07",
+    "asset": "assets/wallpapers/dark/dark_earth_07.webp",
+    "brightness": "dark",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite"
+    ],
+    "default": true
+  },
+  {
+    "id": "dark_architecture_06",
+    "asset": "assets/wallpapers/dark/dark_architecture_06.webp",
+    "brightness": "dark",
+    "categories": [
+      "architecture",
+      "minimal",
+      "oil_architecture"
+    ]
+  },
+  {
+    "id": "dark_earth_09",
+    "asset": "assets/wallpapers/dark/dark_earth_09.webp",
+    "brightness": "dark",
+    "categories": [
+      "earth",
+      "landscape",
+      "satellite",
+      "oil_landscape"
+    ]
+  },
+  {
+    "id": "dark_fine_art_05",
+    "asset": "assets/wallpapers/dark/dark_fine_art_05.webp",
+    "brightness": "dark",
+    "categories": [
+      "art",
+      "fine_art",
+      "classical",
+      "oil_architecture"
+    ]
+  }
+]

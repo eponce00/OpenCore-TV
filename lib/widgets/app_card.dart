@@ -22,8 +22,11 @@ import 'package:opencore_tv/actions.dart';
 import 'package:opencore_tv/app_image_type.dart';
 import 'package:opencore_tv/providers/apps_service.dart';
 import 'package:opencore_tv/providers/settings_service.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:opencore_tv/widgets/application_info_panel.dart';
 import 'package:opencore_tv/widgets/focus_keyboard_listener.dart';
+import 'package:opencore_tv/widgets/input_tile_content.dart';
+import 'package:opencore_tv/widgets/settings/input_settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -38,6 +41,8 @@ const _validationKeys = [
   LogicalKeyboardKey.gameButtonA
 ];
 
+const _syntheticInputPackagePrefix = "opencore.input.";
+
 class AppCard extends StatefulWidget {
   final App application;
   final Category category;
@@ -47,6 +52,7 @@ class AppCard extends StatefulWidget {
   final bool Function()? shouldIgnoreActivation;
   final bool handleUpNavigationToSettings;
   final double scrollAlignment;
+  final FocusNode? focusNode;
 
   const AppCard({
     super.key,
@@ -58,6 +64,7 @@ class AppCard extends StatefulWidget {
     this.shouldIgnoreActivation,
     this.handleUpNavigationToSettings = false,
     this.scrollAlignment = 0.5,
+    this.focusNode,
   });
 
   @override
@@ -73,6 +80,7 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
   DateTime? _lastMoveAt;
   DateTime? _lastEnsureVisibleAt;
   late FocusNode _focusNode;
+  late bool _ownsFocusNode;
 
   // late Future<(AppImageType, ImageProvider)> _appImageLoadFuture;
   (AppImageType, ImageProvider)? _loadedImage;
@@ -91,12 +99,15 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _focusNode = FocusNode();
+    _ownsFocusNode = widget.focusNode == null;
+    _focusNode = widget.focusNode ?? FocusNode();
     _isTraditionalHighlightMode =
         FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
 
     FocusManager.instance.addHighlightModeListener(_focusHighlightModeChanged);
-    _loadAppImage(Provider.of<AppsService>(context, listen: false));
+    if (!_isInputTile) {
+      _loadAppImage(Provider.of<AppsService>(context, listen: false));
+    }
 
     // Check if we need to restore focus/reorder mode after a move
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -119,13 +130,24 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
     super.didUpdateWidget(oldWidget);
 
     final appsService = Provider.of<AppsService>(context, listen: false);
-
-    if (oldWidget.application.packageName != widget.application.packageName) {
+    if (_isInputTile) {
+      _loadedImage = null;
+      _imageLoadError = false;
+    } else if (oldWidget.application.packageName !=
+        widget.application.packageName) {
       _loadedImage = null;
       _imageLoadError = false;
       _loadAppImage(appsService);
     } else if (appsService.consumeDirtyImage(widget.application.packageName)) {
       _loadAppImage(appsService);
+    }
+
+    if (oldWidget.focusNode != widget.focusNode) {
+      if (_ownsFocusNode) {
+        _focusNode.dispose();
+      }
+      _ownsFocusNode = widget.focusNode == null;
+      _focusNode = widget.focusNode ?? FocusNode();
     }
 
     // Check for pending focus on update as well
@@ -152,131 +174,174 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
         .removeHighlightModeListener(_focusHighlightModeChanged);
     _curvedAnimation.dispose();
     _animation.dispose();
-    _focusNode.dispose();
+    if (_ownsFocusNode) {
+      _focusNode.dispose();
+    }
 
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
+    final isLight = Theme.of(context).brightness == Brightness.light;
     final bool showAppNames =
         context.select<SettingsService, bool>((s) => s.showAppNamesBelowIcons);
     final appImageWidget = _appImage();
     final bool shouldHighlight = _shouldHighlight();
 
-    return FocusKeyboardListener(
-      onPressed: _onPressed,
-      onLongPress: _onLongPress,
-      child: AnimatedScale(
-        scale: _clicked ? 0.9 : 1.0,
-        duration: const Duration(milliseconds: 150),
-        curve: Curves.easeOutCubic,
-        child: AnimatedOpacity(
-          opacity: _clicked ? 0.85 : 1.0,
+    return Actions(
+      actions: <Type, Action<Intent>>{
+        RemoteMenuIntent: CallbackAction<RemoteMenuIntent>(
+          onInvoke: (_) {
+            _showPanel();
+            return null;
+          },
+        ),
+      },
+      child: FocusKeyboardListener(
+        onPressed: _onPressed,
+        onLongPress: _onLongPress,
+        child: AnimatedScale(
+          scale: _clicked ? 0.9 : 1.0,
           duration: const Duration(milliseconds: 150),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: RepaintBoundary(
-                    child: AnimatedScale(
-                      scale: !_moving && shouldHighlight ? 1.2 : 1.0,
-                      duration: const Duration(milliseconds: 150),
-                      alignment: Alignment.center,
-                      curve: Curves.easeInOut,
-                      child: Material(
-                        borderRadius: BorderRadius.circular(12),
-                        clipBehavior: Clip.antiAlias,
-                        elevation: shouldHighlight ? 16 : 4,
-                        shadowColor: Colors.black,
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            InkWell(
-                              focusNode: _focusNode,
-                              autofocus: widget.autofocus,
-                              focusColor: Colors.transparent,
-                              child: appImageWidget,
-                              onTap: () => _onPressed(LogicalKeyboardKey.enter),
-                              onLongPress: () =>
-                                  _onLongPress(LogicalKeyboardKey.enter),
-                              onFocusChange: (focused) {
-                                _handleFocusChange(context, focused);
-                              },
-                            ),
-                            if (_moving) ..._arrows(),
-                            IgnorePointer(
-                              child: AnimatedOpacity(
-                                duration: const Duration(milliseconds: 200),
-                                curve: Curves.easeInOut,
-                                opacity: shouldHighlight ? 0.0 : 1.0,
-                                child:
-                                    const ColoredBox(color: Color(0x1A000000)),
-                              ),
-                            ),
-                            Selector<SettingsService, (bool, String)>(
-                              selector: (_, settingsService) => (
-                                settingsService.appHighlightAnimationEnabled,
-                                settingsService.accentColorHex,
-                              ),
-                              builder: (context, settings, _) {
-                                final (animationEnabled, accentColorHex) =
-                                    settings;
-                                final accentColor = Color(
-                                    int.parse('FF$accentColorHex', radix: 16));
-                                _setHighlightAnimation(
-                                    shouldHighlight && animationEnabled);
+          curve: Curves.easeOutCubic,
+          child: AnimatedOpacity(
+            opacity: _clicked ? 0.85 : 1.0,
+            duration: const Duration(milliseconds: 150),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: RepaintBoundary(
+                      child: AnimatedScale(
+                        scale: !_moving && shouldHighlight ? 1.2 : 1.0,
+                        duration: const Duration(milliseconds: 150),
+                        alignment: Alignment.center,
+                        curve: Curves.easeInOut,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: colors.elevated,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              if (isLight)
+                                BoxShadow(
+                                  color: colors.shadow,
+                                  blurRadius: shouldHighlight ? 18 : 10,
+                                  offset: Offset(0, shouldHighlight ? 8 : 4),
+                                ),
+                            ],
+                          ),
+                          child: Material(
+                            color: colors.elevated,
+                            borderRadius: BorderRadius.circular(12),
+                            clipBehavior: Clip.antiAlias,
+                            elevation: 0,
+                            shadowColor: colors.shadow,
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                InkWell(
+                                  focusNode: _focusNode,
+                                  autofocus: widget.autofocus,
+                                  focusColor: Colors.transparent,
+                                  child: appImageWidget,
+                                  onTap: () =>
+                                      _onPressed(LogicalKeyboardKey.enter),
+                                  onLongPress: () =>
+                                      _onLongPress(LogicalKeyboardKey.enter),
+                                  onFocusChange: (focused) {
+                                    _handleFocusChange(context, focused);
+                                  },
+                                ),
+                                if (_moving) ..._arrows(),
+                                if (!isLight)
+                                  IgnorePointer(
+                                    child: AnimatedOpacity(
+                                      duration:
+                                          const Duration(milliseconds: 200),
+                                      curve: Curves.easeInOut,
+                                      opacity: shouldHighlight ? 0.0 : 1.0,
+                                      child: ColoredBox(
+                                          color: colors.cardScrim
+                                              .withOpacity(0.25)),
+                                    ),
+                                  ),
+                                IgnorePointer(
+                                  child: _BaseCardOutline(
+                                    color: colors.line,
+                                    width: isLight ? 1.2 : 0.6,
+                                  ),
+                                ),
+                                Selector<SettingsService, bool>(
+                                  selector: (_, settingsService) =>
+                                      settingsService
+                                          .appHighlightAnimationEnabled,
+                                  builder: (context, settings, _) {
+                                    final animationEnabled = settings;
+                                    final accentColor = Theme.of(context)
+                                                .brightness ==
+                                            Brightness.light
+                                        ? Theme.of(context).colorScheme.primary
+                                        : colors.focusFill;
+                                    _setHighlightAnimation(
+                                        shouldHighlight && animationEnabled);
 
-                                if (shouldHighlight) {
-                                  if (animationEnabled) {
-                                    return AnimatedBuilder(
-                                      animation: _curvedAnimation,
-                                      child: IgnorePointer(
-                                        child: RepaintBoundary(
-                                          child: _HighlightOutline(
-                                              color: accentColor),
-                                        ),
-                                      ),
-                                      builder: (context, child) {
-                                        final opacity =
-                                            0.4 + (_animation.value * 0.6);
-                                        return Opacity(
-                                            opacity: opacity, child: child);
-                                      },
-                                    );
-                                  } else {
-                                    return IgnorePointer(
-                                      child: RepaintBoundary(
-                                        child: _HighlightOutline(
-                                            color: accentColor),
-                                      ),
-                                    );
-                                  }
-                                }
+                                    if (shouldHighlight) {
+                                      if (animationEnabled) {
+                                        return AnimatedBuilder(
+                                          animation: _curvedAnimation,
+                                          child: IgnorePointer(
+                                            child: RepaintBoundary(
+                                              child: _HighlightOutline(
+                                                  color: accentColor),
+                                            ),
+                                          ),
+                                          builder: (context, child) {
+                                            final opacity =
+                                                0.4 + (_animation.value * 0.6);
+                                            return Opacity(
+                                                opacity: opacity, child: child);
+                                          },
+                                        );
+                                      } else {
+                                        return IgnorePointer(
+                                          child: RepaintBoundary(
+                                            child: _HighlightOutline(
+                                                color: accentColor),
+                                          ),
+                                        );
+                                      }
+                                    }
 
-                                return const SizedBox();
-                              },
+                                    return const SizedBox();
+                                  },
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              if (showAppNames)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: _AppNameLabel(name: widget.application.name),
-                ),
-            ],
+                if (showAppNames)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: _AppNameLabel(name: widget.application.name),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
+  bool get _isInputTile =>
+      widget.application.packageName.startsWith(_syntheticInputPackagePrefix);
 
   Future<void> _loadAppImage(AppsService service) async {
     try {
@@ -305,20 +370,34 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
   Widget _appImage() {
     App app = widget.application;
 
+    if (_isInputTile) {
+      return _inputTileContent();
+    }
+
     if (_loadedImage != null) {
       final (type, image) = _loadedImage!;
       if (type == AppImageType.Banner) {
         return Ink.image(image: image, fit: BoxFit.cover);
       } else {
+        final colors = context.openCoreColors;
         return Padding(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(10),
           child: Row(
             children: [
               Expanded(
                 flex: 2,
-                child: Ink.image(
-                  image: image,
-                  height: double.maxFinite,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: colors.cardScrim,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Ink.image(
+                      image: image,
+                      height: double.maxFinite,
+                    ),
+                  ),
                 ),
               ),
               Flexible(
@@ -428,6 +507,23 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
     //     }
     //   }
     // );
+  }
+
+  Widget _inputTileContent() {
+    final settings = context.watch<SettingsService>();
+    final packageName = widget.application.packageName;
+    final label = settings.inputLabel(
+      packageName,
+      settings.defaultInputLabel(packageName),
+    );
+    final icon = OpenCoreInputConfig.iconData(settings.inputIcon(packageName));
+
+    return InputTileContent(
+      icon: icon,
+      label: label,
+      focused: _shouldHighlight(),
+      dense: true,
+    );
   }
 
   void _focusHighlightModeChanged(FocusHighlightMode mode) {
@@ -542,13 +638,14 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
           alignment: alignment,
           child: Ink(
               decoration: ShapeDecoration(
-                  color: Theme.of(context).primaryColor.withOpacity(0.8),
-                  shape: CircleBorder()),
+                  color: context.openCoreColors.focusFill,
+                  shape: const CircleBorder()),
               child: SizedBox(
                   height: 36,
                   width: 36,
                   child: IconButton(
-                      icon: Icon(icon, size: 24),
+                      icon: Icon(icon,
+                          size: 24, color: context.openCoreColors.focusText),
                       onPressed: onTap,
                       padding: EdgeInsets.all(0)))));
 
@@ -676,6 +773,23 @@ class _HighlightOutline extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _BaseCardOutline extends StatelessWidget {
+  final Color color;
+  final double width;
+
+  const _BaseCardOutline({required this.color, required this.width});
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color, width: width),
+      ),
     );
   }
 }

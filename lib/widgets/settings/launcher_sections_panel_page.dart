@@ -18,6 +18,7 @@
 
 import 'dart:async';
 import 'package:opencore_tv/providers/apps_service.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:opencore_tv/widgets/settings/focusable_settings_tile.dart';
 import 'package:opencore_tv/widgets/settings/launcher_section_panel_page.dart';
 import 'package:flutter/material.dart';
@@ -86,7 +87,6 @@ class _LauncherSectionsPanelPageState extends State<LauncherSectionsPanelPage> {
       int totalCount) {
     AppLocalizations localizations = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     String title = localizations.spacer;
     if (section is Category) {
@@ -147,19 +147,20 @@ class _LauncherSectionsPanelPageState extends State<LauncherSectionsPanelPage> {
         },
         child: Builder(builder: (context) {
           final bool focused = Focus.of(context).hasFocus;
+          final colors = context.openCoreColors;
+          final focusRing = Theme.of(context).brightness == Brightness.light
+              ? Theme.of(context).colorScheme.primary
+              : colors.focusFill;
 
           // Determine colors based on state
-          final Color backgroundColor = isMoving
-              ? colorScheme.primaryContainer
-              : (focused ? Colors.white10 : Colors.transparent);
+          final Color backgroundColor =
+              isMoving || focused ? colors.focusFill : Colors.transparent;
 
-          final Color textColor = isMoving
-              ? colorScheme.onPrimaryContainer
-              : (focused ? Colors.white : Colors.white70);
+          final Color textColor =
+              isMoving || focused ? colors.focusText : colors.text;
 
-          final Color iconColor = isMoving
-              ? colorScheme.onPrimaryContainer
-              : (focused ? colorScheme.primary : Colors.white38);
+          final Color iconColor =
+              isMoving || focused ? colors.focusText : colors.mutedText;
 
           return GestureDetector(
             onTap: () {
@@ -177,26 +178,23 @@ class _LauncherSectionsPanelPageState extends State<LauncherSectionsPanelPage> {
                 });
               }
             },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 50),
+            child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               decoration: BoxDecoration(
                 color: backgroundColor,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: focused
-                      ? colorScheme.primary
-                      : (isMoving ? colorScheme.primary : Colors.transparent),
-                  width: focused ? 2 : (isMoving ? 1 : 0),
+                  color: focused || isMoving ? focusRing : Colors.transparent,
+                  width: focused || isMoving ? 1 : 0,
                 ),
-                boxShadow: focused
-                    ? [
-                        BoxShadow(
-                            color: Colors.black45,
-                            blurRadius: 8,
-                            offset: Offset(0, 4))
-                      ]
-                    : null,
+                boxShadow: [
+                  if (focused || isMoving)
+                    BoxShadow(
+                      color: colors.shadow,
+                      blurRadius: 18,
+                      offset: const Offset(0, 6),
+                    ),
+                ],
               ),
               child: Row(
                 children: [
@@ -229,7 +227,7 @@ class _LauncherSectionsPanelPageState extends State<LauncherSectionsPanelPage> {
                     const SizedBox(width: 4),
                     Icon(Icons.keyboard_arrow_down, color: textColor),
                   ] else ...[
-                    Icon(Icons.chevron_right, color: Colors.white24),
+                    Icon(Icons.chevron_right, color: colors.faintText),
                   ],
                 ],
               ),

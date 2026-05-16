@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:opencore_tv/models/app.dart';
 import 'package:opencore_tv/models/category.dart';
 import 'package:opencore_tv/providers/apps_service.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:opencore_tv/widgets/add_to_category_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -133,7 +134,7 @@ class AppDetailsPage extends StatelessWidget {
       required String title,
       required VoidCallback onTap}) {
     return ListTile(
-      leading: Icon(icon, color: Colors.white70),
+      leading: Icon(icon, color: context.openCoreColors.mutedText),
       title: Text(title, style: Theme.of(context).textTheme.bodyMedium),
       onTap: onTap,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

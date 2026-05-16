@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:opencore_tv/providers/apps_service.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:opencore_tv/widgets/settings/focusable_settings_tile.dart';
 import 'package:provider/provider.dart';
 
@@ -56,6 +57,7 @@ class NativeFireTvSettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -67,7 +69,7 @@ class NativeFireTvSettingsPage extends StatelessWidget {
         Text(
           "Fire OS blocks the protected root settings hub and some sections from custom launchers, so OpenCore only shows native destinations that are callable directly.",
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.white.withOpacity(0.58),
+                color: colors.mutedText,
                 height: 1.25,
               ),
         ),
@@ -111,6 +113,7 @@ class _DestinationText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -124,7 +127,7 @@ class _DestinationText extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.white.withOpacity(0.52),
+                color: colors.mutedText,
               ),
         ),
       ],

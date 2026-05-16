@@ -1,6 +1,9 @@
+import 'package:flutter/services.dart';
+import 'package:opencore_tv/widgets/network_info_panel.dart';
 import 'package:opencore_tv/widgets/settings/settings_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 
 import '../providers/settings_service.dart';
 import 'daily_wifi_usage_widget.dart';
@@ -8,7 +11,14 @@ import 'date_time_widget.dart';
 import 'network_widget.dart';
 
 class FocusAwareAppBar extends StatefulWidget implements PreferredSizeWidget {
-  const FocusAwareAppBar({Key? key}) : super(key: key);
+  final VoidCallback? onFocusWeather;
+  final VoidCallback? onFocusDockEnd;
+
+  const FocusAwareAppBar({
+    Key? key,
+    this.onFocusWeather,
+    this.onFocusDockEnd,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -22,21 +32,32 @@ class FocusAwareAppBar extends StatefulWidget implements PreferredSizeWidget {
 class FocusAwareAppBarState extends State<FocusAwareAppBar> {
   bool focused = false;
   late FocusNode _settingsFocusNode;
+  late FocusNode _networkFocusNode;
 
   @override
   void initState() {
     super.initState();
     _settingsFocusNode = FocusNode();
+    _networkFocusNode = FocusNode();
   }
 
   @override
   void dispose() {
     _settingsFocusNode.dispose();
+    _networkFocusNode.dispose();
     super.dispose();
   }
 
   void focusSettings() {
     _settingsFocusNode.requestFocus();
+  }
+
+  void focusNetwork() {
+    if (_networkFocusNode.context != null) {
+      _networkFocusNode.requestFocus();
+    } else {
+      focusSettings();
+    }
   }
 
   @override
@@ -61,13 +82,21 @@ class FocusAwareAppBarState extends State<FocusAwareAppBar> {
 
         return widget!;
       },
-      child: const RepaintBoundary(child: _OpenCoreAppBar()),
+      child: RepaintBoundary(
+        child: _OpenCoreAppBar(
+          onFocusWeather: widget.onFocusWeather,
+          onFocusDockEnd: widget.onFocusDockEnd,
+        ),
+      ),
     );
   }
 }
 
 class _OpenCoreAppBar extends StatelessWidget {
-  const _OpenCoreAppBar();
+  final VoidCallback? onFocusWeather;
+  final VoidCallback? onFocusDockEnd;
+
+  const _OpenCoreAppBar({this.onFocusWeather, this.onFocusDockEnd});
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +112,16 @@ class _OpenCoreAppBar extends StatelessWidget {
             focusNode: context
                 .findAncestorStateOfType<FocusAwareAppBarState>()
                 ?._settingsFocusNode,
+            onFocusRight: () {
+              final state =
+                  context.findAncestorStateOfType<FocusAwareAppBarState>();
+              if (state?._networkFocusNode.context != null) {
+                state?._networkFocusNode.requestFocus();
+              } else {
+                onFocusWeather?.call();
+              }
+            },
+            onFocusDown: onFocusDockEnd,
             onPressed: () => showDialog(
                 context: context, builder: (_) => const SettingsPanel()),
           ),
@@ -92,7 +131,16 @@ class _OpenCoreAppBar extends StatelessWidget {
             builder: (context, showNetwork, _) => showNetwork
                 ? Padding(
                     padding: const EdgeInsets.only(right: 12),
-                    child: _FocusableNetworkWidget(),
+                    child: _FocusableNetworkWidget(
+                      focusNode: context
+                          .findAncestorStateOfType<FocusAwareAppBarState>()
+                          ?._networkFocusNode,
+                      onFocusLeft: () => context
+                          .findAncestorStateOfType<FocusAwareAppBarState>()
+                          ?.focusSettings(),
+                      onFocusRight: onFocusWeather,
+                      onFocusDown: onFocusDockEnd,
+                    ),
                   )
                 : const SizedBox.shrink(),
           ),
@@ -145,10 +193,7 @@ class _HomeClock extends StatelessWidget {
         final textStyle = TextStyle(
           fontSize: fontSize,
           fontWeight: FontWeight.w400,
-          color: Colors.white,
-          shadows: const [
-            Shadow(color: Colors.black54, offset: Offset(0, 2), blurRadius: 4)
-          ],
+          color: context.openCoreColors.text,
         );
 
         return Row(
@@ -182,9 +227,17 @@ class _FocusableIconButton extends StatefulWidget {
   final IconData icon;
   final VoidCallback onPressed;
   final FocusNode? focusNode;
+  final VoidCallback? onFocusRight;
+  final VoidCallback? onFocusLeft;
+  final VoidCallback? onFocusDown;
 
   const _FocusableIconButton(
-      {required this.icon, required this.onPressed, this.focusNode});
+      {required this.icon,
+      required this.onPressed,
+      this.focusNode,
+      this.onFocusRight,
+      this.onFocusLeft,
+      this.onFocusDown});
 
   @override
   State<_FocusableIconButton> createState() => _FocusableIconButtonState();
@@ -195,6 +248,10 @@ class _FocusableIconButtonState extends State<_FocusableIconButton> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
+    final focusRing = Theme.of(context).brightness == Brightness.light
+        ? Theme.of(context).colorScheme.primary
+        : colors.focusFill;
     return Actions(
       actions: <Type, Action<Intent>>{
         ActivateIntent:
@@ -205,30 +262,49 @@ class _FocusableIconButtonState extends State<_FocusableIconButton> {
       child: Focus(
         focusNode: widget.focusNode,
         onFocusChange: (hasFocus) => setState(() => _focused = hasFocus),
+        onKeyEvent: (_, event) {
+          if (event is! KeyDownEvent) return KeyEventResult.ignored;
+          if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+            widget.onFocusRight?.call();
+            return widget.onFocusRight == null
+                ? KeyEventResult.ignored
+                : KeyEventResult.handled;
+          }
+          if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+            widget.onFocusLeft?.call();
+            return widget.onFocusLeft == null
+                ? KeyEventResult.ignored
+                : KeyEventResult.handled;
+          }
+          if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+            widget.onFocusDown?.call();
+            return widget.onFocusDown == null
+                ? KeyEventResult.ignored
+                : KeyEventResult.handled;
+          }
+          return KeyEventResult.ignored;
+        },
         child: InkWell(
           onTap: widget.onPressed,
           borderRadius: BorderRadius.circular(8),
           child: Container(
-            padding: const EdgeInsets.all(4), // Match network indicator padding
+            padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              border: _focused
-                  ? Border.all(
-                      color: Theme.of(context).colorScheme.primary, width: 2)
-                  : null,
-              boxShadow: _focused
-                  ? const [
-                      BoxShadow(
-                          color: Colors.black54, blurRadius: 8, spreadRadius: 1)
-                    ]
-                  : null,
+              color: _focused ? colors.focusFill : Colors.transparent,
+              border: _focused ? Border.all(color: focusRing, width: 1) : null,
+              boxShadow: [
+                if (_focused)
+                  BoxShadow(
+                    color: colors.shadow,
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+              ],
             ),
             child: Icon(
               widget.icon,
-              shadows: const [
-                Shadow(
-                    color: Colors.black54, blurRadius: 8, offset: Offset(0, 2))
-              ],
+              color: _focused ? colors.focusText : colors.text,
             ),
           ),
         ),
@@ -239,6 +315,18 @@ class _FocusableIconButtonState extends State<_FocusableIconButton> {
 
 /// Network widget with consistent focus indicator
 class _FocusableNetworkWidget extends StatefulWidget {
+  final FocusNode? focusNode;
+  final VoidCallback? onFocusLeft;
+  final VoidCallback? onFocusRight;
+  final VoidCallback? onFocusDown;
+
+  const _FocusableNetworkWidget({
+    this.focusNode,
+    this.onFocusLeft,
+    this.onFocusRight,
+    this.onFocusDown,
+  });
+
   @override
   State<_FocusableNetworkWidget> createState() =>
       _FocusableNetworkWidgetState();
@@ -249,24 +337,66 @@ class _FocusableNetworkWidgetState extends State<_FocusableNetworkWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
+    final focusRing = Theme.of(context).brightness == Brightness.light
+        ? Theme.of(context).colorScheme.primary
+        : colors.focusFill;
     return Focus(
+      focusNode: widget.focusNode,
       onFocusChange: (hasFocus) => setState(() => _focused = hasFocus),
+      onKeyEvent: (_, event) {
+        if (event is! KeyDownEvent) return KeyEventResult.ignored;
+        if (event.logicalKey == LogicalKeyboardKey.select ||
+            event.logicalKey == LogicalKeyboardKey.enter ||
+            event.logicalKey == LogicalKeyboardKey.gameButtonA) {
+          _showNetworkPanel();
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+          widget.onFocusRight?.call();
+          return widget.onFocusRight == null
+              ? KeyEventResult.ignored
+              : KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          widget.onFocusLeft?.call();
+          return widget.onFocusLeft == null
+              ? KeyEventResult.ignored
+              : KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+          widget.onFocusDown?.call();
+          return widget.onFocusDown == null
+              ? KeyEventResult.ignored
+              : KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          border: _focused
-              ? Border.all(
-                  color: Theme.of(context).colorScheme.primary, width: 2)
-              : null,
-          boxShadow: _focused
-              ? const [
-                  BoxShadow(
-                      color: Colors.black54, blurRadius: 8, spreadRadius: 1)
-                ]
-              : null,
+          color: _focused ? colors.focusFill : Colors.transparent,
+          border: _focused ? Border.all(color: focusRing, width: 1) : null,
+          boxShadow: [
+            if (_focused)
+              BoxShadow(
+                color: colors.shadow,
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+          ],
         ),
-        child: const NetworkWidget(),
+        child: NetworkWidget(
+          iconColorOverride: _focused ? colors.focusText : colors.text,
+        ),
       ),
+    );
+  }
+
+  void _showNetworkPanel() {
+    showDialog(
+      context: context,
+      builder: (_) => const NetworkInfoPanel(),
     );
   }
 }

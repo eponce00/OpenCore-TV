@@ -1,13 +1,18 @@
 import 'package:opencore_tv/providers/network_service.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:opencore_tv/widgets/network_info_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class NetworkWidget extends StatelessWidget {
-  const NetworkWidget({super.key});
+  final VoidCallback? onPressed;
+  final Color? iconColorOverride;
+
+  const NetworkWidget({super.key, this.onPressed, this.iconColorOverride});
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
     return Selector<NetworkService, (NetworkType, CellularNetworkType, int)>(
         selector: (_, ns) => (
               ns.networkType,
@@ -79,17 +84,22 @@ class NetworkWidget extends StatelessWidget {
           }
 
           return InkWell(
-            onTap: () => showDialog(
-              context: context,
-              builder: (_) => const NetworkInfoPanel(),
-            ),
+            onTap: onPressed ??
+                () => showDialog(
+                      context: context,
+                      builder: (_) => const NetworkInfoPanel(),
+                    ),
             borderRadius: BorderRadius.circular(8),
             child: Padding(
               padding: const EdgeInsets.all(4.0),
-              child: Icon(iconData, color: iconColor, shadows: const [
-                Shadow(
-                    color: Colors.black54, offset: Offset(0, 2), blurRadius: 8)
-              ]),
+              child: Icon(iconData,
+                  color: iconColor ?? iconColorOverride ?? colors.text,
+                  shadows: [
+                    Shadow(
+                        color: colors.shadow,
+                        offset: Offset(0, 2),
+                        blurRadius: 8)
+                  ]),
             ),
           );
         });

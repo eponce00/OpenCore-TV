@@ -26,8 +26,12 @@ class OpenCoreTVChannel {
       EventChannel('tv.opencore.launcher/event_apps');
   static const _networkEventChannel =
       EventChannel('tv.opencore.launcher/event_network');
+  static const _lightSensorEventChannel =
+      EventChannel('tv.opencore.launcher/event_light_sensor');
   static VoidCallback? _enterIdleListener;
   static VoidCallback? _dismissPanelListener;
+  static VoidCallback? _remoteMenuListener;
+  static VoidCallback? _inputSelectorListener;
 
   static void setEnterIdleListener(VoidCallback? listener) {
     _enterIdleListener = listener;
@@ -39,12 +43,26 @@ class OpenCoreTVChannel {
     _installMethodHandler();
   }
 
+  static void setRemoteMenuListener(VoidCallback? listener) {
+    _remoteMenuListener = listener;
+    _installMethodHandler();
+  }
+
+  static void setInputSelectorListener(VoidCallback? listener) {
+    _inputSelectorListener = listener;
+    _installMethodHandler();
+  }
+
   static void _installMethodHandler() {
     _methodChannel.setMethodCallHandler((call) async {
       if (call.method == "enterIdle") {
         _enterIdleListener?.call();
       } else if (call.method == "dismissPanel") {
         _dismissPanelListener?.call();
+      } else if (call.method == "remoteMenu") {
+        _remoteMenuListener?.call();
+      } else if (call.method == "showInputSelector") {
+        _inputSelectorListener?.call();
       }
     });
   }
@@ -160,5 +178,11 @@ class OpenCoreTVChannel {
       _networkEventChannel.receiveBroadcastStream().listen((event) {
         Map<dynamic, dynamic> eventMap = event;
         listener(eventMap.cast<String, dynamic>());
+      });
+
+  Stream<Map<String, dynamic>> lightSensorEvents() =>
+      _lightSensorEventChannel.receiveBroadcastStream().map((event) {
+        final eventMap = event as Map<dynamic, dynamic>;
+        return eventMap.cast<String, dynamic>();
       });
 }

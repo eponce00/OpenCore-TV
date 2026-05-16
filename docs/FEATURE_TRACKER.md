@@ -11,7 +11,7 @@ Goal: turn this Hisense Fire TV into a clean, personal launcher for Jellyfin, Yo
 - Status: HDMI/source entries are being modeled as synthetic OpenCore apps so they can be added to Favorites, reordered, hidden, and customized like normal apps.
 - Status: HDMI/input tiles use OpenCore's own native `TvView` player and no longer route through Amazon passthrough UI.
 - Status: Wallpaper rotation setting requested: enable/disable automatic rotation and choose a rotation frequency.
-- Status: Remote Input/Source button can fall back to OpenCore Home; the separate custom input menu was removed because inputs now live as normal favorite tiles.
+- Status: Physical Input/Source opens OpenCore's own input selector only when the user is outside OpenCore Home; on Home it is ignored because the input tiles are already visible in Favorites.
 - Status: Home/Input handoffs now use a short accessibility overlay curtain to hide Fire OS launcher/input flashes.
 - Status: Amazon launcher events are treated as Home rescue again; Input/Source menu only wins after a real input key or Amazon input package event.
 - Status: Stock Amazon launcher disable/restore scripts are available in `scripts/`, but this TV blocks disabling `com.amazon.tv.launcher` as a protected package.
@@ -20,9 +20,11 @@ Goal: turn this Hisense Fire TV into a clean, personal launcher for Jellyfin, Yo
 - Status: Weather widget is implemented on the home screen using a lightweight live weather service.
 - Status: Idle home mode is implemented: app UI fades away, clock/weather remain over the wallpaper, and remote/pointer activity wakes it.
 - Status: Wallpaper Library now supports optional timed rotation with adjustable frequency.
+- Status: Wallpapers now use a catalog manifest with brightness and category tags; all current bundled wallpapers are classified as dark/art under `assets/wallpapers/dark`.
+- Status: Appearance mode now supports Dark, Light, Auto by room light, and Auto by sunrise/sunset. The TV exposes a real `android.sensor.light` sensor (`S0-als-veml3235`), and OpenCore also requests Open-Meteo sunrise/sunset with `timezone=auto` as a fallback/alternate signal.
 - Status: Input customization settings are implemented for HDMI/input labels and icon presets.
-- Status: OpenCore input menu now reads saved input labels/icons and uses OpenCore-owned styling instead of the first temporary grid.
-- Status: Physical Input/Source button can fall back to opening OpenCore Home; this is acceptable for now because inputs live in Favorites.
+- Status: OpenCore input selector now reads saved input labels/icons, traps focus inside the available input tiles, closes on Back/Home/Menu, and uses OpenCore-owned styling.
+- Status: Branded remote buttons can be remapped from Settings. This is a best-effort rescue path because Fire OS still receives the original hardware app key first on this TV.
 - Status: Back navigation should stay inside OpenCore and no longer exit to black screen or briefly reveal Fire OS Home.
 - Status: Fire OS Screensaver Settings entry is being replaced with OpenCore's own idle/screensaver settings.
 - Status: TV-hostile dropdown controls are being replaced with remote-friendly full-row picker pages.
@@ -62,17 +64,19 @@ Goal: turn this Hisense Fire TV into a clean, personal launcher for Jellyfin, Yo
 - Status: Settings Control Center styling was tightened for the OLED/minimal launcher theme: smaller cards, near-black surfaces, neutral focus outlines, and no oversized colored glow.
 - Status: Settings cleanup pass renamed the inherited `OpenCore System` catch-all into `Device Tools`, clarified its sections, and kept Fire TV native sections separate.
 - Status: Repository formalization started: added `AGENTS.md`, GitHub Releases publish script, README release link, and removed inherited remote wiring.
+- Status: Stale inherited widget/provider tests were removed and replaced with the current OpenCore-focused suite covering settings persistence and input selector focus behavior.
 - Status: Public history cleanup requested: rewrite `main` as a clean OpenCore root commit and replace inherited tags/releases with OpenCore-owned releases.
 
 ## Backlog
 
-- If the remote Menu button does not trigger OpenCore's context panel, capture the exact Fire OS key code and map it explicitly.
+- Keep branded remote-button remapping honest: Fire OS may still flash the original store/app path before OpenCore rescues to the chosen target.
 - Keep reviewing deeper inherited settings pages, especially app section editing, for TV-hostile dropdowns/text fields.
 - Weather widget on native Android Dream/screensaver service, if we decide to keep a separate system screensaver instead of OpenCore idle mode.
 - Auto-detect additional TV inputs beyond the confirmed MediaTek HDMI/antenna/composite IDs.
 - Confirm physical Home button behavior after Fire OS protected-package limitations.
-- Confirm physical Input/Source button behavior; Fire OS may not expose the real hardware key to third-party launchers.
+- Confirm physical Input/Source behavior after Fire OS updates; OpenCore relies on the foreground activity plus Home Guard accessibility/log rescue path, not privileged system interception.
 - Optional: allow custom image files for input icons instead of only built-in icon presets.
+- Add a first light wallpaper pack and richer categories such as earth, city, space, abstract, and minimal.
 
 ## Next Test Pass
 
@@ -80,15 +84,20 @@ Goal: turn this Hisense Fire TV into a clean, personal launcher for Jellyfin, Yo
 - Back button inside OpenCore Settings should pop the current settings page first.
 - Idle/screensaver should wake on remote arrows/select/back without launching the focused app underneath.
 - Wallpaper rotation frequency should change through the full-row picker page.
+- Appearance mode should show the live room lux reading and switch active wallpaper bucket without flicker.
 - OpenCore idle / Screensaver should open OpenCore's own settings, not Fire OS screensaver settings.
 - Fire OS native screensaver manager should no longer show a broken "no app installed to manage this" OpenCore Settings handler.
 - Weather settings should allow unit and preset location changes.
 - Input settings should allow label/icon preset changes with remote navigation.
 - Long-press Select on an input favorite should open the side action menu with Customize Input.
 - Input favorite cards should show the quiet OpenCore banner style, not the old blue/circle artwork.
+- Physical Input/Source should do nothing visible on OpenCore Home, and should open the OpenCore selector from other apps/inputs.
+- OpenCore input selector focus should stay inside its tiles and close on Back/Home/Menu.
+- Branded remote buttons should route to the configured target with no repeated relaunch flashing.
 - Only one OpenCore package should remain installed, and Home/manual launch should show the same UI.
 - Press Home while already on OpenCore Home should enter OpenCore idle/screensaver.
 - Wallpaper backgrounds should look sharper with original PNG assets and no forced downscale.
+- Light appearance should use light-tagged wallpapers when available, and fall back to dark wallpapers when the light bucket is empty.
 - OpenCore Clock settings should control idle clock size, date visibility, and 24-hour format.
 - OpenCore Clock settings should control Home clock size, visibility, and date visibility.
 - Wi‑Fi/status icon should open a dark OpenCore network panel, not a white unusable system panel.
@@ -104,11 +113,15 @@ Goal: turn this Hisense Fire TV into a clean, personal launcher for Jellyfin, Yo
 ## Technical Notes
 
 - Weather starts with a simple live provider and cached fallback. Manual location/units can be added later.
+- Weather requests now include `daily=sunrise,sunset` and `timezone=auto`, so OpenCore can drive sunrise/sunset appearance mode from the configured weather location.
+- Wallpaper organization uses folders for browsing (`dark/`, `light/`) and `assets/wallpapers/catalog.json` as the source of truth for brightness/category tags.
 - Idle mode lives inside the launcher first because it gives OpenCore control of wallpaper, clock, weather, and wake behavior without depending on Fire OS Dream routing.
 - HDMI/input launching uses discovered MediaTek TV input IDs on this model: HDMI 1 = `HW2`, HDMI 2 = `HW3`, HDMI 3 = `HW4`, HDMI 4 = `HW5`.
 - Full-screen HDMI/input launching works through OpenCore's `InputPlayerActivity`. Small live HDMI preview was removed after diagnostics indicated this Fire OS/MediaTek build only composes HDMI reliably as a full-screen input surface.
-- Fire OS protects direct input tuning behind Amazon signature permissions. OpenCore should attempt direct tuning first, then fall back to the Fire TV input selector when blocked.
-- Intercepting the remote Input button may require an accessibility service or key-event capable foreground activity. Fire OS may block this in some cases.
+- Fire OS protects direct input tuning behind Amazon signature permissions. OpenCore uses its own `InputPlayerActivity` for the confirmed MediaTek input IDs and avoids the stock Fire TV input selector when possible.
+- Intercepting the remote Input button is best-effort on Fire OS. OpenCore handles the key while foreground, then uses Home Guard accessibility/log detection to redirect Amazon input UI to the OpenCore selector when Fire OS wins first.
+- Home Guard uses a short transition curtain to hide most Amazon Home/input flashes, but the protected Fire OS UI may still appear briefly before accessibility events are delivered.
+- The current practical gates are `flutter test --no-pub` for the maintained OpenCore suite and `flutter build apk --release` for the TV install build.
 - Next priority: user validation pass, then refine visual styling and add manual weather location if wanted.
 - Home override likely needs a guard service because `cmd package resolve-activity` still chooses `com.amazon.tv.launcher/.ui.HomeActivity_vNext`.
 - Fire OS marks `com.amazon.tv.launcher` as protected, so normal ADB cannot disable the package without root/elevated privileges. OpenCore should rely on HOME preference plus Home Guard rescue.

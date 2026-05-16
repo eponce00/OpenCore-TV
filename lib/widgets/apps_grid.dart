@@ -26,6 +26,7 @@ import 'package:provider/provider.dart';
 import '../models/app.dart';
 import '../models/category.dart';
 import '../providers/settings_service.dart';
+import '../theme/opencore_theme.dart';
 import 'category_container_common.dart';
 
 class AppsGrid extends StatelessWidget {
@@ -78,13 +79,14 @@ class AppsGrid extends StatelessWidget {
             selector: (context, service) => service.showCategoryTitles,
             builder: (context, showCategoriesTitle, _) {
               if (showCategoriesTitle) {
+                final colors = context.openCoreColors;
                 return Padding(
                   padding: const EdgeInsets.only(left: 16, bottom: 8),
                   child: Text(category.name,
                       style: Theme.of(context).textTheme.titleLarge!.copyWith(
                           shadows: [
-                            const Shadow(
-                                color: Colors.black54,
+                            Shadow(
+                                color: colors.shadow,
                                 offset: Offset(1, 1),
                                 blurRadius: 8)
                           ])),

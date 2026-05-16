@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/settings_service.dart';
+import '../../theme/opencore_theme.dart';
 
 class AccentColorPage extends StatelessWidget {
   static const String routeName = "accent_color_panel";
@@ -54,6 +55,7 @@ class AccentColorPage extends StatelessWidget {
     return Consumer<SettingsService>(
       builder: (context, settingsService, _) {
         final currentColor = settingsService.accentColorHex;
+        final colors = context.openCoreColors;
 
         return Column(
           children: [
@@ -89,7 +91,7 @@ class AccentColorPage extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.black26,
+                  color: colors.elevated,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: _hexToColor(currentColor),
@@ -148,6 +150,9 @@ class _ColorTileState extends State<_ColorTile> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
+    final swatchTextColor =
+        widget.color.computeLuminance() > 0.45 ? Colors.black : Colors.white;
     return Actions(
       actions: <Type, Action<Intent>>{
         ActivateIntent:
@@ -167,24 +172,10 @@ class _ColorTileState extends State<_ColorTile> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: _focused
-                    ? Colors.white
-                    : (widget.isSelected ? Colors.white : Colors.transparent),
+                    ? colors.focusFill
+                    : (widget.isSelected ? colors.text : colors.line),
                 width: _focused ? 3 : (widget.isSelected ? 2 : 0),
               ),
-              boxShadow: _focused
-                  ? [
-                      BoxShadow(
-                          color: widget.color.withOpacity(0.6),
-                          blurRadius: 12,
-                          spreadRadius: 2)
-                    ]
-                  : widget.isSelected
-                      ? [
-                          BoxShadow(
-                              color: widget.color.withOpacity(0.4),
-                              blurRadius: 8)
-                        ]
-                      : null,
             ),
             child: Center(
               child: Column(
@@ -192,17 +183,16 @@ class _ColorTileState extends State<_ColorTile> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (widget.isSelected)
-                    const Icon(Icons.check, color: Colors.white, size: 24),
+                    Icon(Icons.check, color: swatchTextColor, size: 24),
                   if (widget.isSelected) const SizedBox(height: 2),
                   FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
                       widget.name,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: swatchTextColor,
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
-                        shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
                       ),
                     ),
                   ),

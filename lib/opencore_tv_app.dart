@@ -18,7 +18,9 @@
 
 import 'package:opencore_tv/actions.dart';
 import 'package:opencore_tv/providers/apps_service.dart';
+import 'package:opencore_tv/providers/appearance_service.dart';
 import 'package:opencore_tv/providers/settings_service.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:opencore_tv/providers/launcher_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -33,19 +35,6 @@ class OpenCoreTVApp extends StatelessWidget {
   static const PrioritizedIntents _backIntents =
       PrioritizedIntents(orderedIntents: [DismissIntent(), BackIntent()]);
 
-  static const MaterialColor _swatch = MaterialColor(0xFF011526, <int, Color>{
-    50: Color(0xFF36A0FA),
-    100: Color(0xFF067BDE),
-    200: Color(0xFF045CA7),
-    300: Color(0xFF033662),
-    400: Color(0xFF022544),
-    500: Color(0xFF011526),
-    600: Color(0xFF000508),
-    700: Color(0xFF000000),
-    800: Color(0xFF000000),
-    900: Color(0xFF000000),
-  });
-
   const OpenCoreTVApp();
 
   @override
@@ -54,9 +43,23 @@ class OpenCoreTVApp extends StatelessWidget {
     LauncherState launcherState = context.read<LauncherState>();
     launcherState.refresh(appsService);
 
-    return Selector<SettingsService, Color>(
-        selector: (_, settings) => settings.accentColor,
-        builder: (context, accentColor, _) {
+    return Selector2<SettingsService, AppearanceService,
+            ({Color accentColor, bool light})>(
+        selector: (_, settings, appearance) => (
+              accentColor: settings.accentColor,
+              light: appearance.isLight,
+            ),
+        builder: (context, appearance, _) {
+          final accentColor = appearance.accentColor;
+          final isLight = appearance.light;
+          final schemeBrightness = isLight ? Brightness.light : Brightness.dark;
+          final openCoreColors =
+              isLight ? OpenCoreThemeColors.light : OpenCoreThemeColors.dark;
+          final surface = openCoreColors.panel;
+          final background = openCoreColors.page;
+          final baseTextTheme = isLight
+              ? Typography.material2018().black
+              : Typography.material2018().white;
           return MaterialApp(
             scrollBehavior: const MaterialScrollBehavior().copyWith(
               overscroll: false,
@@ -84,42 +87,50 @@ class OpenCoreTVApp extends StatelessWidget {
             title: 'OpenCore TV',
             theme: ThemeData(
               useMaterial3: true,
-              brightness: Brightness.dark,
+              brightness: schemeBrightness,
               // Use ColorScheme based on accent color
               colorScheme: ColorScheme.fromSeed(
                 seedColor: accentColor,
-                brightness: Brightness.dark,
+                brightness: schemeBrightness,
                 primary: accentColor,
                 secondary: accentColor,
-                surface: const Color(0xFF1E1E1E),
-                background: const Color(0xFF121212),
+                surface: surface,
+                background: background,
               ),
-              cardColor: const Color(0xFF1E1E1E), // Dark surface color
-              canvasColor: const Color(0xFF121212), // Dark background
-              dialogBackgroundColor: const Color(0xFF1E1E1E),
-              scaffoldBackgroundColor:
-                  const Color(0xFF121212), // Dark background
+              cardColor: surface,
+              canvasColor: background,
+              dialogBackgroundColor: surface,
+              scaffoldBackgroundColor: background,
               textButtonTheme: TextButtonThemeData(
                   style: TextButton.styleFrom(
-                foregroundColor:
-                    Colors.white, // Revert to white for settings list
+                foregroundColor: openCoreColors.text,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               )),
+              extensions: <ThemeExtension<dynamic>>[
+                openCoreColors,
+              ],
               dialogTheme: DialogTheme(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20)),
-                backgroundColor: const Color(0xFF1E1E1E),
-                titleTextStyle: Typography.material2018().white.titleLarge,
-                contentTextStyle: Typography.material2018().white.bodyMedium,
+                backgroundColor: openCoreColors.panel,
+                titleTextStyle: baseTextTheme.titleLarge
+                    ?.copyWith(color: openCoreColors.text),
+                contentTextStyle: baseTextTheme.bodyMedium
+                    ?.copyWith(color: openCoreColors.text),
               ),
               appBarTheme: const AppBarTheme(
                   elevation: 0, backgroundColor: Colors.transparent),
               typography: Typography.material2018(),
+              textTheme: baseTextTheme.apply(
+                bodyColor: openCoreColors.text,
+                displayColor: openCoreColors.text,
+              ),
               inputDecorationTheme: InputDecorationTheme(
-                focusedBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white)),
-                labelStyle: Typography.material2018().white.bodyMedium,
+                focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: openCoreColors.text)),
+                labelStyle: baseTextTheme.bodyMedium
+                    ?.copyWith(color: openCoreColors.text),
               ),
               textSelectionTheme: TextSelectionThemeData(
                 cursorColor: accentColor,

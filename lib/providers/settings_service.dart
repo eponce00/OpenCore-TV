@@ -51,6 +51,9 @@ const String _weatherUnit = "weather_unit";
 const String _weatherLatitude = "weather_latitude";
 const String _weatherLongitude = "weather_longitude";
 const String _weatherLocationName = "weather_location_name";
+const String _remoteButtonPrefix = "remote_button_";
+const String _appearanceMode = "appearance_mode";
+const String _wallpaperCategory = "wallpaper_category";
 
 // WiFi usage period options
 const String WIFI_USAGE_DAILY = "daily";
@@ -73,6 +76,13 @@ const String ACCENT_COLOR_LIME = "AEEA00";
 const String ACCENT_COLOR_AMBER = "FFAB00";
 const String ACCENT_COLOR_ROSE = "FF4081";
 const String ACCENT_COLOR_ICE_BLUE = "80D8FF";
+
+const String APPEARANCE_MODE_DARK = "dark";
+const String APPEARANCE_MODE_LIGHT = "light";
+const String APPEARANCE_MODE_AUTO_HYBRID = "auto_hybrid";
+const String APPEARANCE_MODE_AUTO_SENSOR = "auto_sensor";
+const String APPEARANCE_MODE_AUTO_SUN = "auto_sun";
+const String WALLPAPER_CATEGORY_ALL = "all";
 
 class SettingsService extends ChangeNotifier {
   static final defaultDateFormat = "EEEE d";
@@ -138,7 +148,7 @@ class SettingsService extends ChangeNotifier {
   String? get bundledWallpaperAsset {
     final asset = _sharedPreferences.getString(_bundledWallpaperAsset);
     if (asset == "") return null;
-    return asset ?? "assets/wallpapers/wallpaper_01.jpg";
+    return asset ?? "assets/wallpapers/dark/dark_earth_07.webp";
   }
 
   bool get wallpaperRotationEnabled =>
@@ -164,6 +174,16 @@ class SettingsService extends ChangeNotifier {
 
   String get weatherLocationName =>
       _sharedPreferences.getString(_weatherLocationName) ?? "Los Angeles";
+
+  String get appearanceMode =>
+      _sharedPreferences.getString(_appearanceMode) ?? APPEARANCE_MODE_DARK;
+
+  String get wallpaperCategory =>
+      _sharedPreferences.getString(_wallpaperCategory) ??
+      WALLPAPER_CATEGORY_ALL;
+
+  String remoteButtonAssignment(String buttonId) =>
+      _sharedPreferences.getString("$_remoteButtonPrefix$buttonId") ?? "";
 
   Color get accentColor {
     final hex = accentColorHex;
@@ -301,6 +321,27 @@ class SettingsService extends ChangeNotifier {
       _sharedPreferences.setDouble(_weatherLatitude, latitude),
       _sharedPreferences.setDouble(_weatherLongitude, longitude),
     ]);
+    notifyListeners();
+  }
+
+  Future<void> setRemoteButtonAssignment(
+    String buttonId,
+    String packageName,
+  ) async {
+    await _sharedPreferences.setString(
+      "$_remoteButtonPrefix$buttonId",
+      packageName,
+    );
+    notifyListeners();
+  }
+
+  Future<void> setAppearanceMode(String mode) async {
+    await _sharedPreferences.setString(_appearanceMode, mode);
+    notifyListeners();
+  }
+
+  Future<void> setWallpaperCategory(String category) async {
+    await _sharedPreferences.setString(_wallpaperCategory, category);
     notifyListeners();
   }
 

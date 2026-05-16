@@ -2,6 +2,7 @@ package tv.opencore.launcher;
 
 import android.accessibilityservice.AccessibilityService;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Handler;
@@ -18,18 +19,25 @@ import java.io.InputStreamReader;
 
 public class HomeGuardAccessibilityService extends AccessibilityService {
     private static final String TRACE_TAG = "OpenCoreTrace";
+    private static final boolean VERBOSE_ACCESSIBILITY_LOGS = false;
     private static final String AMAZON_LAUNCHER_PACKAGE = "com.amazon.tv.launcher";
     private static final String AMAZON_INPUT_PACKAGE = "com.amazon.tv.inputpreference.service";
     private static final long HOME_LAUNCH_DEBOUNCE_MS = 80;
     private static final long INPUT_MENU_DEBOUNCE_MS = 500;
-    private static final long INPUT_FLOW_SUPPRESS_HOME_MS = 3500;
+    private static final long INPUT_FLOW_SUPPRESS_HOME_MS = 15000;
     private static final long CURTAIN_HIDE_DELAY_MS = 900;
     private static final long OPENCORE_RECENT_WINDOW_MS = 2500;
+    private static final long REMOTE_BUTTON_REMAP_DELAY_MS = 650;
+    private static final long REMOTE_BUTTON_REMAP_WINDOW_MS = 1800;
+    private static final String FLUTTER_PREFS = "FlutterSharedPreferences";
+    private static final String REMOTE_BUTTON_PREF_PREFIX = "flutter.remote_button_";
 
     private long lastHomeLaunchTimeMs = 0;
     private long lastInputMenuLaunchTimeMs = 0;
     private long lastInputFlowTimeMs = 0;
     private long lastOpenCoreWindowTimeMs = 0;
+    private long remoteButtonRemapUntilMs = 0;
+    private String pendingRemoteButtonId = "";
     private String currentPackageName = "";
     private String currentClassName = "";
     private String previousForegroundPackageName = "";
@@ -64,13 +72,15 @@ public class HomeGuardAccessibilityService extends AccessibilityService {
                 currentPackageName = nextPackageName;
                 currentClassName = nextClassName;
             }
-            Log.w(TRACE_TAG, "accessibility event type=" + event.getEventType()
-                    + " package=" + currentPackageName
-                    + " class=" + currentClassName
-                    + " previous=" + previousForegroundPackageName
-                    + " previousClass=" + previousForegroundClassName
-                    + " stableOpenCoreClass=" + lastStableOpenCoreActivityClassName
-                    + " openCoreRecent=" + wasOpenCoreRecentlyActive());
+            if (VERBOSE_ACCESSIBILITY_LOGS) {
+                Log.w(TRACE_TAG, "accessibility event type=" + event.getEventType()
+                        + " package=" + currentPackageName
+                        + " class=" + currentClassName
+                        + " previous=" + previousForegroundPackageName
+                        + " previousClass=" + previousForegroundClassName
+                        + " stableOpenCoreClass=" + lastStableOpenCoreActivityClassName
+                        + " openCoreRecent=" + wasOpenCoreRecentlyActive());
+            }
             if (isOpenCorePackage(currentPackageName)) {
                 lastOpenCoreWindowTimeMs = System.currentTimeMillis();
                 if (isOpenCoreActivityClass(currentClassName)) {
@@ -79,26 +89,11 @@ public class HomeGuardAccessibilityService extends AccessibilityService {
             }
         }
         if (packageName != null && AMAZON_INPUT_PACKAGE.contentEquals(packageName)) {
-            lastInputFlowTimeMs = System.currentTimeMillis();
-            launchOpenCoreInputMenu();
+            handleAmazonInputWindow();
             return;
         }
         if (packageName != null && AMAZON_LAUNCHER_PACKAGE.contentEquals(packageName)) {
-            if (isAmazonSettingsClass(currentClassName)) {
-                return;
-            }
-            if (isInsideInputFlow()) {
-                return;
-            }
-            if (MainActivity.isPanelOpen()) {
-                launchOpenCoreDismissPanel();
-                return;
-            }
-            if (wasPreviousForegroundOpenCoreHome()) {
-                launchOpenCoreIdle();
-                return;
-            }
-            launchOpenCoreHome();
+            handleAmazonLauncherWindow();
         }
     }
 
@@ -129,11 +124,11 @@ public class HomeGuardAccessibilityService extends AccessibilityService {
             return true;
         }
 
-        String directInputId = directInputIdForKey(event.getKeyCode());
+        String directInputId = OpenCoreInputs.inputIdForKeyCode(event.getKeyCode());
         if (directInputId != null) {
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
                 lastInputFlowTimeMs = System.currentTimeMillis();
-                launchOpenCoreInput(directInputId, directInputLabelForKey(event.getKeyCode()));
+                launchOpenCoreInput(directInputId, OpenCoreInputs.fallbackLabelForKeyCode(event.getKeyCode()));
             }
             return true;
         }
@@ -206,6 +201,25 @@ public class HomeGuardAccessibilityService extends AccessibilityService {
         startActivity(intent);
     }
 
+    private void returnToOpenCoreHomeFromInputBlock() {
+        long now = System.currentTimeMillis();
+        if (now - lastHomeLaunchTimeMs < HOME_LAUNCH_DEBOUNCE_MS) {
+            Log.w(TRACE_TAG, "returnToOpenCoreHomeFromInputBlock debounced");
+            return;
+        }
+
+        lastHomeLaunchTimeMs = now;
+        Log.w(TRACE_TAG, "returnToOpenCoreHomeFromInputBlock start");
+        showTransitionCurtain();
+        Intent intent = new Intent(this, MainActivity.class)
+                .setAction(MainActivity.ACTION_RETURN_HOME)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                        | Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+        hideTransitionCurtainSoon();
+    }
+
     private boolean isOpenCorePackage(String packageName) {
         return getPackageName().equals(packageName)
                 || "tv.opencore.launcher".equals(packageName)
@@ -245,34 +259,84 @@ public class HomeGuardAccessibilityService extends AccessibilityService {
         return className != null && className.contains("SettingsActivity");
     }
 
+    private boolean isAmazonPassthroughClass(String className) {
+        return className != null && className.contains("PassthroughPlayerActivity");
+    }
+
+    private boolean isAmazonInputMenuLauncherClass(String className) {
+        return className != null
+                && className.contains("RecentDeepLinkActivityDI");
+    }
+
+    private void handleAmazonInputWindow() {
+        if (isAmazonPassthroughClass(currentClassName)) {
+            lastInputFlowTimeMs = System.currentTimeMillis();
+            return;
+        }
+        launchOpenCoreInputMenu();
+    }
+
+    private void handleAmazonLauncherWindow() {
+        if (isAmazonSettingsClass(currentClassName)) {
+            return;
+        }
+        if (isAmazonInputMenuLauncherClass(currentClassName)
+                || isAmazonInputMenuLauncherClass(previousForegroundClassName)) {
+            launchOpenCoreInputMenu();
+            return;
+        }
+        if (isInsideInputFlow()) {
+            return;
+        }
+        if (MainActivity.isPanelOpen()) {
+            launchOpenCoreDismissPanel();
+            return;
+        }
+        if (wasPreviousForegroundOpenCoreHome()) {
+            launchOpenCoreIdle();
+            return;
+        }
+        launchOpenCoreHome();
+    }
+
     private boolean isInputMenuKey(int keyCode) {
         return keyCode == KeyEvent.KEYCODE_TV_INPUT
                 || keyCode == KeyEvent.KEYCODE_STB_INPUT
                 || keyCode == KeyEvent.KEYCODE_AVR_INPUT;
     }
 
-    private String directInputIdForKey(int keyCode) {
-        return switch (keyCode) {
-            case KeyEvent.KEYCODE_TV_INPUT_HDMI_1 -> "com.mediatek.tis/.HdmiInputService/HW2";
-            case KeyEvent.KEYCODE_TV_INPUT_HDMI_2 -> "com.mediatek.tis/.HdmiInputService/HW3";
-            case KeyEvent.KEYCODE_TV_INPUT_HDMI_3 -> "com.mediatek.tis/.HdmiInputService/HW4";
-            case KeyEvent.KEYCODE_TV_INPUT_HDMI_4 -> "com.mediatek.tis/.HdmiInputService/HW5";
-            default -> null;
-        };
-    }
-
-    private String directInputLabelForKey(int keyCode) {
-        return switch (keyCode) {
-            case KeyEvent.KEYCODE_TV_INPUT_HDMI_1 -> "HDMI 1";
-            case KeyEvent.KEYCODE_TV_INPUT_HDMI_2 -> "HDMI 2";
-            case KeyEvent.KEYCODE_TV_INPUT_HDMI_3 -> "HDMI 3";
-            case KeyEvent.KEYCODE_TV_INPUT_HDMI_4 -> "HDMI 4";
-            default -> "Input";
-        };
-    }
-
     private void launchOpenCoreInputMenu() {
-        launchOpenCoreHome();
+        if (shouldBlockInputMenuForOpenCoreHome()) {
+            Log.w(TRACE_TAG, "launchOpenCoreInputMenu blocked on OpenCore home");
+            if (!isOpenCoreHomeForeground()) {
+                returnToOpenCoreHomeFromInputBlock();
+            }
+            return;
+        }
+
+        long now = System.currentTimeMillis();
+        if (now - lastInputMenuLaunchTimeMs < INPUT_MENU_DEBOUNCE_MS) {
+            Log.w(TRACE_TAG, "launchOpenCoreInputMenu debounced");
+            return;
+        }
+
+        lastInputMenuLaunchTimeMs = now;
+        lastInputFlowTimeMs = now;
+        Log.w(TRACE_TAG, "launchOpenCoreInputMenu start");
+        showTransitionCurtain();
+        Intent intent = new Intent(this, MainActivity.class)
+                .setAction(MainActivity.ACTION_SHOW_INPUT_SELECTOR)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                        | Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+        hideTransitionCurtainSoon();
+    }
+
+    private boolean shouldBlockInputMenuForOpenCoreHome() {
+        return isOpenCoreHomeForeground()
+                || wasPreviousForegroundOpenCoreHome()
+                || wasOpenCoreHomeRecentlyActive();
     }
 
     private void launchOpenCoreInput(String inputId, String label) {
@@ -370,11 +434,25 @@ public class HomeGuardAccessibilityService extends AccessibilityService {
     }
 
     private void handleLogLine(String line) {
+        String remoteButtonId = OpenCoreRemoteButtons.buttonIdForActivityLogLine(line);
+        if (remoteButtonId != null) {
+            mainHandler.post(() -> startRemoteButtonRemap(remoteButtonId));
+            return;
+        }
+
         if (line.contains("com.amazon.tv.action.NAVIGATE_TO_INPUTS")
-                || line.contains("com.amazon.tv.inputpreference.action.LAUNCH_INPUTS")
-                || line.contains("com.amazon.tv.inputpreference.service")) {
+                || line.contains("com.amazon.tv.inputpreference.action.LAUNCH_INPUTS")) {
             lastInputFlowTimeMs = System.currentTimeMillis();
             mainHandler.post(this::launchOpenCoreInputMenu);
+            return;
+        }
+
+        if (line.contains("com.amazon.tv.inputpreference.service")) {
+            if (line.contains("PassthroughPlayerActivity")) {
+                lastInputFlowTimeMs = System.currentTimeMillis();
+            } else {
+                mainHandler.post(this::launchOpenCoreInputMenu);
+            }
             return;
         }
 
@@ -383,4 +461,62 @@ public class HomeGuardAccessibilityService extends AccessibilityService {
             mainHandler.post(this::launchOpenCoreHome);
         }
     }
+
+    private void startRemoteButtonRemap(String buttonId) {
+        SharedPreferences prefs = getSharedPreferences(FLUTTER_PREFS, MODE_PRIVATE);
+        String packageName = prefs.getString(REMOTE_BUTTON_PREF_PREFIX + buttonId, "");
+        if (packageName == null || packageName.isBlank()) {
+            return;
+        }
+
+        pendingRemoteButtonId = buttonId;
+        remoteButtonRemapUntilMs = System.currentTimeMillis() + REMOTE_BUTTON_REMAP_WINDOW_MS;
+        showTransitionCurtain();
+        mainHandler.postDelayed(() -> launchRemoteButtonAssignment(buttonId), REMOTE_BUTTON_REMAP_DELAY_MS);
+    }
+
+    private boolean isRemoteButtonRemapPending() {
+        return pendingRemoteButtonId != null
+                && !pendingRemoteButtonId.isBlank()
+                && System.currentTimeMillis() < remoteButtonRemapUntilMs;
+    }
+
+    private void launchRemoteButtonAssignment(String buttonId) {
+        if (!buttonId.equals(pendingRemoteButtonId) || !isRemoteButtonRemapPending()) {
+            return;
+        }
+
+        SharedPreferences prefs = getSharedPreferences(FLUTTER_PREFS, MODE_PRIVATE);
+        String packageName = prefs.getString(REMOTE_BUTTON_PREF_PREFIX + buttonId, "");
+        Log.w(TRACE_TAG, "remote button " + buttonId + " assignment=" + packageName);
+        pendingRemoteButtonId = "";
+        remoteButtonRemapUntilMs = 0;
+        if (packageName == null || packageName.isBlank()) {
+            hideTransitionCurtainSoon();
+            return;
+        }
+        if (OpenCoreInputs.isSyntheticInputPackage(packageName)) {
+            String inputId = OpenCoreInputs.inputIdForPackage(packageName);
+            if (inputId == null) {
+                hideTransitionCurtainSoon();
+                return;
+            }
+            launchOpenCoreInput(inputId, OpenCoreInputs.fallbackLabelForPackage(packageName));
+            return;
+        }
+        Intent intent = getPackageManager().getLeanbackLaunchIntentForPackage(packageName);
+        if (intent == null) {
+            intent = getPackageManager().getLaunchIntentForPackage(packageName);
+        }
+        if (intent == null) {
+            hideTransitionCurtainSoon();
+            return;
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+        hideTransitionCurtainSoon();
+    }
+
 }

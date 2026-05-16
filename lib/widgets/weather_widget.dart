@@ -1,21 +1,36 @@
 import 'package:opencore_tv/providers/weather_service.dart';
 import 'package:opencore_tv/providers/settings_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:provider/provider.dart';
 
 class WeatherWidget extends StatelessWidget {
   final bool compact;
   final bool locationBelow;
+  final FocusNode? focusNode;
+  final VoidCallback? onFocusLeft;
+  final VoidCallback? onFocusDown;
 
   const WeatherWidget(
-      {super.key, this.compact = false, this.locationBelow = false});
+      {super.key,
+      this.compact = false,
+      this.locationBelow = false,
+      this.focusNode,
+      this.onFocusLeft,
+      this.onFocusDown});
 
   @override
   Widget build(BuildContext context) {
     final snapshot = context.select<WeatherService, WeatherSnapshot?>(
       (service) => service.snapshot,
     );
-    final accent = Theme.of(context).colorScheme.primary;
+    final colors = context.openCoreColors;
+    final focusRing = Theme.of(context).brightness == Brightness.light
+        ? Theme.of(context).colorScheme.primary
+        : colors.focusFill;
+    final accent = colors.text;
     final temp =
         snapshot == null ? "--" : snapshot.temperature.round().toString();
     final unit = snapshot?.unitSymbol ?? "";
@@ -27,7 +42,8 @@ class WeatherWidget extends StatelessWidget {
     final temperatureRow = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(_iconFor(snapshot?.icon), color: accent, size: compact ? 28 : 36),
+        Icon(_weatherIconFor(snapshot?.icon),
+            color: accent, size: compact ? 28 : 36),
         SizedBox(width: compact ? 10 : 14),
         Text(
           "$temp°$unit",
@@ -39,10 +55,11 @@ class WeatherWidget extends StatelessWidget {
       ],
     );
 
-    return DecoratedBox(
+    final card = DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(compact ? 0.42 : 0.32),
-        borderRadius: BorderRadius.circular(compact ? 24 : 32),
+        color: colors.cardScrim,
+        borderRadius: BorderRadius.circular(compact ? 14 : 18),
+        border: Border.all(color: colors.line),
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(
@@ -59,7 +76,7 @@ class WeatherWidget extends StatelessWidget {
                   Text(
                     location,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.white.withOpacity(0.64),
+                          color: colors.mutedText,
                           fontSize: 12,
                           height: 1.0,
                         ),
@@ -80,14 +97,14 @@ class WeatherWidget extends StatelessWidget {
                           condition,
                           style:
                               Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Colors.white.withOpacity(0.82),
+                                    color: colors.mutedText,
                                   ),
                         ),
                         Text(
                           location,
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.white.withOpacity(0.58),
+                                    color: colors.faintText,
                                   ),
                         ),
                       ],
@@ -97,17 +114,246 @@ class WeatherWidget extends StatelessWidget {
               ),
       ),
     );
+
+    if (focusNode == null) return card;
+
+    return _FocusableWeatherCard(
+      focusNode: focusNode!,
+      onFocusLeft: onFocusLeft,
+      onFocusDown: onFocusDown,
+      child: card,
+    );
+  }
+}
+
+class _FocusableWeatherCard extends StatefulWidget {
+  final FocusNode focusNode;
+  final VoidCallback? onFocusLeft;
+  final VoidCallback? onFocusDown;
+  final Widget child;
+
+  const _FocusableWeatherCard({
+    required this.focusNode,
+    required this.child,
+    this.onFocusLeft,
+    this.onFocusDown,
+  });
+
+  @override
+  State<_FocusableWeatherCard> createState() => _FocusableWeatherCardState();
+}
+
+class _FocusableWeatherCardState extends State<_FocusableWeatherCard> {
+  bool _focused = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.openCoreColors;
+    final focusRing = Theme.of(context).brightness == Brightness.light
+        ? Theme.of(context).colorScheme.primary
+        : colors.focusFill;
+    return Focus(
+      focusNode: widget.focusNode,
+      onFocusChange: (focused) => setState(() => _focused = focused),
+      onKeyEvent: (node, event) {
+        if (event is! KeyDownEvent) return KeyEventResult.ignored;
+        if (event.logicalKey == LogicalKeyboardKey.select ||
+            event.logicalKey == LogicalKeyboardKey.enter ||
+            event.logicalKey == LogicalKeyboardKey.gameButtonA) {
+          showDialog(
+            context: context,
+            barrierColor: colors.overlay,
+            builder: (_) => const _WeeklyForecastDialog(),
+          );
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          widget.onFocusLeft?.call();
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+          widget.onFocusDown?.call();
+          return widget.onFocusDown == null
+              ? KeyEventResult.ignored
+              : KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+      child: InkWell(
+        onTap: () => showDialog(
+          context: context,
+          barrierColor: colors.overlay,
+          builder: (_) => const _WeeklyForecastDialog(),
+        ),
+        borderRadius: BorderRadius.circular(18),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: _focused
+                ? Border.all(color: focusRing, width: 1)
+                : Border.all(color: Colors.transparent, width: 1),
+            boxShadow: [
+              if (_focused)
+                BoxShadow(
+                  color: colors.shadow,
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                ),
+            ],
+          ),
+          child: widget.child,
+        ),
+      ),
+    );
+  }
+}
+
+class _WeeklyForecastDialog extends StatefulWidget {
+  const _WeeklyForecastDialog();
+
+  @override
+  State<_WeeklyForecastDialog> createState() => _WeeklyForecastDialogState();
+}
+
+class _WeeklyForecastDialogState extends State<_WeeklyForecastDialog> {
+  late final FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _focusNode.requestFocus();
+    });
   }
 
-  IconData _iconFor(String? icon) {
-    return switch (icon) {
-      "sunny" => Icons.wb_sunny_outlined,
-      "partly" => Icons.wb_cloudy_outlined,
-      "fog" => Icons.foggy,
-      "rain" => Icons.water_drop_outlined,
-      "snow" => Icons.ac_unit,
-      "storm" => Icons.thunderstorm_outlined,
-      _ => Icons.cloud_outlined,
-    };
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
+
+  @override
+  Widget build(BuildContext context) {
+    final location = context.select<SettingsService, String>(
+      (settings) => settings.weatherLocationName,
+    );
+    final forecast = context.select<WeatherService, List<DailyWeatherForecast>>(
+      (service) => service.forecast,
+    );
+    final colors = context.openCoreColors;
+
+    return KeyboardListener(
+      focusNode: _focusNode,
+      onKeyEvent: (event) {
+        if (event is KeyDownEvent) Navigator.of(context).maybePop();
+      },
+      child: Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 96, vertical: 72),
+        backgroundColor: colors.panel,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(28, 24, 28, 26),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Weekly Forecast",
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                location,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: colors.mutedText,
+                    ),
+              ),
+              const SizedBox(height: 22),
+              if (forecast.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 22),
+                  child: Text(
+                    "Forecast loading",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                )
+              else
+                Row(
+                  children: forecast.take(7).map((day) {
+                    return Expanded(child: _ForecastDay(day: day));
+                  }).toList(),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ForecastDay extends StatelessWidget {
+  final DailyWeatherForecast day;
+
+  const _ForecastDay({required this.day});
+
+  @override
+  Widget build(BuildContext context) {
+    final isToday = DateUtils.isSameDay(day.date, DateTime.now());
+    final dayLabel = isToday ? "Today" : DateFormat.E().format(day.date);
+    final colors = context.openCoreColors;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: colors.elevated,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: colors.line),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                dayLabel,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              const SizedBox(height: 12),
+              Icon(_weatherIconFor(day.icon), size: 30),
+              const SizedBox(height: 12),
+              Text(
+                "${day.highTemperature.round()}°",
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                "${day.lowTemperature.round()}° ${day.unitSymbol}",
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colors.mutedText,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+IconData _weatherIconFor(String? icon) {
+  return switch (icon) {
+    "sunny" => Icons.wb_sunny_outlined,
+    "partly" => Icons.wb_cloudy_outlined,
+    "fog" => Icons.foggy,
+    "rain" => Icons.water_drop_outlined,
+    "snow" => Icons.ac_unit,
+    "storm" => Icons.thunderstorm_outlined,
+    _ => Icons.cloud_outlined,
+  };
 }

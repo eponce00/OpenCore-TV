@@ -1,7 +1,7 @@
 import 'package:opencore_tv/providers/network_service.dart';
 import 'package:opencore_tv/providers/settings_service.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:provider/provider.dart';
 
 class DailyWifiUsageWidget extends StatelessWidget {
@@ -11,6 +11,7 @@ class DailyWifiUsageWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer2<NetworkService, SettingsService>(
       builder: (context, networkService, settingsService, _) {
+        final colors = context.openCoreColors;
         if (!networkService.hasUsageStatsPermission) {
           return TextButton.icon(
             icon: const Icon(Icons.data_usage, size: 20),
@@ -42,13 +43,13 @@ class DailyWifiUsageWidget extends StatelessWidget {
 
             return RichText(
               text: TextSpan(
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w400,
-                  color: Colors.white,
+                  color: colors.text,
                   shadows: [
                     Shadow(
-                        color: Colors.black54,
+                        color: colors.shadow,
                         offset: Offset(0, 2),
                         blurRadius: 4)
                   ],

@@ -1,8 +1,8 @@
 import 'package:opencore_tv/providers/settings_service.dart';
 import 'package:opencore_tv/widgets/rounded_switch_list_tile.dart';
+import 'package:opencore_tv/widgets/settings/settings_page_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomeDisplaySettingsPage extends StatelessWidget {
   static const String routeName = "home_display_panel";
@@ -11,73 +11,81 @@ class HomeDisplaySettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalizations localizations = AppLocalizations.of(context)!;
     SettingsService settingsService = Provider.of(context);
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text("Home Display", style: Theme.of(context).textTheme.titleLarge),
-        const Divider(),
+        const SettingsPageHeader(
+          title: "Home Display",
+          subtitle: "Tune what stays visible on the launcher home screen.",
+        ),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
             children: [
+              const SettingsSectionLabel("Motion"),
               RoundedSwitchListTile(
                 autofocus: true,
                 value: settingsService.appHighlightAnimationEnabled,
                 onChanged: (value) =>
                     settingsService.setAppHighlightAnimationEnabled(value),
-                title: Text(localizations.appCardHighlightAnimation,
-                    style: Theme.of(context).textTheme.bodyMedium),
-                secondary: Icon(Icons.filter_center_focus),
+                title: const SettingsTileText(
+                  title: "Focus animation",
+                  subtitle: "Animate app cards when focus moves.",
+                ),
+                secondary: const Icon(Icons.filter_center_focus),
               ),
               RoundedSwitchListTile(
                 value: settingsService.appKeyClickEnabled,
                 onChanged: (value) =>
                     settingsService.setAppKeyClickEnabled(value),
-                title: Text(localizations.appKeyClick,
-                    style: Theme.of(context).textTheme.bodyMedium),
-                secondary: Icon(Icons.notifications_active),
+                title: const SettingsTileText(
+                  title: "Remote click sound",
+                  subtitle: "Play a short sound when opening apps.",
+                ),
+                secondary: const Icon(Icons.volume_up_outlined),
               ),
+              const SettingsSectionLabel("Rows"),
               RoundedSwitchListTile(
                 value: settingsService.showCategoryTitles,
                 onChanged: (value) =>
                     settingsService.setShowCategoryTitles(value),
-                title: Text(localizations.showCategoryTitles,
-                    style: Theme.of(context).textTheme.bodyMedium),
-                secondary: Icon(Icons.abc),
+                title: const SettingsTileText(
+                  title: "Section titles",
+                  subtitle: "Show labels above app rows.",
+                ),
+                secondary: const Icon(Icons.title_outlined),
               ),
               RoundedSwitchListTile(
                 value: settingsService.showAppNamesBelowIcons,
                 onChanged: (value) =>
                     settingsService.setShowAppNamesBelowIcons(value),
-                title: Text("Show App Names Below Icons",
-                    style: Theme.of(context).textTheme.bodyMedium),
-                secondary: Icon(Icons.subtitles),
+                title: const SettingsTileText(
+                  title: "App names",
+                  subtitle: "Show names below home tiles.",
+                ),
+                secondary: const Icon(Icons.subtitles_outlined),
               ),
-              RoundedSwitchListTile(
-                value: settingsService.dockBackdropFilterDisabled,
-                onChanged: (value) =>
-                    settingsService.setDockBackdropFilterDisabled(value),
-                title: Text("Disable Dock Backdrop Blur",
-                    style: Theme.of(context).textTheme.bodyMedium),
-                secondary: Icon(Icons.blur_off),
-              ),
+              const SettingsSectionLabel("Top Controls"),
               RoundedSwitchListTile(
                 value: settingsService.autoHideAppBarEnabled,
                 onChanged: (value) =>
                     settingsService.setAutoHideAppBarEnabled(value),
-                title: Text("Auto-hide top status bar",
-                    style: Theme.of(context).textTheme.bodyMedium),
+                title: const SettingsTileText(
+                  title: "Auto-hide top controls",
+                  subtitle: "Hide clock, network, and weather while browsing.",
+                ),
                 secondary: const Icon(Icons.visibility_off_outlined),
               ),
               RoundedSwitchListTile(
                 value: settingsService.showNetworkIndicatorInStatusBar,
                 onChanged: (value) =>
                     settingsService.setShowNetworkIndicatorInStatusBar(value),
-                title: Text("Show network indicator",
-                    style: Theme.of(context).textTheme.bodyMedium),
-                secondary: const Icon(Icons.signal_wifi_4_bar),
+                title: const SettingsTileText(
+                  title: "Network indicator",
+                  subtitle: "Keep Wi-Fi status in the top controls.",
+                ),
+                secondary: const Icon(Icons.signal_wifi_statusbar_4_bar),
               ),
             ],
           ),
