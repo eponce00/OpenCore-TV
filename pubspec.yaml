@@ -1,7 +1,7 @@
 name: opencore_tv
 description: Flutter-based Android TV launcher.
 
-version: 1.0.5+4107
+version: 1.0.6+4108
 
 environment:
   sdk: ">=3.4.3"
