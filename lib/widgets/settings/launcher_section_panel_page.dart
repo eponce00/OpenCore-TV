@@ -766,7 +766,4 @@ Widget _listTile(BuildContext context, Widget title, Widget subtitle,
           trailing: trailing,
         ));
 
-Color _focusRing(BuildContext context) =>
-    Theme.of(context).brightness == Brightness.light
-        ? Theme.of(context).colorScheme.primary
-        : context.openCoreColors.focusFill;
+Color _focusRing(BuildContext context) => context.openCoreFocusRing;

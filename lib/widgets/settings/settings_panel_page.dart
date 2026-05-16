@@ -208,6 +208,7 @@ class _SettingsHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.openCoreColors;
+    final accentLine = context.openCoreAccentFaint;
     final weekday = const [
       "Mon",
       "Tue",
@@ -268,12 +269,22 @@ class _SettingsHeader extends StatelessWidget {
                       ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  "Control Center",
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: colors.faintText,
-                        fontSize: 13,
-                      ),
+                Row(
+                  children: [
+                    Container(
+                      width: 18,
+                      height: 1,
+                      color: accentLine,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      "Control Center",
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: colors.faintText,
+                            fontSize: 13,
+                          ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -314,7 +325,7 @@ class _ControlTile extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: focused ? colors.focusText : colors.mutedText,
+              color: focused ? colors.focusText : context.openCoreAccentMuted,
               size: 19,
             ),
             const SizedBox(width: 11),
@@ -365,12 +376,14 @@ class _SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.openCoreColors;
+    final labelColor =
+        Color.lerp(colors.faintText, context.openCoreAccent, 0.18)!;
     return Padding(
       padding: const EdgeInsets.only(left: 2, bottom: 7),
       child: Text(
         label,
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: colors.faintText,
+              color: labelColor,
               fontSize: 13,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.2,
@@ -430,7 +443,7 @@ class _SettingsRow extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: focused ? colors.focusText : colors.mutedText,
+              color: focused ? colors.focusText : context.openCoreAccentMuted,
               size: 18,
             ),
             const SizedBox(width: 10),
@@ -479,9 +492,7 @@ class _MenuRowSurface extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.openCoreColors;
-    final focusRing = Theme.of(context).brightness == Brightness.light
-        ? Theme.of(context).colorScheme.primary
-        : colors.focusFill;
+    final focusRing = context.openCoreFocusRing;
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 3),
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),

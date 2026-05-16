@@ -391,7 +391,7 @@ class WallpaperService extends ChangeNotifier {
     _updateWallpaper(force: true);
   }
 
-  Future<void> rotateBundledWallpaper() async {
+  Future<void> rotateBundledWallpaper({bool reverse = false}) async {
     final wallpapers = activeCatalog;
     if (wallpapers.isEmpty) return;
     final current = _effectiveBundledWallpaperEntry().reference;
@@ -400,9 +400,11 @@ class WallpaperService extends ChangeNotifier {
     for (var offset = 1; offset <= wallpapers.length; offset++) {
       final nextIndex = currentIndex < 0
           ? offset - 1
-          : (currentIndex + offset) % wallpapers.length;
+          : (currentIndex + (reverse ? -offset : offset)) % wallpapers.length;
+      final normalizedIndex =
+          (nextIndex + wallpapers.length) % wallpapers.length;
       try {
-        await setBundledWallpaper(wallpapers[nextIndex].reference);
+        await setBundledWallpaper(wallpapers[normalizedIndex].reference);
         return;
       } catch (_) {
         // Skip unavailable remote entries while rotating.

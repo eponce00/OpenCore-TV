@@ -3,6 +3,7 @@ import 'package:opencore_tv/providers/ambient_light_service.dart';
 import 'package:opencore_tv/providers/appearance_service.dart';
 import 'package:opencore_tv/providers/settings_service.dart';
 import 'package:opencore_tv/providers/weather_service.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:opencore_tv/widgets/settings/focusable_settings_tile.dart';
 import 'package:opencore_tv/widgets/settings/settings_page_layout.dart';
 import 'package:provider/provider.dart';
@@ -39,6 +40,7 @@ class WallpaperModePage extends StatelessWidget {
               ),
               const SettingsSectionLabel("Manual"),
               _modeTile(
+                context,
                 settings,
                 autofocus: true,
                 value: APPEARANCE_MODE_DARK,
@@ -47,6 +49,7 @@ class WallpaperModePage extends StatelessWidget {
                 subtitle: "Always use dark UI and dark wallpapers.",
               ),
               _modeTile(
+                context,
                 settings,
                 value: APPEARANCE_MODE_LIGHT,
                 icon: Icons.light_mode_outlined,
@@ -55,6 +58,7 @@ class WallpaperModePage extends StatelessWidget {
               ),
               const SettingsSectionLabel("Automatic"),
               _modeTile(
+                context,
                 settings,
                 value: APPEARANCE_MODE_AUTO_HYBRID,
                 icon: Icons.auto_awesome_outlined,
@@ -64,6 +68,7 @@ class WallpaperModePage extends StatelessWidget {
                     : "Sensor unavailable; using sunrise/sunset.",
               ),
               _modeTile(
+                context,
                 settings,
                 value: APPEARANCE_MODE_AUTO_SENSOR,
                 icon: Icons.sensors_outlined,
@@ -73,6 +78,7 @@ class WallpaperModePage extends StatelessWidget {
                     : "No light sensor available on this TV.",
               ),
               _modeTile(
+                context,
                 settings,
                 value: APPEARANCE_MODE_AUTO_SUN,
                 icon: Icons.wb_twilight_outlined,
@@ -87,6 +93,7 @@ class WallpaperModePage extends StatelessWidget {
   }
 
   Widget _modeTile(
+    BuildContext context,
     SettingsService settings, {
     required String value,
     required IconData icon,
@@ -98,8 +105,9 @@ class WallpaperModePage extends StatelessWidget {
       autofocus: autofocus,
       leading: Icon(icon),
       title: SettingsTileText(title: title, subtitle: subtitle),
-      trailing:
-          settings.appearanceMode == value ? const Icon(Icons.check) : null,
+      trailing: settings.appearanceMode == value
+          ? Icon(Icons.check, color: context.openCoreAccentMuted)
+          : null,
       onPressed: () => settings.setAppearanceMode(value),
     );
   }

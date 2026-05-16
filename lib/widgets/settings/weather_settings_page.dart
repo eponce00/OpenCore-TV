@@ -1,5 +1,6 @@
 import 'package:opencore_tv/providers/settings_service.dart';
 import 'package:opencore_tv/providers/weather_service.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:opencore_tv/widgets/settings/focusable_settings_tile.dart';
 import 'package:opencore_tv/widgets/settings/weather_location_search_page.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +52,7 @@ class WeatherSettingsPage extends StatelessWidget {
                   leading: const Icon(Icons.location_on_outlined),
                   title: Text(location.name),
                   trailing: settings.weatherLocationName == location.name
-                      ? const Icon(Icons.check)
+                      ? Icon(Icons.check, color: context.openCoreAccentMuted)
                       : null,
                   onPressed: () async {
                     await settings.setWeatherLocation(
@@ -80,7 +81,9 @@ class WeatherSettingsPage extends StatelessWidget {
     return FocusableSettingsTile(
       leading: const Icon(Icons.thermostat_outlined),
       title: Text(label),
-      trailing: settings.weatherUnit == value ? const Icon(Icons.check) : null,
+      trailing: settings.weatherUnit == value
+          ? Icon(Icons.check, color: context.openCoreAccentMuted)
+          : null,
       onPressed: () async {
         await settings.setWeatherUnit(value);
         if (context.mounted) {

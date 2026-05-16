@@ -55,6 +55,8 @@ class OpenCoreTVApp extends StatelessWidget {
           final schemeBrightness = isLight ? Brightness.light : Brightness.dark;
           final openCoreColors =
               isLight ? OpenCoreThemeColors.light : OpenCoreThemeColors.dark;
+          final subtleAccent = openCoreSubtleAccent(
+              accentColor, openCoreColors, schemeBrightness);
           final surface = openCoreColors.panel;
           final background = openCoreColors.page;
           final baseTextTheme = isLight
@@ -92,8 +94,8 @@ class OpenCoreTVApp extends StatelessWidget {
               colorScheme: ColorScheme.fromSeed(
                 seedColor: accentColor,
                 brightness: schemeBrightness,
-                primary: accentColor,
-                secondary: accentColor,
+                primary: subtleAccent,
+                secondary: subtleAccent,
                 surface: surface,
                 background: background,
               ),
@@ -133,31 +135,32 @@ class OpenCoreTVApp extends StatelessWidget {
                     ?.copyWith(color: openCoreColors.text),
               ),
               textSelectionTheme: TextSelectionThemeData(
-                cursorColor: accentColor,
-                selectionColor: accentColor.withOpacity(0.4),
-                selectionHandleColor: accentColor,
+                cursorColor: subtleAccent,
+                selectionColor: subtleAccent.withOpacity(isLight ? 0.18 : 0.24),
+                selectionHandleColor: subtleAccent,
               ),
               // Override indicator colors for focus
-              indicatorColor: accentColor,
-              progressIndicatorTheme:
-                  ProgressIndicatorThemeData(color: accentColor),
+              indicatorColor: subtleAccent.withOpacity(0.72),
+              progressIndicatorTheme: ProgressIndicatorThemeData(
+                  color: subtleAccent.withOpacity(0.72)),
               sliderTheme: SliderThemeData(
-                activeTrackColor: accentColor,
-                thumbColor: accentColor,
-                inactiveTrackColor: accentColor.withOpacity(0.3),
+                activeTrackColor: subtleAccent.withOpacity(0.58),
+                thumbColor: subtleAccent.withOpacity(0.86),
+                inactiveTrackColor: subtleAccent.withOpacity(0.16),
               ),
               toggleButtonsTheme: ToggleButtonsThemeData(
-                selectedColor: accentColor,
-                fillColor: accentColor.withOpacity(0.1),
+                selectedColor: subtleAccent,
+                fillColor: subtleAccent.withOpacity(0.08),
               ),
               switchTheme: SwitchThemeData(
                 thumbColor: WidgetStateProperty.resolveWith((states) {
-                  if (states.contains(WidgetState.selected)) return accentColor;
+                  if (states.contains(WidgetState.selected))
+                    return subtleAccent;
                   return null;
                 }),
                 trackColor: WidgetStateProperty.resolveWith((states) {
                   if (states.contains(WidgetState.selected))
-                    return accentColor.withOpacity(0.5);
+                    return subtleAccent.withOpacity(0.22);
                   return null;
                 }),
               ),

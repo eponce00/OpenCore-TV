@@ -73,7 +73,7 @@ class _InputSelectorDialogState extends State<InputSelectorDialog> {
             color: colors.page,
             child: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(56, 42, 56, 52),
+                padding: const EdgeInsets.fromLTRB(72, 42, 72, 56),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -111,8 +111,8 @@ class _InputSelectorDialogState extends State<InputSelectorDialog> {
                               const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: _columns,
                             childAspectRatio: 16 / 9,
-                            mainAxisSpacing: 18,
-                            crossAxisSpacing: 18,
+                            mainAxisSpacing: 16,
+                            crossAxisSpacing: 16,
                           ),
                           itemBuilder: (context, index) {
                             final input = OpenCoreInputConfig.inputs[index];
@@ -204,9 +204,7 @@ class _InputSelectorTileState extends State<_InputSelectorTile> {
   @override
   Widget build(BuildContext context) {
     final colors = context.openCoreColors;
-    final focusRing = Theme.of(context).brightness == Brightness.light
-        ? Theme.of(context).colorScheme.primary
-        : colors.focusFill;
+    final focusRing = context.openCoreFocusRing;
 
     return Focus(
       focusNode: widget.focusNode,
@@ -245,14 +243,15 @@ class _InputSelectorTileState extends State<_InputSelectorTile> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(24),
           onTap: widget.onPressed,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 120),
             curve: Curves.easeOutCubic,
+            margin: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: _focused ? colors.focusFill : colors.elevated,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(22),
               border: Border.all(
                 color: _focused ? focusRing : colors.line,
                 width: _focused ? 2 : 1,

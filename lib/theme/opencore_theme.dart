@@ -123,4 +123,63 @@ extension OpenCoreThemeLookup on BuildContext {
   OpenCoreThemeColors get openCoreColors =>
       Theme.of(this).extension<OpenCoreThemeColors>() ??
       OpenCoreThemeColors.dark;
+
+  Color get openCoreAccent => Theme.of(this).colorScheme.primary;
+
+  Color get openCoreAccentMuted => openCoreAccent
+      .withOpacity(Theme.of(this).brightness == Brightness.light ? 0.62 : 0.54);
+
+  Color get openCoreAccentFaint => openCoreAccent
+      .withOpacity(Theme.of(this).brightness == Brightness.light ? 0.26 : 0.20);
+
+  Color get openCoreAccentLine {
+    final colors = openCoreColors;
+    final isLight = Theme.of(this).brightness == Brightness.light;
+    return Color.lerp(
+      colors.line,
+      openCoreAccent,
+      isLight ? 0.34 : 0.26,
+    )!;
+  }
+
+  Color get openCoreFocusRing {
+    final colors = openCoreColors;
+    final isLight = Theme.of(this).brightness == Brightness.light;
+    return Color.lerp(
+      colors.focusFill,
+      openCoreAccent,
+      isLight ? 0.22 : 0.16,
+    )!;
+  }
+}
+
+Color openCoreSubtleAccent(
+  Color accent,
+  OpenCoreThemeColors colors,
+  Brightness brightness,
+) {
+  final resolvedAccent =
+      _isNeutralAccent(accent) ? _defaultSubtleAccent(brightness) : accent;
+  final neutral = brightness == Brightness.light ? colors.text : colors.text;
+  return Color.lerp(
+    neutral,
+    resolvedAccent,
+    brightness == Brightness.light ? 0.46 : 0.38,
+  )!;
+}
+
+bool _isNeutralAccent(Color color) {
+  final maxChannel = [color.red, color.green, color.blue].reduce(
+    (value, element) => value > element ? value : element,
+  );
+  final minChannel = [color.red, color.green, color.blue].reduce(
+    (value, element) => value < element ? value : element,
+  );
+  return maxChannel - minChannel < 12;
+}
+
+Color _defaultSubtleAccent(Brightness brightness) {
+  return brightness == Brightness.light
+      ? const Color(0xFF536F7D)
+      : const Color(0xFF86AEC2);
 }

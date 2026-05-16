@@ -1,5 +1,6 @@
 import 'package:opencore_tv/providers/apps_service.dart';
 import 'package:opencore_tv/providers/settings_service.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:opencore_tv/widgets/settings/focusable_settings_tile.dart';
 import 'package:opencore_tv/widgets/settings/input_settings_page.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +40,9 @@ class InputDetailPage extends StatelessWidget {
                   autofocus: preset == label,
                   leading: const Icon(Icons.drive_file_rename_outline),
                   title: Text(preset),
-                  trailing: preset == label ? const Icon(Icons.check) : null,
+                  trailing: preset == label
+                      ? Icon(Icons.check, color: context.openCoreAccentMuted)
+                      : null,
                   onPressed: () async {
                     await settings.setInputLabel(packageName, preset);
                     if (context.mounted) {
@@ -59,7 +62,9 @@ class InputDetailPage extends StatelessWidget {
                 FocusableSettingsTile(
                   leading: Icon(OpenCoreInputConfig.iconData(preset)),
                   title: Text(_iconLabel(preset)),
-                  trailing: preset == icon ? const Icon(Icons.check) : null,
+                  trailing: preset == icon
+                      ? Icon(Icons.check, color: context.openCoreAccentMuted)
+                      : null,
                   onPressed: () async {
                     await settings.setInputIcon(packageName, preset);
                     if (context.mounted) {

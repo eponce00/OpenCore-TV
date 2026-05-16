@@ -1,4 +1,5 @@
 import 'package:opencore_tv/providers/settings_service.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:opencore_tv/widgets/rounded_switch_list_tile.dart';
 import 'package:opencore_tv/widgets/settings/focusable_settings_tile.dart';
 import 'package:opencore_tv/widgets/settings/settings_page_layout.dart';
@@ -90,7 +91,9 @@ class OpenCoreClockSettingsPage extends StatelessWidget {
         title: "$label size",
         subtitle: "Home clock",
       ),
-      trailing: selected ? const Icon(Icons.check) : null,
+      trailing: selected
+          ? Icon(Icons.check, color: context.openCoreAccentMuted)
+          : null,
       onPressed: () => settings.setHomeClockSize(value),
     );
   }
@@ -108,7 +111,9 @@ class OpenCoreClockSettingsPage extends StatelessWidget {
         title: "$label size",
         subtitle: "Idle clock",
       ),
-      trailing: selected ? const Icon(Icons.check) : null,
+      trailing: selected
+          ? Icon(Icons.check, color: context.openCoreAccentMuted)
+          : null,
       onPressed: () => settings.setIdleClockSize(value),
     );
   }

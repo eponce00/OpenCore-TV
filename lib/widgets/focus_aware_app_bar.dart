@@ -249,9 +249,8 @@ class _FocusableIconButtonState extends State<_FocusableIconButton> {
   @override
   Widget build(BuildContext context) {
     final colors = context.openCoreColors;
-    final focusRing = Theme.of(context).brightness == Brightness.light
-        ? Theme.of(context).colorScheme.primary
-        : colors.focusFill;
+    final focusRing = context.openCoreFocusRing;
+    final idleIconColor = _statusIconColor(context);
     return Actions(
       actions: <Type, Action<Intent>>{
         ActivateIntent:
@@ -304,7 +303,8 @@ class _FocusableIconButtonState extends State<_FocusableIconButton> {
             ),
             child: Icon(
               widget.icon,
-              color: _focused ? colors.focusText : colors.text,
+              color: _focused ? colors.focusText : idleIconColor,
+              shadows: _statusIconShadows(context),
             ),
           ),
         ),
@@ -338,9 +338,8 @@ class _FocusableNetworkWidgetState extends State<_FocusableNetworkWidget> {
   @override
   Widget build(BuildContext context) {
     final colors = context.openCoreColors;
-    final focusRing = Theme.of(context).brightness == Brightness.light
-        ? Theme.of(context).colorScheme.primary
-        : colors.focusFill;
+    final focusRing = context.openCoreFocusRing;
+    final idleIconColor = _statusIconColor(context);
     return Focus(
       focusNode: widget.focusNode,
       onFocusChange: (hasFocus) => setState(() => _focused = hasFocus),
@@ -387,7 +386,7 @@ class _FocusableNetworkWidgetState extends State<_FocusableNetworkWidget> {
           ],
         ),
         child: NetworkWidget(
-          iconColorOverride: _focused ? colors.focusText : colors.text,
+          iconColorOverride: _focused ? colors.focusText : idleIconColor,
         ),
       ),
     );
@@ -399,4 +398,21 @@ class _FocusableNetworkWidgetState extends State<_FocusableNetworkWidget> {
       builder: (_) => const NetworkInfoPanel(),
     );
   }
+}
+
+Color _statusIconColor(BuildContext context) {
+  final isLight = Theme.of(context).brightness == Brightness.light;
+  return isLight ? const Color(0xE6000000) : const Color(0xF2FFFFFF);
+}
+
+List<Shadow> _statusIconShadows(BuildContext context) {
+  final isLight = Theme.of(context).brightness == Brightness.light;
+  return isLight
+      ? const [
+          Shadow(color: Color(0x66FFFFFF), offset: Offset(0, 1), blurRadius: 8),
+          Shadow(color: Color(0x33000000), offset: Offset(0, 2), blurRadius: 6),
+        ]
+      : const [
+          Shadow(color: Color(0xCC000000), offset: Offset(0, 2), blurRadius: 8),
+        ];
 }

@@ -148,9 +148,7 @@ class _LauncherSectionsPanelPageState extends State<LauncherSectionsPanelPage> {
         child: Builder(builder: (context) {
           final bool focused = Focus.of(context).hasFocus;
           final colors = context.openCoreColors;
-          final focusRing = Theme.of(context).brightness == Brightness.light
-              ? Theme.of(context).colorScheme.primary
-              : colors.focusFill;
+          final focusRing = context.openCoreFocusRing;
 
           // Determine colors based on state
           final Color backgroundColor =

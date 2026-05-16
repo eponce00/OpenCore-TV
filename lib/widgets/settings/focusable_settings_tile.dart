@@ -33,9 +33,7 @@ class _FocusableSettingsTileState extends State<FocusableSettingsTile> {
     final secondaryColor = _focused
         ? (isLight ? colors.mutedText : colors.focusMutedText)
         : colors.mutedText;
-    final focusRing = Theme.of(context).brightness == Brightness.light
-        ? Theme.of(context).colorScheme.primary
-        : colors.focusFill;
+    final focusRing = context.openCoreFocusRing;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 0),

@@ -102,6 +102,7 @@ class _IdleWeather extends StatelessWidget {
       (settings) => settings.weatherLocationName,
     );
     final colors = context.openCoreColors;
+    final accent = context.openCoreAccentMuted;
     final temp =
         snapshot == null ? "--" : snapshot.temperature.round().toString();
     final unit = snapshot?.unitSymbol ?? "";
@@ -118,7 +119,7 @@ class _IdleWeather extends StatelessWidget {
             children: [
               Icon(
                 _weatherIconFor(snapshot?.icon),
-                color: colors.text,
+                color: accent,
                 size: 32,
                 shadows: _textShadows(context),
               ),

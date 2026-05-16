@@ -225,6 +225,17 @@ class _OpenCoreTVState extends State<OpenCoreTV> with WidgetsBindingObserver {
     }
 
     if (_idle) {
+      if (event.logicalKey == LogicalKeyboardKey.arrowLeft ||
+          event.logicalKey == LogicalKeyboardKey.arrowRight) {
+        _wakeConsumedKey = event.logicalKey;
+        unawaited(
+          context.read<WallpaperService>().rotateBundledWallpaper(
+                reverse: event.logicalKey == LogicalKeyboardKey.arrowLeft,
+              ),
+        );
+        return true;
+      }
+
       _wakeConsumedKey = event.logicalKey;
       WakeInputSuppressor.suppressFor(
         const Duration(milliseconds: 1000),

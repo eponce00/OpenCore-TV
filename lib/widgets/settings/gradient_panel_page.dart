@@ -104,9 +104,7 @@ class GradientPanelPage extends StatelessWidget {
 
   ShapeBorder? _cardBorder(BuildContext context, bool hasFocus) {
     final colors = context.openCoreColors;
-    final focusRing = Theme.of(context).brightness == Brightness.light
-        ? Theme.of(context).colorScheme.primary
-        : colors.focusFill;
+    final focusRing = context.openCoreFocusRing;
     return hasFocus
         ? RoundedRectangleBorder(
             side: BorderSide(color: focusRing, width: 2),

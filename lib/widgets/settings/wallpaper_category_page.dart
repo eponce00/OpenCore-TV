@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:opencore_tv/providers/settings_service.dart';
 import 'package:opencore_tv/providers/wallpaper_service.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:opencore_tv/widgets/settings/focusable_settings_tile.dart';
 import 'package:opencore_tv/widgets/settings/settings_page_layout.dart';
 import 'package:provider/provider.dart';
@@ -34,7 +35,7 @@ class WallpaperCategoryPage extends StatelessWidget {
                   subtitle: _counts(wallpaperService.catalog),
                 ),
                 trailing: settings.wallpaperCategory == WALLPAPER_CATEGORY_ALL
-                    ? const Icon(Icons.check)
+                    ? Icon(Icons.check, color: context.openCoreAccentMuted)
                     : null,
                 onPressed: () =>
                     settings.setWallpaperCategory(WALLPAPER_CATEGORY_ALL),
@@ -48,7 +49,7 @@ class WallpaperCategoryPage extends StatelessWidget {
                     subtitle: _counts(_entriesFor(wallpaperService, category)),
                   ),
                   trailing: settings.wallpaperCategory == category
-                      ? const Icon(Icons.check)
+                      ? Icon(Icons.check, color: context.openCoreAccentMuted)
                       : null,
                   onPressed: () => settings.setWallpaperCategory(category),
                 ),

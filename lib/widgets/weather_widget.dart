@@ -27,10 +27,7 @@ class WeatherWidget extends StatelessWidget {
       (service) => service.snapshot,
     );
     final colors = context.openCoreColors;
-    final focusRing = Theme.of(context).brightness == Brightness.light
-        ? Theme.of(context).colorScheme.primary
-        : colors.focusFill;
-    final accent = colors.text;
+    final accent = context.openCoreAccentMuted;
     final temp =
         snapshot == null ? "--" : snapshot.temperature.round().toString();
     final unit = snapshot?.unitSymbol ?? "";
@@ -143,15 +140,32 @@ class _FocusableWeatherCard extends StatefulWidget {
   State<_FocusableWeatherCard> createState() => _FocusableWeatherCardState();
 }
 
-class _FocusableWeatherCardState extends State<_FocusableWeatherCard> {
+class _FocusableWeatherCardState extends State<_FocusableWeatherCard>
+    with SingleTickerProviderStateMixin {
   bool _focused = false;
+  late final AnimationController _highlightAnimation = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1200),
+  );
+  late final CurvedAnimation _highlightCurve =
+      CurvedAnimation(parent: _highlightAnimation, curve: Curves.easeInOut);
+
+  @override
+  void dispose() {
+    _highlightCurve.dispose();
+    _highlightAnimation.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.openCoreColors;
-    final focusRing = Theme.of(context).brightness == Brightness.light
-        ? Theme.of(context).colorScheme.primary
-        : colors.focusFill;
+    final focusRing = context.openCoreFocusRing;
+    final pulseEnabled = context.select<SettingsService, bool>(
+      (settings) => settings.appHighlightAnimationEnabled,
+    );
+    _setHighlightAnimation(_focused && pulseEnabled);
+
     return Focus(
       focusNode: widget.focusNode,
       onFocusChange: (focused) => setState(() => _focused = focused),
@@ -186,25 +200,53 @@ class _FocusableWeatherCardState extends State<_FocusableWeatherCard> {
           builder: (_) => const _WeeklyForecastDialog(),
         ),
         borderRadius: BorderRadius.circular(18),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            border: _focused
-                ? Border.all(color: focusRing, width: 1)
-                : Border.all(color: Colors.transparent, width: 1),
-            boxShadow: [
-              if (_focused)
-                BoxShadow(
-                  color: colors.shadow,
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
+        child: AnimatedScale(
+          scale: _focused ? 1.045 : 1.0,
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOutCubic,
+          child: AnimatedBuilder(
+            animation: _highlightCurve,
+            builder: (context, child) {
+              final opacity = _focused
+                  ? (pulseEnabled
+                      ? 0.46 + (_highlightCurve.value * 0.22)
+                      : 0.54)
+                  : 0.0;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                curve: Curves.easeOutCubic,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: focusRing.withOpacity(opacity),
+                    width: 1,
+                  ),
+                  boxShadow: [
+                    if (_focused)
+                      BoxShadow(
+                        color: colors.shadow,
+                        blurRadius: 18,
+                        offset: const Offset(0, 6),
+                      ),
+                  ],
                 ),
-            ],
+                child: child,
+              );
+            },
+            child: widget.child,
           ),
-          child: widget.child,
         ),
       ),
     );
+  }
+
+  void _setHighlightAnimation(bool active) {
+    if (active && !_highlightAnimation.isAnimating) {
+      _highlightAnimation.repeat(reverse: true);
+    } else if (!active && _highlightAnimation.isAnimating) {
+      _highlightAnimation.stop();
+      _highlightAnimation.value = 0;
+    }
   }
 }
 
@@ -302,6 +344,7 @@ class _ForecastDay extends StatelessWidget {
     final isToday = DateUtils.isSameDay(day.date, DateTime.now());
     final dayLabel = isToday ? "Today" : DateFormat.E().format(day.date);
     final colors = context.openCoreColors;
+    final accent = context.openCoreAccentMuted;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -323,7 +366,7 @@ class _ForecastDay extends StatelessWidget {
                     ),
               ),
               const SizedBox(height: 12),
-              Icon(_weatherIconFor(day.icon), size: 30),
+              Icon(_weatherIconFor(day.icon), color: accent, size: 30),
               const SizedBox(height: 12),
               Text(
                 "${day.highTemperature.round()}°",

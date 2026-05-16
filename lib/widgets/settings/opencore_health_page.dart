@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:opencore_tv/providers/apps_service.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:provider/provider.dart';
 
 import 'focusable_settings_tile.dart';
@@ -55,6 +56,12 @@ class _OpenCoreHealthPageState extends State<OpenCoreHealthPage> {
   @override
   Widget build(BuildContext context) {
     final healthy = _homeGuardEnabled == true;
+    final colors = context.openCoreColors;
+    final statusColor = Color.lerp(
+      colors.mutedText,
+      healthy ? const Color(0xFF8FD8A0) : const Color(0xFFE0B36A),
+      0.65,
+    )!;
 
     return Column(
       children: [
@@ -77,7 +84,7 @@ class _OpenCoreHealthPageState extends State<OpenCoreHealthPage> {
                   autofocus: true,
                   leading: Icon(
                     healthy ? Icons.check_circle : Icons.warning_amber_rounded,
-                    color: healthy ? Colors.greenAccent : Colors.orangeAccent,
+                    color: statusColor,
                   ),
                   title: Text(
                     _homeGuardEnabled == null
@@ -106,9 +113,8 @@ class _OpenCoreHealthPageState extends State<OpenCoreHealthPage> {
                   leading: const Icon(Icons.accessibility_new_outlined),
                   title: Text("Open Accessibility Settings",
                       style: Theme.of(context).textTheme.bodyMedium),
-                  onPressed: () => context
-                      .read<AppsService>()
-                      .openAccessibilitySettings(),
+                  onPressed: () =>
+                      context.read<AppsService>().openAccessibilitySettings(),
                 ),
                 FocusableSettingsTile(
                   leading: const Icon(Icons.refresh),

@@ -40,6 +40,7 @@ class DailyWifiUsageWidget extends StatelessWidget {
           builder: (context, snapshot) {
             final usage = snapshot.data ?? networkService.dailyWifiUsage;
             final usageString = _formatBytes(usage);
+            final accent = context.openCoreAccentMuted;
 
             return RichText(
               text: TextSpan(
@@ -58,7 +59,10 @@ class DailyWifiUsageWidget extends StatelessWidget {
                   TextSpan(text: label),
                   TextSpan(
                     text: usageString,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: accent,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),

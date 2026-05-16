@@ -1,4 +1,5 @@
 import 'package:opencore_tv/providers/settings_service.dart';
+import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:opencore_tv/widgets/settings/focusable_settings_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -26,7 +27,7 @@ class IdleTimeoutPage extends StatelessWidget {
                   leading: const Icon(Icons.timer_outlined),
                   title: Text("After $minutes minutes"),
                   trailing: minutes == settings.idleTimeoutMinutes
-                      ? const Icon(Icons.check)
+                      ? Icon(Icons.check, color: context.openCoreAccentMuted)
                       : null,
                   onPressed: () => settings.setIdleTimeoutMinutes(minutes),
                 ),

@@ -134,12 +134,10 @@ class BrightnessSettingsPage extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
                           'Current: ${currentSlot.label}',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: context.openCoreAccentMuted,
+                                  ),
                         ),
                       ),
                       const Divider(),
@@ -291,10 +289,7 @@ class _TimeSlotSliderState extends State<_TimeSlotSlider> {
                     : Colors.transparent),
             borderRadius: BorderRadius.circular(8),
             border: widget.isCurrentSlot
-                ? Border.all(
-                    color:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.5),
-                    width: 1)
+                ? Border.all(color: context.openCoreAccentFaint, width: 1)
                 : null,
           ),
           child: Column(
@@ -309,7 +304,7 @@ class _TimeSlotSliderState extends State<_TimeSlotSlider> {
                         _getIconForSlot(widget.slot),
                         size: 18,
                         color: widget.isCurrentSlot
-                            ? Theme.of(context).colorScheme.primary
+                            ? context.openCoreAccentMuted
                             : colors.mutedText,
                       ),
                       const SizedBox(width: 8),
@@ -320,7 +315,7 @@ class _TimeSlotSliderState extends State<_TimeSlotSlider> {
                                   ? FontWeight.bold
                                   : FontWeight.normal,
                               color: widget.isCurrentSlot
-                                  ? Theme.of(context).colorScheme.primary
+                                  ? context.openCoreAccentMuted
                                   : null,
                             ),
                       ),

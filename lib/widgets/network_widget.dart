@@ -83,6 +83,9 @@ class NetworkWidget extends StatelessWidget {
               break;
           }
 
+          final resolvedColor =
+              iconColor ?? iconColorOverride ?? context.openCoreAccentMuted;
+
           return InkWell(
             onTap: onPressed ??
                 () => showDialog(
@@ -92,14 +95,10 @@ class NetworkWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             child: Padding(
               padding: const EdgeInsets.all(4.0),
-              child: Icon(iconData,
-                  color: iconColor ?? iconColorOverride ?? colors.text,
-                  shadows: [
-                    Shadow(
-                        color: colors.shadow,
-                        offset: Offset(0, 2),
-                        blurRadius: 8)
-                  ]),
+              child: Icon(iconData, color: resolvedColor, shadows: [
+                Shadow(
+                    color: colors.shadow, offset: Offset(0, 2), blurRadius: 8)
+              ]),
             ),
           );
         });

@@ -173,9 +173,7 @@ class _ApplicationsPanelPageState extends State<ApplicationsPanelPage> {
   Widget navButton(
       bool selected, bool focused, int index, String title, IconData icon) {
     final colors = context.openCoreColors;
-    final focusRing = Theme.of(context).brightness == Brightness.light
-        ? Theme.of(context).colorScheme.primary
-        : colors.focusFill;
+    final focusRing = context.openCoreFocusRing;
     // ... (same)
     return InkWell(
       onTap: () {
@@ -452,10 +450,7 @@ class _AppListItemState extends State<_AppListItem> {
           child: Builder(builder: (context) {
             final focused = Focus.of(context).hasFocus;
             final colors = context.openCoreColors;
-            final primaryColor =
-                Theme.of(context).brightness == Brightness.light
-                    ? Theme.of(context).colorScheme.primary
-                    : colors.focusFill;
+            final primaryColor = context.openCoreFocusRing;
             return Container(
                 decoration: BoxDecoration(
                   color: focused ? colors.elevated : colors.elevated,

@@ -19,7 +19,7 @@ class InputTileContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.openCoreColors;
     final isLight = Theme.of(context).brightness == Brightness.light;
-    final accent = _readableAccent(context);
+    final accent = context.openCoreAccentMuted;
     final contentColor = focused ? colors.focusText : colors.text;
     final iconColor = focused && !isLight ? colors.focusText : accent;
     final surfaceStart = focused ? colors.focusFill : colors.elevated;
@@ -61,16 +61,6 @@ class InputTileContent extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Color _readableAccent(BuildContext context) {
-    final colors = context.openCoreColors;
-    final accent = Theme.of(context).colorScheme.primary;
-    if (Theme.of(context).brightness == Brightness.light &&
-        accent.computeLuminance() > 0.72) {
-      return colors.text;
-    }
-    return accent;
   }
 }
 

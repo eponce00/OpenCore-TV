@@ -101,7 +101,9 @@ class RemoteButtonTargetPage extends StatelessWidget {
                   autofocus: current.isEmpty,
                   leading: const Icon(Icons.block_outlined),
                   title: const Text("Do nothing"),
-                  trailing: current.isEmpty ? const Icon(Icons.check) : null,
+                  trailing: current.isEmpty
+                      ? Icon(Icons.check, color: context.openCoreAccentMuted)
+                      : null,
                   onPressed: () => _select(context, ""),
                 ),
                 for (final app in visibleApps)
@@ -110,7 +112,7 @@ class RemoteButtonTargetPage extends StatelessWidget {
                     leading: Icon(_iconForApp(app)),
                     title: Text(_appLabel(app, settings)),
                     trailing: current == app.packageName
-                        ? const Icon(Icons.check)
+                        ? Icon(Icons.check, color: context.openCoreAccentMuted)
                         : null,
                     onPressed: () => _select(context, app.packageName),
                   ),

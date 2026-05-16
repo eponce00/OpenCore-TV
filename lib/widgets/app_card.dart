@@ -281,11 +281,8 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
                                           .appHighlightAnimationEnabled,
                                   builder: (context, settings, _) {
                                     final animationEnabled = settings;
-                                    final accentColor = Theme.of(context)
-                                                .brightness ==
-                                            Brightness.light
-                                        ? Theme.of(context).colorScheme.primary
-                                        : colors.focusFill;
+                                    final accentColor =
+                                        context.openCoreFocusRing;
                                     _setHighlightAnimation(
                                         shouldHighlight && animationEnabled);
 
