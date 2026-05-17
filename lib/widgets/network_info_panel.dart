@@ -43,7 +43,7 @@ class NetworkInfoPanel extends StatelessWidget {
           FocusableSettingsTile(
             leading: const Icon(Icons.settings_outlined),
             title: const _PanelTileText(
-              title: "Open Fire TV Network Settings",
+              title: "Open Network Settings",
               subtitle: "Wi-Fi and network connection setup.",
             ),
             trailing: const Icon(Icons.open_in_new, size: 18),

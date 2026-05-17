@@ -16,9 +16,15 @@ class InputDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsService>();
+    final fallbackLabel = context
+        .watch<AppsService>()
+        .applications
+        .where((app) => app.packageName == packageName)
+        .map((app) => app.name)
+        .firstOrNull;
     final label = settings.inputLabel(
       packageName,
-      settings.defaultInputLabel(packageName),
+      fallbackLabel ?? settings.defaultInputLabel(packageName),
     );
     final icon = settings.inputIcon(packageName);
 
@@ -94,4 +100,8 @@ class InputDetailPage extends StatelessWidget {
       _ => "TV",
     };
   }
+}
+
+extension _FirstOrNull<T> on Iterable<T> {
+  T? get firstOrNull => isEmpty ? null : first;
 }

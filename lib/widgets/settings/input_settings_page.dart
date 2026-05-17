@@ -1,4 +1,5 @@
 import 'package:opencore_tv/providers/settings_service.dart';
+import 'package:opencore_tv/providers/apps_service.dart';
 import 'package:opencore_tv/widgets/settings/focusable_settings_tile.dart';
 import 'package:opencore_tv/widgets/settings/input_detail_page.dart';
 import 'package:opencore_tv/widgets/settings/settings_page_layout.dart';
@@ -13,6 +14,7 @@ class InputSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsService>();
+    final inputs = OpenCoreInputConfig.inputsFor(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -23,12 +25,12 @@ class InputSettingsPage extends StatelessWidget {
         ),
         Expanded(
           child: ListView.builder(
-            itemCount: OpenCoreInputConfig.inputs.length,
+            itemCount: inputs.length,
             itemBuilder: (context, index) {
-              final input = OpenCoreInputConfig.inputs[index];
+              final input = inputs[index];
               final label = settings.inputLabel(
                 input.packageName,
-                settings.defaultInputLabel(input.packageName),
+                input.fallbackLabel,
               );
               final icon = settings.inputIcon(input.packageName);
 
@@ -69,6 +71,24 @@ class OpenCoreInputConfig {
     OpenCoreInputInfo("opencore.input.antenna", "Antenna"),
     OpenCoreInputInfo("opencore.input.composite", "Composite"),
   ];
+
+  static List<OpenCoreInputInfo> inputsFor(
+    BuildContext context, {
+    bool listen = true,
+  }) {
+    try {
+      final apps =
+          Provider.of<AppsService>(context, listen: listen).applications;
+      final discovered = apps
+          .where((app) => app.packageName.startsWith("opencore.input."))
+          .map((app) => OpenCoreInputInfo(app.packageName, app.name))
+          .toList(growable: false);
+      if (discovered.isNotEmpty) return discovered;
+    } on ProviderNotFoundException {
+      return inputs;
+    }
+    return const [];
+  }
 
   static const labelPresets = [
     "HDMI 1",

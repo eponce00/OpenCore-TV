@@ -10,7 +10,7 @@ OpenCore uses `HomeGuardAccessibilityService` to keep the Fire TV Home button on
 - Open Android/Fire OS Accessibility settings so Home Guard can be enabled manually.
 - Mask brief Amazon Home flashes with the accessibility overlay while it rescues OpenCore.
 - Redirect Amazon's input/source UI to OpenCore's own input selector when the user is outside OpenCore Home.
-- Rescue branded remote-button launches to the user-selected remap target when Fire OS exposes enough activity/log detail.
+- Capture learned remote buttons when Android exposes the key event to OpenCore.
 
 ## What The App Cannot Do By Itself
 

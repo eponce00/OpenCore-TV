@@ -49,8 +49,12 @@
         <intent>
             <action android:name="android.intent.action.MAIN" />
         </intent>
+        <package android:name="com.amazon.tv.launcher" />
+        <package android:name="com.amazon.tv.settings.v2" />
         <package android:name="com.amazon.tv.inputpreference.service" />
         <package android:name="com.amazon.tv.livetv" />
+        <package android:name="com.google.android.apps.tv.launcherx" />
+        <package android:name="com.google.android.tvlauncher" />
     </queries>
 
     <application

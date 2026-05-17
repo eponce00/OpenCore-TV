@@ -1,4 +1,4 @@
-OpenCore TV is a custom Android/Fire TV launcher focused on a clean home screen, high-resolution wallpapers, HDMI/input shortcuts, weather, and an integrated idle display.
+OpenCore TV is a custom Android TV and Fire TV launcher focused on a clean home screen, high-resolution wallpapers, device-aware shortcuts, weather, and an integrated idle display.
 
 Key features:
 
@@ -8,6 +8,6 @@ Key features:
 - Built-in wallpaper library and wallpaper rotation.
 - Weather and clock widgets for both Home and Idle modes.
 - Launcher-owned idle/screensaver experience.
-- Home Guard accessibility support for Fire TV launcher rescue behavior.
+- Launcher protection support for Fire TV home-button rescue behavior.
 
 OpenCore TV is designed for couch-distance navigation with a remote: large focus targets, simple settings pages, and no ad/recommendation surface.

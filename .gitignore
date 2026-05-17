@@ -79,6 +79,9 @@ LOCAL_SETUP.md
 build_log.txt
 release_build_log.txt
 
+# Local home/device inventory
+config/tv-fleet.local.yaml
+
 # Android Secrets
 android/keystore.properties
 

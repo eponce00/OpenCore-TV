@@ -32,6 +32,7 @@ class OpenCoreTVChannel {
   static VoidCallback? _dismissPanelListener;
   static VoidCallback? _remoteMenuListener;
   static VoidCallback? _inputSelectorListener;
+  static ValueChanged<Map<String, dynamic>>? _remoteButtonCaptureListener;
 
   static void setEnterIdleListener(VoidCallback? listener) {
     _enterIdleListener = listener;
@@ -53,6 +54,13 @@ class OpenCoreTVChannel {
     _installMethodHandler();
   }
 
+  static void setRemoteButtonCaptureListener(
+    ValueChanged<Map<String, dynamic>>? listener,
+  ) {
+    _remoteButtonCaptureListener = listener;
+    _installMethodHandler();
+  }
+
   static void _installMethodHandler() {
     _methodChannel.setMethodCallHandler((call) async {
       if (call.method == "enterIdle") {
@@ -63,6 +71,9 @@ class OpenCoreTVChannel {
         _remoteMenuListener?.call();
       } else if (call.method == "showInputSelector") {
         _inputSelectorListener?.call();
+      } else if (call.method == "remoteButtonCaptured") {
+        final capture = (call.arguments as Map).cast<String, dynamic>();
+        _remoteButtonCaptureListener?.call(capture);
       }
     });
   }
@@ -72,6 +83,18 @@ class OpenCoreTVChannel {
         await _methodChannel.invokeListMethod("getApplications");
     return applications!;
   }
+
+  Future<Map<String, dynamic>> getDeviceCapabilities() async {
+    final Map<dynamic, dynamic> capabilities =
+        await _methodChannel.invokeMethod("getDeviceCapabilities");
+    return capabilities.cast<String, dynamic>();
+  }
+
+  Future<void> startRemoteButtonLearning() async =>
+      await _methodChannel.invokeMethod("startRemoteButtonLearning");
+
+  Future<void> stopRemoteButtonLearning() async =>
+      await _methodChannel.invokeMethod("stopRemoteButtonLearning");
 
   Future<Uint8List> getApplicationBanner(String packageName) async {
     Uint8List bytes =

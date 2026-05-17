@@ -17,6 +17,7 @@
  */
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
@@ -51,7 +52,7 @@ const String _weatherUnit = "weather_unit";
 const String _weatherLatitude = "weather_latitude";
 const String _weatherLongitude = "weather_longitude";
 const String _weatherLocationName = "weather_location_name";
-const String _remoteButtonPrefix = "remote_button_";
+const String _learnedRemoteButtons = "learned_remote_buttons";
 const String _appearanceMode = "appearance_mode";
 const String _wallpaperCategory = "wallpaper_category";
 
@@ -83,6 +84,83 @@ const String APPEARANCE_MODE_AUTO_HYBRID = "auto_hybrid";
 const String APPEARANCE_MODE_AUTO_SENSOR = "auto_sensor";
 const String APPEARANCE_MODE_AUTO_SUN = "auto_sun";
 const String WALLPAPER_CATEGORY_ALL = "all";
+const Set<int> _reservedRemoteButtonKeyCodes = {
+  3, // HOME
+  4, // BACK
+  19, // DPAD_UP
+  20, // DPAD_DOWN
+  21, // DPAD_LEFT
+  22, // DPAD_RIGHT
+  23, // DPAD_CENTER
+  66, // ENTER
+  96, // BUTTON_A
+  160, // NUMPAD_ENTER
+};
+
+class LearnedRemoteButton {
+  final String id;
+  final String label;
+  final int keyCode;
+  final int scanCode;
+  final int deviceId;
+  final int source;
+  final String triggerPackage;
+  final String triggerClass;
+  final String packageName;
+
+  const LearnedRemoteButton({
+    required this.id,
+    required this.label,
+    required this.keyCode,
+    required this.scanCode,
+    required this.deviceId,
+    required this.source,
+    this.triggerPackage = "",
+    this.triggerClass = "",
+    required this.packageName,
+  });
+
+  factory LearnedRemoteButton.fromJson(Map<String, dynamic> json) =>
+      LearnedRemoteButton(
+        id: json['id'] as String? ?? "",
+        label: json['label'] as String? ?? "Remote Button",
+        keyCode: json['keyCode'] as int? ?? 0,
+        scanCode: json['scanCode'] as int? ?? 0,
+        deviceId: json['deviceId'] as int? ?? 0,
+        source: json['source'] as int? ?? 0,
+        triggerPackage: json['triggerPackage'] as String? ?? "",
+        triggerClass: json['triggerClass'] as String? ?? "",
+        packageName: json['packageName'] as String? ?? "",
+      );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'label': label,
+        'keyCode': keyCode,
+        'scanCode': scanCode,
+        'deviceId': deviceId,
+        'source': source,
+        'triggerPackage': triggerPackage,
+        'triggerClass': triggerClass,
+        'packageName': packageName,
+      };
+
+  LearnedRemoteButton copyWith({
+    String? label,
+    String? packageName,
+  }) =>
+      LearnedRemoteButton(
+        id: id,
+        label: label ?? this.label,
+        keyCode: keyCode,
+        scanCode: scanCode,
+        deviceId: deviceId,
+        source: source,
+        triggerPackage: triggerPackage,
+        triggerClass: triggerClass,
+        packageName: packageName ?? this.packageName,
+      );
+}
 
 class SettingsService extends ChangeNotifier {
   static final defaultDateFormat = "EEEE d";
@@ -182,8 +260,21 @@ class SettingsService extends ChangeNotifier {
       _sharedPreferences.getString(_wallpaperCategory) ??
       WALLPAPER_CATEGORY_ALL;
 
-  String remoteButtonAssignment(String buttonId) =>
-      _sharedPreferences.getString("$_remoteButtonPrefix$buttonId") ?? "";
+  List<LearnedRemoteButton> get learnedRemoteButtons {
+    final raw = _sharedPreferences.getString(_learnedRemoteButtons) ?? "[]";
+    try {
+      return (jsonDecode(raw) as List<dynamic>)
+          .map((item) => LearnedRemoteButton.fromJson(
+              (item as Map).cast<String, dynamic>()))
+          .where((button) =>
+              button.id.isNotEmpty &&
+              (button.triggerPackage.isNotEmpty ||
+                  !_reservedRemoteButtonKeyCodes.contains(button.keyCode)))
+          .toList(growable: false);
+    } catch (_) {
+      return const [];
+    }
+  }
 
   Color get accentColor {
     final hex = accentColorHex;
@@ -324,13 +415,27 @@ class SettingsService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setRemoteButtonAssignment(
-    String buttonId,
-    String packageName,
-  ) async {
+  Future<void> upsertLearnedRemoteButton(LearnedRemoteButton button) async {
+    final buttons = learnedRemoteButtons.toList();
+    final existingIndex = buttons.indexWhere((item) => item.id == button.id);
+    if (existingIndex == -1) {
+      buttons.add(button);
+    } else {
+      buttons[existingIndex] = button;
+    }
     await _sharedPreferences.setString(
-      "$_remoteButtonPrefix$buttonId",
-      packageName,
+      _learnedRemoteButtons,
+      jsonEncode(buttons.map((button) => button.toJson()).toList()),
+    );
+    notifyListeners();
+  }
+
+  Future<void> deleteLearnedRemoteButton(String id) async {
+    final buttons =
+        learnedRemoteButtons.where((button) => button.id != id).toList();
+    await _sharedPreferences.setString(
+      _learnedRemoteButtons,
+      jsonEncode(buttons.map((button) => button.toJson()).toList()),
     );
     notifyListeners();
   }

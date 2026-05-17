@@ -18,7 +18,7 @@ import 'package:opencore_tv/widgets/settings/home_display_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/idle_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/input_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/launcher_sections_panel_page.dart';
-import 'package:opencore_tv/widgets/settings/native_fire_tv_settings_page.dart';
+import 'package:opencore_tv/widgets/settings/native_device_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/opencore_about_dialog.dart';
 import 'package:opencore_tv/widgets/settings/opencore_clock_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/opencore_health_page.dart';
@@ -61,13 +61,19 @@ class _SettingsPanelPageState extends State<SettingsPanelPage> {
   }
 
   Future<void> _refreshHealth() async {
-    final enabled = await context.read<AppsService>().isHomeGuardEnabled();
+    final appsService = context.read<AppsService>();
+    final profile = appsService.deviceProfile;
+    final enabled = profile.supportsHomeGuard
+        ? await appsService.isHomeGuardEnabled()
+        : await appsService.isDefaultLauncher();
     if (!mounted) return;
     setState(() => _homeGuardEnabled = enabled);
   }
 
   @override
   Widget build(BuildContext context) {
+    final appsService = context.watch<AppsService>();
+    final profile = appsService.deviceProfile;
     final guardHealthy = _homeGuardEnabled == true;
 
     return Column(
@@ -99,15 +105,19 @@ class _SettingsPanelPageState extends State<SettingsPanelPage> {
                     _ControlTile(
                       icon: Icons.settings_remote_outlined,
                       title: "Remote Buttons",
-                      subtitle: "Netflix, Prime, Disney, Peacock",
+                      subtitle: "Learn and assign remote shortcuts",
                       routeName: RemoteButtonsSettingsPage.routeName,
                     ),
                     _ControlTile(
                       icon: guardHealthy
                           ? Icons.verified_user_outlined
                           : Icons.warning_amber_rounded,
-                      title: "Home Guard",
-                      subtitle: guardHealthy ? "Protected" : "Check guard",
+                      title: "Launcher Protection",
+                      subtitle: guardHealthy
+                          ? profile.supportsHomeGuard
+                              ? "Home Guard active"
+                              : "Default launcher"
+                          : "Check setup",
                       routeName: OpenCoreHealthPage.routeName,
                     ),
                   ],
@@ -166,9 +176,9 @@ class _SettingsPanelPageState extends State<SettingsPanelPage> {
                     ),
                     _SettingsRow(
                       icon: Icons.wifi_outlined,
-                      title: "Native Fire TV",
-                      subtitle: "Network and system sections",
-                      routeName: NativeFireTvSettingsPage.routeName,
+                      title: "System Settings",
+                      subtitle: "${profile.label} settings sections",
+                      routeName: NativeDeviceSettingsPage.routeName,
                     ),
                     _SettingsRow(
                       icon: Icons.info_outline,

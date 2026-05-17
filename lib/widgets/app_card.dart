@@ -511,7 +511,7 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
     final packageName = widget.application.packageName;
     final label = settings.inputLabel(
       packageName,
-      settings.defaultInputLabel(packageName),
+      widget.application.name,
     );
     final icon = OpenCoreInputConfig.iconData(settings.inputIcon(packageName));
 

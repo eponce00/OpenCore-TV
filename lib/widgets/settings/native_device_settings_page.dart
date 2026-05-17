@@ -4,12 +4,12 @@ import 'package:opencore_tv/theme/opencore_theme.dart';
 import 'package:opencore_tv/widgets/settings/focusable_settings_tile.dart';
 import 'package:provider/provider.dart';
 
-class NativeFireTvSettingsPage extends StatelessWidget {
-  static const String routeName = "native_fire_tv_settings_panel";
+class NativeDeviceSettingsPage extends StatelessWidget {
+  static const String routeName = "native_device_settings_panel";
 
-  const NativeFireTvSettingsPage({super.key});
+  const NativeDeviceSettingsPage({super.key});
 
-  static const List<_NativeSettingsDestination> _destinations = [
+  static const List<_NativeSettingsDestination> _fireTvDestinations = [
     _NativeSettingsDestination(
       title: "Device & About",
       subtitle: "Storage, restart, updates, legal, device info",
@@ -55,19 +55,64 @@ class NativeFireTvSettingsPage extends StatelessWidget {
     ),
   ];
 
+  static const List<_NativeSettingsDestination> _androidTvDestinations = [
+    _NativeSettingsDestination(
+      title: "System Settings",
+      subtitle: "Open the device settings hub",
+      icon: Icons.settings_outlined,
+      action: "android.settings.SETTINGS",
+    ),
+    _NativeSettingsDestination(
+      title: "Network",
+      subtitle: "Wi-Fi and network connection settings",
+      icon: Icons.wifi_outlined,
+      action: "android.settings.WIFI_SETTINGS",
+    ),
+    _NativeSettingsDestination(
+      title: "Applications",
+      subtitle: "Installed apps, permissions, app management",
+      icon: Icons.apps_outlined,
+      action: "android.settings.APPLICATION_SETTINGS",
+    ),
+    _NativeSettingsDestination(
+      title: "Pair Bluetooth Device",
+      subtitle: "Open Android TV Bluetooth pairing",
+      icon: Icons.bluetooth_outlined,
+      action: "android.bluetooth.devicepicker.action.LAUNCH",
+    ),
+    _NativeSettingsDestination(
+      title: "Developer Options",
+      subtitle: "ADB debugging and developer controls",
+      icon: Icons.code_outlined,
+      action: "android.settings.APPLICATION_DEVELOPMENT_SETTINGS",
+    ),
+    _NativeSettingsDestination(
+      title: "Install Unknown Apps",
+      subtitle: "Sideload permissions for app installers",
+      icon: Icons.download_for_offline_outlined,
+      action: "android.settings.MANAGE_UNKNOWN_APP_SOURCES",
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final colors = context.openCoreColors;
+    final profile = context.watch<AppsService>().deviceProfile;
+    final destinations = profile.supportsAmazonSettings
+        ? _fireTvDestinations
+        : _androidTvDestinations;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          "Native Fire TV Settings",
+          "System Settings",
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 8),
         Text(
-          "Fire OS blocks the protected root settings hub and some sections from custom launchers, so OpenCore only shows native destinations that are callable directly.",
+          profile.supportsAmazonSettings
+              ? "Fire OS blocks the protected root settings hub and some sections from custom launchers, so OpenCore only shows native destinations that are callable directly."
+              : "OpenCore shows native ${profile.label} settings destinations that are usually available from custom launchers.",
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: colors.mutedText,
                 height: 1.25,
@@ -79,15 +124,15 @@ class NativeFireTvSettingsPage extends StatelessWidget {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                for (var i = 0; i < _destinations.length; i++)
+                for (var i = 0; i < destinations.length; i++)
                   FocusableSettingsTile(
                     autofocus: i == 0,
-                    leading: Icon(_destinations[i].icon),
-                    title: _DestinationText(destination: _destinations[i]),
+                    leading: Icon(destinations[i].icon),
+                    title: _DestinationText(destination: destinations[i]),
                     trailing: const Icon(Icons.open_in_new, size: 18),
                     onPressed: () => _openDestination(
                       context,
-                      _destinations[i].action,
+                      destinations[i].action,
                     ),
                   ),
               ],

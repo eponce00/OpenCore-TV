@@ -260,7 +260,7 @@ class _ApplicationInfoPanelState extends State<ApplicationInfoPanel> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 8),
                           child: Text(
-                            'Custom banner picking is disabled on this Fire TV because Android file pickers are not remote-friendly.',
+                            'Custom banner picking is disabled on this device because Android file pickers are not remote-friendly.',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ),

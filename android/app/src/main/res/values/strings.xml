@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="home_guard_accessibility_description">Keeps OpenCore TV in front when Fire TV opens the stock home screen.</string>
+    <string name="home_guard_accessibility_description">Keeps OpenCore TV in front when the stock home screen opens on supported devices.</string>
 </resources>

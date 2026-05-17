@@ -39,7 +39,7 @@ import 'package:opencore_tv/widgets/settings/input_detail_page.dart';
 import 'package:opencore_tv/widgets/settings/input_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/idle_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/idle_timeout_page.dart';
-import 'package:opencore_tv/widgets/settings/native_fire_tv_settings_page.dart';
+import 'package:opencore_tv/widgets/settings/native_device_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/opencore_health_page.dart';
 import 'package:opencore_tv/widgets/settings/remote_buttons_settings_page.dart';
 import 'package:opencore_tv/widgets/settings/weather_settings_page.dart';
@@ -184,15 +184,18 @@ class _SettingsPanelState extends State<SettingsPanel> {
                     case OpenCoreHealthPage.routeName:
                       return _FastPageRoute(
                           builder: (_) => const OpenCoreHealthPage());
-                    case NativeFireTvSettingsPage.routeName:
+                    case NativeDeviceSettingsPage.routeName:
                       return _FastPageRoute(
-                          builder: (_) => const NativeFireTvSettingsPage());
+                          builder: (_) => const NativeDeviceSettingsPage());
                     case RemoteButtonsSettingsPage.routeName:
                       return _FastPageRoute(
                           builder: (_) => const RemoteButtonsSettingsPage());
-                    case RemoteButtonTargetPage.routeName:
+                    case LearnRemoteButtonPage.routeName:
                       return _FastPageRoute(
-                          builder: (_) => RemoteButtonTargetPage(
+                          builder: (_) => const LearnRemoteButtonPage());
+                    case LearnedRemoteButtonTargetPage.routeName:
+                      return _FastPageRoute(
+                          builder: (_) => LearnedRemoteButtonTargetPage(
                               buttonId: settings.arguments as String));
                     case AppDetailsPage.routeName:
                       return _FastPageRoute(

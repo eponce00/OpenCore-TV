@@ -23,6 +23,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.*;
+import android.app.AppOpsManager;
+import android.app.usage.NetworkStats;
+import android.app.usage.NetworkStatsManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -30,12 +33,15 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.tv.TvInputInfo;
+import android.media.tv.TvInputManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.RemoteException;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.Pair;
@@ -50,10 +56,6 @@ import java.util.List;
 import java.util.Map;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import android.app.usage.NetworkStats;
-import android.app.usage.NetworkStatsManager;
-import android.app.AppOpsManager;
-import android.os.RemoteException;
 
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
@@ -61,12 +63,7 @@ import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
 
-import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -74,8 +71,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class MainActivity extends FlutterActivity {
     private static final String TRACE_TAG = "OpenCoreTrace";
+    private static final String DYNAMIC_INPUT_PACKAGE_PREFIX = OpenCoreInputs.PACKAGE_PREFIX + "dynamic.";
+    private static final String FLUTTER_PREFS = "FlutterSharedPreferences";
+    private static final String LEARNED_REMOTE_BUTTONS_PREF = "flutter.learned_remote_buttons";
+    private static final String REMOTE_BUTTON_LEARNING_ACTIVE_PREF = "flutter.remote_button_learning_active";
+    private static final String REMOTE_BUTTON_PENDING_CAPTURE_PREF = "flutter.remote_button_pending_capture";
     private final String METHOD_CHANNEL = "tv.opencore.launcher/method";
     private final String APPS_EVENT_CHANNEL = "tv.opencore.launcher/event_apps";
     private final String NETWORK_EVENT_CHANNEL = "tv.opencore.launcher/event_network";
@@ -84,9 +90,11 @@ public class MainActivity extends FlutterActivity {
     static final String ACTION_DISMISS_PANEL = "tv.opencore.launcher.action.DISMISS_PANEL";
     static final String ACTION_SHOW_INPUT_SELECTOR = "tv.opencore.launcher.action.SHOW_INPUT_SELECTOR";
     static final String ACTION_RETURN_HOME = "tv.opencore.launcher.action.RETURN_HOME";
+    static final String ACTION_REMOTE_BUTTON_CAPTURED = "tv.opencore.launcher.action.REMOTE_BUTTON_CAPTURED";
     private static volatile boolean panelOpen = false;
     private MethodChannel methodChannel;
     private boolean activityResumed = false;
+    private int learningConsumedKeyCode = KeyEvent.KEYCODE_UNKNOWN;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Override
@@ -99,12 +107,21 @@ public class MainActivity extends FlutterActivity {
         methodChannel.setMethodCallHandler((call, result) -> {
             switch (call.method) {
                 case "getApplications" -> result.success(getApplications());
+                case "getDeviceCapabilities" -> result.success(getDeviceCapabilities());
                 case "getApplicationBanner" -> result.success(getApplicationBanner(call.arguments()));
                 case "getApplicationIcon" -> result.success(getApplicationIcon(call.arguments()));
                 case "applicationExists" -> result.success(applicationExists(call.arguments()));
                 case "launchActivityFromAction" -> result.success(launchActivityFromAction(call.arguments()));
                 case "launchApp" -> result.success(launchApp(call.arguments()));
                 case "openSettings" -> result.success(openSettings());
+                case "startRemoteButtonLearning" -> {
+                    setRemoteButtonLearningActive(true);
+                    result.success(null);
+                }
+                case "stopRemoteButtonLearning" -> {
+                    setRemoteButtonLearningActive(false);
+                    result.success(null);
+                }
                 case "setPanelOpen" -> {
                     panelOpen = Boolean.TRUE.equals(call.arguments());
                     result.success(null);
@@ -191,7 +208,9 @@ public class MainActivity extends FlutterActivity {
         super.onResume();
         activityResumed = true;
         Log.w(TRACE_TAG, "MainActivity onResume");
-        repairHomeGuard();
+        if (isFireTvProfile()) {
+            repairHomeGuard();
+        }
         if (ACTION_SHOW_INPUT_SELECTOR.equals(getIntent().getAction())) {
             mainHandler.postDelayed(this::sendShowInputSelectorToFlutter, 250);
         }
@@ -201,11 +220,31 @@ public class MainActivity extends FlutterActivity {
     protected void onPause() {
         activityResumed = false;
         Log.w(TRACE_TAG, "MainActivity onPause");
+        if (isRemoteButtonLearningActive()) {
+            mainHandler.postDelayed(this::returnToRemoteButtonLearning, 450);
+        }
         super.onPause();
     }
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
+        if (isRemoteButtonLearningActive()) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                if (isLearnableRemoteButton(event.getKeyCode())) {
+                    learningConsumedKeyCode = event.getKeyCode();
+                    sendRemoteButtonCaptureToFlutter(event);
+                    return true;
+                }
+            } else if (event.getKeyCode() != learningConsumedKeyCode) {
+                return true;
+            }
+            return super.dispatchKeyEvent(event);
+        }
+
+        if (event.getAction() == KeyEvent.ACTION_DOWN && launchLearnedRemoteButton(event)) {
+            return true;
+        }
+
         if (event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
             if (event.getAction() == KeyEvent.ACTION_DOWN && methodChannel != null) {
                 methodChannel.invokeMethod("remoteMenu", null);
@@ -213,9 +252,25 @@ public class MainActivity extends FlutterActivity {
             return true;
         }
         if (isInputMenuKey(event.getKeyCode())) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN && methodChannel != null) {
+                methodChannel.invokeMethod("showInputSelector", null);
+            }
             return true;
         }
         return super.dispatchKeyEvent(event);
+    }
+
+    private void returnToRemoteButtonLearning() {
+        if (!isRemoteButtonLearningActive() || activityResumed) {
+            return;
+        }
+        Log.w(TRACE_TAG, "returnToRemoteButtonLearning");
+        Intent intent = new Intent(this, MainActivity.class)
+                .setAction(ACTION_REMOTE_BUTTON_CAPTURED)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                        | Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 
     private void handleIntent(Intent intent, boolean fromNewIntent) {
@@ -248,6 +303,12 @@ public class MainActivity extends FlutterActivity {
             return;
         }
 
+        if (ACTION_REMOTE_BUTTON_CAPTURED.equals(intent.getAction())) {
+            Log.w(TRACE_TAG, "handleIntent remoteButtonCaptured action fromNewIntent=" + fromNewIntent);
+            sendPendingRemoteButtonCaptureToFlutter();
+            return;
+        }
+
         if (fromNewIntent && activityResumed && isHomeIntent(intent)) {
             Log.w(TRACE_TAG, "handleIntent repeated HOME while resumed -> enterIdle");
             sendEnterIdleToFlutter("repeatedHome");
@@ -273,6 +334,166 @@ public class MainActivity extends FlutterActivity {
         return panelOpen;
     }
 
+    private SharedPreferences flutterPrefs() {
+        return getSharedPreferences(FLUTTER_PREFS, MODE_PRIVATE);
+    }
+
+    private boolean isRemoteButtonLearningActive() {
+        return flutterPrefs().getBoolean(REMOTE_BUTTON_LEARNING_ACTIVE_PREF, false);
+    }
+
+    private void setRemoteButtonLearningActive(boolean active) {
+        SharedPreferences.Editor editor = flutterPrefs().edit()
+                .putBoolean(REMOTE_BUTTON_LEARNING_ACTIVE_PREF, active);
+        if (!active) {
+            editor.remove(REMOTE_BUTTON_PENDING_CAPTURE_PREF);
+            learningConsumedKeyCode = KeyEvent.KEYCODE_UNKNOWN;
+        }
+        editor.apply();
+    }
+
+    private Map<String, Object> remoteButtonCaptureMap(KeyEvent event) {
+        Map<String, Object> capture = new HashMap<>();
+        capture.put("keyCode", event.getKeyCode());
+        capture.put("scanCode", event.getScanCode());
+        capture.put("deviceId", event.getDeviceId());
+        capture.put("source", event.getSource());
+        capture.put("displayLabel", KeyEvent.keyCodeToString(event.getKeyCode()));
+        return capture;
+    }
+
+    private boolean isLearnableRemoteButton(int keyCode) {
+        return switch (keyCode) {
+            case KeyEvent.KEYCODE_HOME,
+                    KeyEvent.KEYCODE_BACK,
+                    KeyEvent.KEYCODE_DPAD_UP,
+                    KeyEvent.KEYCODE_DPAD_DOWN,
+                    KeyEvent.KEYCODE_DPAD_LEFT,
+                    KeyEvent.KEYCODE_DPAD_RIGHT,
+                    KeyEvent.KEYCODE_DPAD_CENTER,
+                    KeyEvent.KEYCODE_ENTER,
+                    KeyEvent.KEYCODE_NUMPAD_ENTER,
+                    KeyEvent.KEYCODE_BUTTON_A -> false;
+            default -> true;
+        };
+    }
+
+    private void sendRemoteButtonCaptureToFlutter(KeyEvent event) {
+        setRemoteButtonLearningActive(false);
+        if (methodChannel != null) {
+            methodChannel.invokeMethod("remoteButtonCaptured", remoteButtonCaptureMap(event));
+        }
+    }
+
+    private void sendPendingRemoteButtonCaptureToFlutter() {
+        String pending = flutterPrefs().getString(REMOTE_BUTTON_PENDING_CAPTURE_PREF, "");
+        if (pending == null || pending.isBlank() || methodChannel == null) {
+            return;
+        }
+        flutterPrefs().edit().remove(REMOTE_BUTTON_PENDING_CAPTURE_PREF).apply();
+        try {
+            JSONObject json = new JSONObject(pending);
+            Map<String, Object> capture = new HashMap<>();
+            capture.put("keyCode", json.optInt("keyCode", KeyEvent.KEYCODE_UNKNOWN));
+            capture.put("scanCode", json.optInt("scanCode", 0));
+            capture.put("deviceId", json.optInt("deviceId", 0));
+            capture.put("source", json.optInt("source", 0));
+            capture.put("triggerPackage", json.optString("triggerPackage", ""));
+            capture.put("triggerClass", json.optString("triggerClass", ""));
+            capture.put("displayLabel", json.optString("displayLabel", "Remote Button"));
+            methodChannel.invokeMethod("remoteButtonCaptured", capture);
+        } catch (JSONException exception) {
+            Log.w(TRACE_TAG, "Unable to parse pending remote button capture", exception);
+        }
+    }
+
+    private boolean launchLearnedRemoteButton(KeyEvent event) {
+        if (!isLearnableRemoteButton(event.getKeyCode())) {
+            return false;
+        }
+        String packageName = learnedRemoteButtonPackage(event);
+        if (packageName == null || packageName.isBlank()) {
+            return false;
+        }
+        Log.w(TRACE_TAG, "learned remote button keyCode=" + event.getKeyCode()
+                + " scanCode=" + event.getScanCode()
+                + " assignment=" + packageName);
+        return launchApp(packageName);
+    }
+
+    private String learnedRemoteButtonPackage(KeyEvent event) {
+        String mappings = flutterPrefs().getString(LEARNED_REMOTE_BUTTONS_PREF, "[]");
+        if (mappings == null || mappings.isBlank()) {
+            return null;
+        }
+        try {
+            JSONArray buttons = new JSONArray(mappings);
+            for (int i = 0; i < buttons.length(); i++) {
+                JSONObject button = buttons.optJSONObject(i);
+                if (button == null) {
+                    continue;
+                }
+                if (button.optInt("keyCode", KeyEvent.KEYCODE_UNKNOWN) != event.getKeyCode()) {
+                    continue;
+                }
+                int scanCode = button.optInt("scanCode", 0);
+                if (scanCode != 0 && event.getScanCode() != 0 && scanCode != event.getScanCode()) {
+                    continue;
+                }
+                return button.optString("packageName", "");
+            }
+        } catch (JSONException exception) {
+            Log.w(TRACE_TAG, "Unable to parse learned remote buttons", exception);
+        }
+        return null;
+    }
+
+    private Map<String, Object> getDeviceCapabilities() {
+        String profile = deviceProfile();
+        Map<String, Object> capabilities = new HashMap<>();
+        capabilities.put("deviceProfile", profile);
+        capabilities.put("deviceLabel", switch (profile) {
+            case "fireTv" -> "Fire TV";
+            case "googleTv" -> "Google TV";
+            default -> "Android TV";
+        });
+        capabilities.put("supportsHomeGuard", "fireTv".equals(profile));
+        capabilities.put("supportsHomeSelfRepair", "fireTv".equals(profile));
+        capabilities.put("supportsStockLauncherDisable", "fireTv".equals(profile));
+        capabilities.put("supportsAmazonSettings", "fireTv".equals(profile));
+        capabilities.put("supportsTvInputDiscovery", isFireTvProfile() || !discoveredTvInputs().isEmpty());
+        capabilities.put("supportsStaticHisenseInputs", "fireTv".equals(profile));
+        capabilities.put("supportsRemoteButtonRemap", true);
+        capabilities.put("supportsUsageStats", true);
+        capabilities.put("supportsSystemBrightness", true);
+        return capabilities;
+    }
+
+    private String deviceProfile() {
+        if (isPackageInstalled("com.amazon.tv.launcher")
+                || isPackageInstalled("com.amazon.tv.settings.v2")
+                || Build.MANUFACTURER.toLowerCase().contains("amazon")) {
+            return "fireTv";
+        }
+        if (isPackageInstalled("com.google.android.apps.tv.launcherx")) {
+            return "googleTv";
+        }
+        return "androidTv";
+    }
+
+    private boolean isFireTvProfile() {
+        return "fireTv".equals(deviceProfile());
+    }
+
+    private boolean isPackageInstalled(String packageName) {
+        try {
+            getPackageManager().getPackageInfo(packageName, 0);
+            return true;
+        } catch (PackageManager.NameNotFoundException ignored) {
+            return false;
+        }
+    }
+
     private String homeGuardServiceName() {
         return getPackageName() + "/" + getPackageName() + ".HomeGuardAccessibilityService";
     }
@@ -291,6 +512,9 @@ public class MainActivity extends FlutterActivity {
     }
 
     private boolean repairHomeGuard() {
+        if (!isFireTvProfile()) {
+            return false;
+        }
         try {
             Settings.Secure.putInt(
                     getContentResolver(),
@@ -547,7 +771,7 @@ public class MainActivity extends FlutterActivity {
 
     private boolean applicationExists(String packageName) {
         if (OpenCoreInputs.isSyntheticInputPackage(packageName)) {
-            return OpenCoreInputs.inputIdForPackage(packageName) != null;
+            return inputIdForPackage(packageName) != null;
         }
 
         int flags;
@@ -613,7 +837,7 @@ public class MainActivity extends FlutterActivity {
                 .addCategory(Intent.CATEGORY_DEFAULT)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         if (action.startsWith("com.amazon.device.settings.action.")
-                || action.startsWith("android.settings.")) {
+                || (isFireTvProfile() && action.startsWith("android.settings."))) {
             intent.setPackage("com.amazon.tv.settings.v2");
         }
         return tryStartActivity("action " + action, intent);
@@ -636,8 +860,15 @@ public class MainActivity extends FlutterActivity {
 
     private List<Map<String, Serializable>> buildInputAppMaps() {
         List<Map<String, Serializable>> inputs = new ArrayList<>();
-        for (OpenCoreInputs.Shortcut shortcut : OpenCoreInputs.SHORTCUTS) {
-            inputs.add(buildSyntheticInputApp(shortcut.packageName));
+        if (isFireTvProfile()) {
+            for (OpenCoreInputs.Shortcut shortcut : OpenCoreInputs.SHORTCUTS) {
+                inputs.add(buildSyntheticInputApp(shortcut.packageName));
+            }
+            return inputs;
+        }
+
+        for (TvInputInfo input : discoveredTvInputs()) {
+            inputs.add(buildSyntheticInputApp(dynamicInputPackageName(input.getId())));
         }
         return inputs;
     }
@@ -652,7 +883,7 @@ public class MainActivity extends FlutterActivity {
     }
 
     private boolean launchSyntheticInput(String packageName) {
-        String inputId = OpenCoreInputs.inputIdForPackage(packageName);
+        String inputId = inputIdForPackage(packageName);
         if (inputId == null) {
             return false;
         }
@@ -667,8 +898,72 @@ public class MainActivity extends FlutterActivity {
         return tryStartActivity(intent);
     }
 
+    private String inputIdForPackage(String packageName) {
+        if (isFireTvProfile()) {
+            String staticInputId = OpenCoreInputs.inputIdForPackage(packageName);
+            if (staticInputId != null) {
+                return staticInputId;
+            }
+        }
+        return dynamicInputIdForPackage(packageName);
+    }
+
+    private String fallbackLabelForInputPackage(String packageName) {
+        if (isFireTvProfile()) {
+            String staticInputId = OpenCoreInputs.inputIdForPackage(packageName);
+            if (staticInputId != null) {
+                return OpenCoreInputs.fallbackLabelForPackage(packageName);
+            }
+        }
+        for (TvInputInfo input : discoveredTvInputs()) {
+            if (dynamicInputPackageName(input.getId()).equals(packageName)) {
+                CharSequence label = input.loadLabel(this);
+                if (label != null && !label.toString().isBlank()) {
+                    return label.toString();
+                }
+                return "Input";
+            }
+        }
+        return "Input";
+    }
+
+    private String dynamicInputIdForPackage(String packageName) {
+        if (packageName == null || !packageName.startsWith(DYNAMIC_INPUT_PACKAGE_PREFIX)) {
+            return null;
+        }
+        for (TvInputInfo input : discoveredTvInputs()) {
+            if (dynamicInputPackageName(input.getId()).equals(packageName)) {
+                return input.getId();
+            }
+        }
+        return null;
+    }
+
+    private String dynamicInputPackageName(String inputId) {
+        return DYNAMIC_INPUT_PACKAGE_PREFIX + Integer.toHexString(inputId.hashCode());
+    }
+
+    private List<TvInputInfo> discoveredTvInputs() {
+        TvInputManager tvInputManager = (TvInputManager) getSystemService(Context.TV_INPUT_SERVICE);
+        if (tvInputManager == null) {
+            return List.of();
+        }
+        List<TvInputInfo> inputs = new ArrayList<>();
+        for (TvInputInfo input : tvInputManager.getTvInputList()) {
+            if (input == null || input.getId() == null || input.getId().isBlank()) {
+                continue;
+            }
+            inputs.add(input);
+        }
+        return inputs;
+    }
+
     private boolean openSettings() {
         panelOpen = false;
+
+        if (!isFireTvProfile()) {
+            return launchActivityFromAction(Settings.ACTION_SETTINGS);
+        }
 
         Intent fireSettingsV2 = new Intent("com.amazon.device.settings.action.DEVICE")
                 .addCategory(Intent.CATEGORY_DEFAULT)
@@ -833,16 +1128,12 @@ public class MainActivity extends FlutterActivity {
     }
 
     private String syntheticInputLabel(String packageName) {
-        String fallback = OpenCoreInputs.fallbackLabelForPackage(packageName);
+        String fallback = fallbackLabelForInputPackage(packageName);
         return flutterPrefs().getString("flutter.input_label_" + packageName, fallback);
     }
 
     private String syntheticInputIcon(String packageName) {
         return flutterPrefs().getString("flutter.input_icon_" + packageName, "tv");
-    }
-
-    private SharedPreferences flutterPrefs() {
-        return getSharedPreferences("FlutterSharedPreferences", MODE_PRIVATE);
     }
 
     private void drawSyntheticInputIcon(Canvas canvas, Paint paint, String icon, float cx, float cy, float size) {
@@ -1042,6 +1333,13 @@ public class MainActivity extends FlutterActivity {
     }
 
     private boolean openWifiSettings() {
+        if (!isFireTvProfile()) {
+            if (launchActivityFromAction(Settings.ACTION_WIFI_SETTINGS)) {
+                return true;
+            }
+            return launchActivityFromAction(Settings.ACTION_WIRELESS_SETTINGS);
+        }
+
         // Fire OS 8 routes the standard Wi-Fi action to this native network submenu.
         Intent fireTvNetwork = new Intent(Settings.ACTION_WIFI_SETTINGS)
                 .addCategory(Intent.CATEGORY_DEFAULT)

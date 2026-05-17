@@ -40,7 +40,7 @@ class OpenCoreTVAboutDialog extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         child: Image.asset("assets/icon.png", height: 72),
       ),
-      applicationLegalese: "Built for a customized Fire TV setup.",
+      applicationLegalese: "Built for customized TV launcher setups.",
       children: [
         SizedBox(height: 24),
         Text(localizations

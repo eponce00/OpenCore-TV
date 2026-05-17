@@ -37,7 +37,7 @@ class GeneralSettingsPage extends StatelessWidget {
         Text('Device Tools', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
         Text(
-          'OpenCore-owned controls for device behavior that belongs inside the launcher. Native Fire TV sections live in their own menu.',
+          'OpenCore-owned controls for device behavior that belongs inside the launcher. Native device settings live in their own menu.',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: colors.mutedText,
                 height: 1.25,
@@ -91,7 +91,7 @@ class GeneralSettingsPage extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Text(
-                    "Fire TV system settings are intentionally separate so this page stays limited to OpenCore controls.",
+                    "System settings are intentionally separate so this page stays limited to OpenCore controls.",
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: colors.faintText,
                           fontStyle: FontStyle.italic,

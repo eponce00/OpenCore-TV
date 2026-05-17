@@ -49,6 +49,6 @@ gh release create $Tag `
   $assetApk `
   $assetSha `
   --title "OpenCore TV $Tag" `
-  --notes "OpenCore TV release build. Install the APK on the TV, then use OpenCore Health to verify Home Guard."
+  --notes "OpenCore TV release build. Install the APK on your Android TV or Fire TV device, then use Launcher Protection in settings to verify the home button setup."
 
 Write-Host "Published OpenCore TV $Tag."

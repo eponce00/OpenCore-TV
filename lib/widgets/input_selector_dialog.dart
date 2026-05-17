@@ -17,17 +17,13 @@ class InputSelectorDialog extends StatefulWidget {
 }
 
 class _InputSelectorDialogState extends State<InputSelectorDialog> {
-  late final List<FocusNode> _tileFocusNodes;
+  final List<FocusNode> _tileFocusNodes = [];
 
   static const _columns = 3;
 
   @override
   void initState() {
     super.initState();
-    _tileFocusNodes = List.generate(
-      OpenCoreInputConfig.inputs.length,
-      (index) => FocusNode(debugLabel: 'input-selector-$index'),
-    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && _tileFocusNodes.isNotEmpty) {
         _tileFocusNodes.first.requestFocus();
@@ -47,6 +43,8 @@ class _InputSelectorDialogState extends State<InputSelectorDialog> {
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsService>();
     final colors = context.openCoreColors;
+    final inputs = OpenCoreInputConfig.inputsFor(context);
+    _syncFocusNodes(inputs.length);
 
     return FocusScope(
       canRequestFocus: true,
@@ -106,7 +104,7 @@ class _InputSelectorDialogState extends State<InputSelectorDialog> {
                         child: GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          itemCount: OpenCoreInputConfig.inputs.length,
+                          itemCount: inputs.length,
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: _columns,
@@ -115,10 +113,10 @@ class _InputSelectorDialogState extends State<InputSelectorDialog> {
                             crossAxisSpacing: 16,
                           ),
                           itemBuilder: (context, index) {
-                            final input = OpenCoreInputConfig.inputs[index];
+                            final input = inputs[index];
                             final label = settings.inputLabel(
                               input.packageName,
-                              settings.defaultInputLabel(input.packageName),
+                              input.fallbackLabel,
                             );
                             final icon = settings.inputIcon(input.packageName);
 
@@ -150,8 +148,20 @@ class _InputSelectorDialogState extends State<InputSelectorDialog> {
     );
   }
 
+  void _syncFocusNodes(int count) {
+    while (_tileFocusNodes.length < count) {
+      _tileFocusNodes.add(
+        FocusNode(debugLabel: 'input-selector-${_tileFocusNodes.length}'),
+      );
+    }
+    while (_tileFocusNodes.length > count) {
+      _tileFocusNodes.removeLast().dispose();
+    }
+  }
+
   void _moveFocus(int index, LogicalKeyboardKey key) {
     final count = _tileFocusNodes.length;
+    if (count == 0) return;
     var nextIndex = index;
 
     if (key == LogicalKeyboardKey.arrowRight) {

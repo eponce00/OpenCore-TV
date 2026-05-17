@@ -31,6 +31,74 @@ import 'package:flutter/widgets.dart';
 import '../models/app.dart';
 import '../models/category.dart';
 
+enum OpenCoreDeviceProfileType { fireTv, googleTv, androidTv }
+
+class OpenCoreDeviceProfile {
+  final OpenCoreDeviceProfileType type;
+  final String label;
+  final bool supportsHomeGuard;
+  final bool supportsHomeSelfRepair;
+  final bool supportsStockLauncherDisable;
+  final bool supportsAmazonSettings;
+  final bool supportsTvInputDiscovery;
+  final bool supportsStaticHisenseInputs;
+  final bool supportsRemoteButtonRemap;
+  final bool supportsUsageStats;
+  final bool supportsSystemBrightness;
+
+  const OpenCoreDeviceProfile({
+    required this.type,
+    required this.label,
+    required this.supportsHomeGuard,
+    required this.supportsHomeSelfRepair,
+    required this.supportsStockLauncherDisable,
+    required this.supportsAmazonSettings,
+    required this.supportsTvInputDiscovery,
+    required this.supportsStaticHisenseInputs,
+    required this.supportsRemoteButtonRemap,
+    required this.supportsUsageStats,
+    required this.supportsSystemBrightness,
+  });
+
+  static const fallback = OpenCoreDeviceProfile(
+    type: OpenCoreDeviceProfileType.androidTv,
+    label: 'Android TV',
+    supportsHomeGuard: false,
+    supportsHomeSelfRepair: false,
+    supportsStockLauncherDisable: false,
+    supportsAmazonSettings: false,
+    supportsTvInputDiscovery: false,
+    supportsStaticHisenseInputs: false,
+    supportsRemoteButtonRemap: false,
+    supportsUsageStats: true,
+    supportsSystemBrightness: true,
+  );
+
+  bool get isFireTv => type == OpenCoreDeviceProfileType.fireTv;
+  bool get isGoogleTv => type == OpenCoreDeviceProfileType.googleTv;
+
+  factory OpenCoreDeviceProfile.fromMap(Map<String, dynamic> map) {
+    final type = switch (map['deviceProfile'] as String?) {
+      'fireTv' => OpenCoreDeviceProfileType.fireTv,
+      'googleTv' => OpenCoreDeviceProfileType.googleTv,
+      _ => OpenCoreDeviceProfileType.androidTv,
+    };
+    return OpenCoreDeviceProfile(
+      type: type,
+      label: map['deviceLabel'] as String? ?? fallback.label,
+      supportsHomeGuard: map['supportsHomeGuard'] == true,
+      supportsHomeSelfRepair: map['supportsHomeSelfRepair'] == true,
+      supportsStockLauncherDisable: map['supportsStockLauncherDisable'] == true,
+      supportsAmazonSettings: map['supportsAmazonSettings'] == true,
+      supportsTvInputDiscovery: map['supportsTvInputDiscovery'] == true,
+      supportsStaticHisenseInputs: map['supportsStaticHisenseInputs'] == true,
+      supportsRemoteButtonRemap: map['supportsRemoteButtonRemap'] == true,
+      supportsUsageStats: map['supportsUsageStats'] != false,
+      supportsSystemBrightness: map['supportsSystemBrightness'] != false,
+    );
+  }
+}
+
 class AppsService extends ChangeNotifier {
   static const _launcherPackageNames = {
     'tv.opencore.launcher',
@@ -50,6 +118,7 @@ class AppsService extends ChangeNotifier {
 
   bool _initialized = false;
   int _layoutVersion = 0;
+  OpenCoreDeviceProfile _deviceProfile = OpenCoreDeviceProfile.fallback;
 
   List<LauncherSection> _launcherSections = List.empty(growable: true);
   Map<String, App> _applications = Map();
@@ -67,6 +136,7 @@ class AppsService extends ChangeNotifier {
 
   bool get initialized => _initialized;
   int get layoutVersion => _layoutVersion;
+  OpenCoreDeviceProfile get deviceProfile => _deviceProfile;
 
   @override
   void notifyListeners() {
@@ -113,6 +183,7 @@ class AppsService extends ChangeNotifier {
   }
 
   Future<void> _init() async {
+    await _loadDeviceProfile();
     await _refreshState(shouldNotifyListeners: false);
     if (_database.wasCreated) {
       await _initDefaultCategories();
@@ -225,6 +296,16 @@ class AppsService extends ChangeNotifier {
 
     // Pre-cache icons for visible apps
     _preCacheIcons();
+  }
+
+  Future<void> _loadDeviceProfile() async {
+    try {
+      _deviceProfile = OpenCoreDeviceProfile.fromMap(
+        await _OpenCoreTVChannel.getDeviceCapabilities(),
+      );
+    } catch (_) {
+      _deviceProfile = OpenCoreDeviceProfile.fallback;
+    }
   }
 
   Future<void> _preCacheIcons() async {

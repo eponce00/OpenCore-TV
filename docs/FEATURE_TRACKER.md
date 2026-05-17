@@ -69,7 +69,7 @@ Goal: turn this Hisense Fire TV into a clean, personal launcher for Jellyfin, Yo
 
 ## Backlog
 
-- Keep branded remote-button remapping honest: Fire OS may still flash the original store/app path before OpenCore rescues to the chosen target.
+- Learned remote-button remapping is the preferred path. Buttons Android never exposes to OpenCore cannot be remapped without a device-specific fallback.
 - Keep reviewing deeper inherited settings pages, especially app section editing, for TV-hostile dropdowns/text fields.
 - Weather widget on native Android Dream/screensaver service, if we decide to keep a separate system screensaver instead of OpenCore idle mode.
 - Auto-detect additional TV inputs beyond the confirmed MediaTek HDMI/antenna/composite IDs.

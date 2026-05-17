@@ -17,6 +17,10 @@ import android.view.accessibility.AccessibilityEvent;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class HomeGuardAccessibilityService extends AccessibilityService {
     private static final String TRACE_TAG = "OpenCoreTrace";
     private static final boolean VERBOSE_ACCESSIBILITY_LOGS = false;
@@ -27,17 +31,16 @@ public class HomeGuardAccessibilityService extends AccessibilityService {
     private static final long INPUT_FLOW_SUPPRESS_HOME_MS = 15000;
     private static final long CURTAIN_HIDE_DELAY_MS = 900;
     private static final long OPENCORE_RECENT_WINDOW_MS = 2500;
-    private static final long REMOTE_BUTTON_REMAP_DELAY_MS = 650;
-    private static final long REMOTE_BUTTON_REMAP_WINDOW_MS = 1800;
+    private static final long LEARNING_RETURN_RETRY_MS = 350;
     private static final String FLUTTER_PREFS = "FlutterSharedPreferences";
-    private static final String REMOTE_BUTTON_PREF_PREFIX = "flutter.remote_button_";
+    private static final String LEARNED_REMOTE_BUTTONS_PREF = "flutter.learned_remote_buttons";
+    private static final String REMOTE_BUTTON_LEARNING_ACTIVE_PREF = "flutter.remote_button_learning_active";
+    private static final String REMOTE_BUTTON_PENDING_CAPTURE_PREF = "flutter.remote_button_pending_capture";
 
     private long lastHomeLaunchTimeMs = 0;
     private long lastInputMenuLaunchTimeMs = 0;
     private long lastInputFlowTimeMs = 0;
     private long lastOpenCoreWindowTimeMs = 0;
-    private long remoteButtonRemapUntilMs = 0;
-    private String pendingRemoteButtonId = "";
     private String currentPackageName = "";
     private String currentClassName = "";
     private String previousForegroundPackageName = "";
@@ -88,6 +91,17 @@ public class HomeGuardAccessibilityService extends AccessibilityService {
                 }
             }
         }
+        if (isRemoteButtonLearningActive()
+                && !isOpenCorePackage(currentPackageName)
+                && currentPackageName != null
+                && !currentPackageName.isBlank()) {
+            captureLearningLaunch(currentPackageName, currentClassName);
+            return;
+        }
+        if (!isOpenCorePackage(currentPackageName)
+                && launchLearnedRemoteLaunch(currentPackageName, currentClassName)) {
+            return;
+        }
         if (packageName != null && AMAZON_INPUT_PACKAGE.contentEquals(packageName)) {
             handleAmazonInputWindow();
             return;
@@ -99,6 +113,20 @@ public class HomeGuardAccessibilityService extends AccessibilityService {
 
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
+        if (isRemoteButtonLearningActive()) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                if (isLearnableRemoteButton(event.getKeyCode())) {
+                    captureLearningKey(event);
+                    return true;
+                }
+            }
+            return super.onKeyEvent(event);
+        }
+
+        if (event.getAction() == KeyEvent.ACTION_DOWN && launchLearnedRemoteButton(event)) {
+            return true;
+        }
+
         if (event.getKeyCode() == KeyEvent.KEYCODE_HOME) {
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
                 Log.w(TRACE_TAG, "home key down currentPackage=" + currentPackageName
@@ -144,6 +172,205 @@ public class HomeGuardAccessibilityService extends AccessibilityService {
     public void onDestroy() {
         stopLogcatHook();
         super.onDestroy();
+    }
+
+    private SharedPreferences flutterPrefs() {
+        return getSharedPreferences(FLUTTER_PREFS, MODE_PRIVATE);
+    }
+
+    private boolean isRemoteButtonLearningActive() {
+        return flutterPrefs().getBoolean(REMOTE_BUTTON_LEARNING_ACTIVE_PREF, false);
+    }
+
+    private void captureLearningKey(KeyEvent event) {
+        try {
+            JSONObject capture = new JSONObject()
+                    .put("keyCode", event.getKeyCode())
+                    .put("scanCode", event.getScanCode())
+                    .put("deviceId", event.getDeviceId())
+                    .put("source", event.getSource())
+                    .put("displayLabel", KeyEvent.keyCodeToString(event.getKeyCode()));
+            flutterPrefs().edit()
+                    .putBoolean(REMOTE_BUTTON_LEARNING_ACTIVE_PREF, false)
+                    .putString(REMOTE_BUTTON_PENDING_CAPTURE_PREF, capture.toString())
+                    .apply();
+        } catch (JSONException exception) {
+            Log.w(TRACE_TAG, "Unable to capture learning key", exception);
+            flutterPrefs().edit()
+                    .putBoolean(REMOTE_BUTTON_LEARNING_ACTIVE_PREF, false)
+                    .remove(REMOTE_BUTTON_PENDING_CAPTURE_PREF)
+                    .apply();
+        }
+
+        returnToRemoteButtonLearning();
+    }
+
+    private void captureLearningLaunch(String packageName, String className) {
+        try {
+            JSONObject capture = new JSONObject()
+                    .put("keyCode", 0)
+                    .put("scanCode", 0)
+                    .put("deviceId", 0)
+                    .put("source", 0)
+                    .put("triggerPackage", packageName)
+                    .put("triggerClass", className == null ? "" : className)
+                    .put("displayLabel", packageName);
+            flutterPrefs().edit()
+                    .putBoolean(REMOTE_BUTTON_LEARNING_ACTIVE_PREF, false)
+                    .putString(REMOTE_BUTTON_PENDING_CAPTURE_PREF, capture.toString())
+                    .apply();
+        } catch (JSONException exception) {
+            Log.w(TRACE_TAG, "Unable to capture learning launch", exception);
+            flutterPrefs().edit()
+                    .putBoolean(REMOTE_BUTTON_LEARNING_ACTIVE_PREF, false)
+                    .remove(REMOTE_BUTTON_PENDING_CAPTURE_PREF)
+                    .apply();
+        }
+
+        returnToRemoteButtonLearning();
+    }
+
+    private void returnToRemoteButtonLearning() {
+        performGlobalAction(GLOBAL_ACTION_HOME);
+        startRemoteButtonLearningActivity();
+        mainHandler.postDelayed(this::startRemoteButtonLearningActivity, LEARNING_RETURN_RETRY_MS);
+        mainHandler.postDelayed(this::startRemoteButtonLearningActivity, LEARNING_RETURN_RETRY_MS * 2);
+    }
+
+    private void startRemoteButtonLearningActivity() {
+        Intent intent = new Intent(this, MainActivity.class)
+                .setAction(MainActivity.ACTION_REMOTE_BUTTON_CAPTURED)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                        | Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
+
+    private boolean isLearnableRemoteButton(int keyCode) {
+        return switch (keyCode) {
+            case KeyEvent.KEYCODE_HOME,
+                    KeyEvent.KEYCODE_BACK,
+                    KeyEvent.KEYCODE_DPAD_UP,
+                    KeyEvent.KEYCODE_DPAD_DOWN,
+                    KeyEvent.KEYCODE_DPAD_LEFT,
+                    KeyEvent.KEYCODE_DPAD_RIGHT,
+                    KeyEvent.KEYCODE_DPAD_CENTER,
+                    KeyEvent.KEYCODE_ENTER,
+                    KeyEvent.KEYCODE_NUMPAD_ENTER,
+                    KeyEvent.KEYCODE_BUTTON_A -> false;
+            default -> true;
+        };
+    }
+
+    private boolean launchLearnedRemoteButton(KeyEvent event) {
+        if (!isLearnableRemoteButton(event.getKeyCode())) {
+            return false;
+        }
+        String packageName = learnedRemoteButtonPackage(event);
+        if (packageName == null || packageName.isBlank()) {
+            return false;
+        }
+        Log.w(TRACE_TAG, "learned remote button keyCode=" + event.getKeyCode()
+                + " scanCode=" + event.getScanCode()
+                + " assignment=" + packageName);
+        return launchPackageAssignment(packageName);
+    }
+
+    private boolean launchLearnedRemoteLaunch(String packageName, String className) {
+        String assignment = learnedRemoteLaunchPackage(packageName, className);
+        if (assignment == null || assignment.isBlank() || assignment.equals(packageName)) {
+            return false;
+        }
+        Log.w(TRACE_TAG, "learned remote launch package=" + packageName
+                + " class=" + className
+                + " assignment=" + assignment);
+        showTransitionCurtain();
+        boolean launched = launchPackageAssignment(assignment);
+        if (!launched || !OpenCoreInputs.isSyntheticInputPackage(assignment)) {
+            hideTransitionCurtainSoon();
+        }
+        return launched;
+    }
+
+    private String learnedRemoteButtonPackage(KeyEvent event) {
+        String mappings = flutterPrefs().getString(LEARNED_REMOTE_BUTTONS_PREF, "[]");
+        if (mappings == null || mappings.isBlank()) {
+            return null;
+        }
+        try {
+            JSONArray buttons = new JSONArray(mappings);
+            for (int i = 0; i < buttons.length(); i++) {
+                JSONObject button = buttons.optJSONObject(i);
+                if (button == null) {
+                    continue;
+                }
+                if (button.optInt("keyCode", KeyEvent.KEYCODE_UNKNOWN) != event.getKeyCode()) {
+                    continue;
+                }
+                int scanCode = button.optInt("scanCode", 0);
+                if (scanCode != 0 && event.getScanCode() != 0 && scanCode != event.getScanCode()) {
+                    continue;
+                }
+                return button.optString("packageName", "");
+            }
+        } catch (JSONException exception) {
+            Log.w(TRACE_TAG, "Unable to parse learned remote buttons", exception);
+        }
+        return null;
+    }
+
+    private String learnedRemoteLaunchPackage(String packageName, String className) {
+        String mappings = flutterPrefs().getString(LEARNED_REMOTE_BUTTONS_PREF, "[]");
+        if (mappings == null || mappings.isBlank()) {
+            return null;
+        }
+        try {
+            JSONArray buttons = new JSONArray(mappings);
+            for (int i = 0; i < buttons.length(); i++) {
+                JSONObject button = buttons.optJSONObject(i);
+                if (button == null) {
+                    continue;
+                }
+                String triggerPackage = button.optString("triggerPackage", "");
+                if (!packageName.equals(triggerPackage)) {
+                    continue;
+                }
+                String triggerClass = button.optString("triggerClass", "");
+                if (!triggerClass.isBlank()
+                        && className != null
+                        && !triggerClass.equals(className)) {
+                    continue;
+                }
+                return button.optString("packageName", "");
+            }
+        } catch (JSONException exception) {
+            Log.w(TRACE_TAG, "Unable to parse learned remote launches", exception);
+        }
+        return null;
+    }
+
+    private boolean launchPackageAssignment(String packageName) {
+        if (OpenCoreInputs.isSyntheticInputPackage(packageName)) {
+            String inputId = OpenCoreInputs.inputIdForPackage(packageName);
+            if (inputId == null) {
+                return false;
+            }
+            launchOpenCoreInput(inputId, OpenCoreInputs.fallbackLabelForPackage(packageName));
+            return true;
+        }
+
+        Intent intent = getPackageManager().getLeanbackLaunchIntentForPackage(packageName);
+        if (intent == null) {
+            intent = getPackageManager().getLaunchIntentForPackage(packageName);
+        }
+        if (intent == null) {
+            return false;
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+        return true;
     }
 
     private void launchOpenCoreHome() {
@@ -434,12 +661,6 @@ public class HomeGuardAccessibilityService extends AccessibilityService {
     }
 
     private void handleLogLine(String line) {
-        String remoteButtonId = OpenCoreRemoteButtons.buttonIdForActivityLogLine(line);
-        if (remoteButtonId != null) {
-            mainHandler.post(() -> startRemoteButtonRemap(remoteButtonId));
-            return;
-        }
-
         if (line.contains("com.amazon.tv.action.NAVIGATE_TO_INPUTS")
                 || line.contains("com.amazon.tv.inputpreference.action.LAUNCH_INPUTS")) {
             lastInputFlowTimeMs = System.currentTimeMillis();
@@ -460,63 +681,6 @@ public class HomeGuardAccessibilityService extends AccessibilityService {
                 && line.contains("com.amazon.tv.launcher")) {
             mainHandler.post(this::launchOpenCoreHome);
         }
-    }
-
-    private void startRemoteButtonRemap(String buttonId) {
-        SharedPreferences prefs = getSharedPreferences(FLUTTER_PREFS, MODE_PRIVATE);
-        String packageName = prefs.getString(REMOTE_BUTTON_PREF_PREFIX + buttonId, "");
-        if (packageName == null || packageName.isBlank()) {
-            return;
-        }
-
-        pendingRemoteButtonId = buttonId;
-        remoteButtonRemapUntilMs = System.currentTimeMillis() + REMOTE_BUTTON_REMAP_WINDOW_MS;
-        showTransitionCurtain();
-        mainHandler.postDelayed(() -> launchRemoteButtonAssignment(buttonId), REMOTE_BUTTON_REMAP_DELAY_MS);
-    }
-
-    private boolean isRemoteButtonRemapPending() {
-        return pendingRemoteButtonId != null
-                && !pendingRemoteButtonId.isBlank()
-                && System.currentTimeMillis() < remoteButtonRemapUntilMs;
-    }
-
-    private void launchRemoteButtonAssignment(String buttonId) {
-        if (!buttonId.equals(pendingRemoteButtonId) || !isRemoteButtonRemapPending()) {
-            return;
-        }
-
-        SharedPreferences prefs = getSharedPreferences(FLUTTER_PREFS, MODE_PRIVATE);
-        String packageName = prefs.getString(REMOTE_BUTTON_PREF_PREFIX + buttonId, "");
-        Log.w(TRACE_TAG, "remote button " + buttonId + " assignment=" + packageName);
-        pendingRemoteButtonId = "";
-        remoteButtonRemapUntilMs = 0;
-        if (packageName == null || packageName.isBlank()) {
-            hideTransitionCurtainSoon();
-            return;
-        }
-        if (OpenCoreInputs.isSyntheticInputPackage(packageName)) {
-            String inputId = OpenCoreInputs.inputIdForPackage(packageName);
-            if (inputId == null) {
-                hideTransitionCurtainSoon();
-                return;
-            }
-            launchOpenCoreInput(inputId, OpenCoreInputs.fallbackLabelForPackage(packageName));
-            return;
-        }
-        Intent intent = getPackageManager().getLeanbackLaunchIntentForPackage(packageName);
-        if (intent == null) {
-            intent = getPackageManager().getLaunchIntentForPackage(packageName);
-        }
-        if (intent == null) {
-            hideTransitionCurtainSoon();
-            return;
-        }
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                | Intent.FLAG_ACTIVITY_CLEAR_TOP
-                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        startActivity(intent);
-        hideTransitionCurtainSoon();
     }
 
 }

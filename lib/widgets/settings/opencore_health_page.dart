@@ -15,7 +15,7 @@ class OpenCoreHealthPage extends StatefulWidget {
 }
 
 class _OpenCoreHealthPageState extends State<OpenCoreHealthPage> {
-  bool? _homeGuardEnabled;
+  bool? _launcherProtected;
   bool _busy = false;
   String? _message;
 
@@ -27,10 +27,13 @@ class _OpenCoreHealthPageState extends State<OpenCoreHealthPage> {
 
   Future<void> _refresh() async {
     final appsService = context.read<AppsService>();
-    final enabled = await appsService.isHomeGuardEnabled();
+    final profile = appsService.deviceProfile;
+    final enabled = profile.supportsHomeGuard
+        ? await appsService.isHomeGuardEnabled()
+        : await appsService.isDefaultLauncher();
     if (!mounted) return;
     setState(() {
-      _homeGuardEnabled = enabled;
+      _launcherProtected = enabled;
       _message = null;
     });
   }
@@ -46,16 +49,18 @@ class _OpenCoreHealthPageState extends State<OpenCoreHealthPage> {
     if (!mounted) return;
     setState(() {
       _busy = false;
-      _homeGuardEnabled = repaired;
+      _launcherProtected = repaired;
       _message = repaired
-          ? "Home Guard is enabled."
-          : "Automatic repair was blocked by Fire OS. Use the recovery script or enable Home Guard in Accessibility settings.";
+          ? "Launcher protection is enabled."
+          : "Automatic repair was blocked. Use the Fire TV recovery script or enable Home Guard in Accessibility settings.";
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final healthy = _homeGuardEnabled == true;
+    final appsService = context.watch<AppsService>();
+    final profile = appsService.deviceProfile;
+    final healthy = _launcherProtected == true;
     final colors = context.openCoreColors;
     final statusColor = Color.lerp(
       colors.mutedText,
@@ -65,7 +70,8 @@ class _OpenCoreHealthPageState extends State<OpenCoreHealthPage> {
 
     return Column(
       children: [
-        Text("OpenCore Health", style: Theme.of(context).textTheme.titleLarge),
+        Text("Launcher Protection",
+            style: Theme.of(context).textTheme.titleLarge),
         const Divider(),
         Expanded(
           child: SingleChildScrollView(
@@ -76,7 +82,9 @@ class _OpenCoreHealthPageState extends State<OpenCoreHealthPage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   child: Text(
-                    "Home Guard keeps the Fire TV Home button on OpenCore. Fire OS may disable it after reinstalls, so OpenCore checks it here.",
+                    profile.supportsHomeGuard
+                        ? "Home Guard keeps the Fire TV Home button on OpenCore. Fire OS may disable it after reinstalls, so OpenCore checks it here."
+                        : "OpenCore checks whether this ${profile.label} currently treats it as the default launcher. Some devices require changing this in system settings.",
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
@@ -87,11 +95,15 @@ class _OpenCoreHealthPageState extends State<OpenCoreHealthPage> {
                     color: statusColor,
                   ),
                   title: Text(
-                    _homeGuardEnabled == null
-                        ? "Checking Home Guard..."
+                    _launcherProtected == null
+                        ? "Checking launcher protection..."
                         : healthy
-                            ? "Home Guard is enabled"
-                            : "Home Guard is disabled",
+                            ? profile.supportsHomeGuard
+                                ? "Home Guard is enabled"
+                                : "OpenCore is the default launcher"
+                            : profile.supportsHomeGuard
+                                ? "Home Guard is disabled"
+                                : "OpenCore is not the default launcher",
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   trailing: _busy
@@ -103,19 +115,28 @@ class _OpenCoreHealthPageState extends State<OpenCoreHealthPage> {
                       : null,
                   onPressed: _refresh,
                 ),
-                FocusableSettingsTile(
-                  leading: const Icon(Icons.build_circle_outlined),
-                  title: Text("Repair Home Guard",
-                      style: Theme.of(context).textTheme.bodyMedium),
-                  onPressed: _busy ? null : _repair,
-                ),
-                FocusableSettingsTile(
-                  leading: const Icon(Icons.accessibility_new_outlined),
-                  title: Text("Open Accessibility Settings",
-                      style: Theme.of(context).textTheme.bodyMedium),
-                  onPressed: () =>
-                      context.read<AppsService>().openAccessibilitySettings(),
-                ),
+                if (profile.supportsHomeSelfRepair)
+                  FocusableSettingsTile(
+                    leading: const Icon(Icons.build_circle_outlined),
+                    title: Text("Repair Home Guard",
+                        style: Theme.of(context).textTheme.bodyMedium),
+                    onPressed: _busy ? null : _repair,
+                  ),
+                if (profile.supportsHomeGuard)
+                  FocusableSettingsTile(
+                    leading: const Icon(Icons.accessibility_new_outlined),
+                    title: Text("Open Accessibility Settings",
+                        style: Theme.of(context).textTheme.bodyMedium),
+                    onPressed: () =>
+                        context.read<AppsService>().openAccessibilitySettings(),
+                  )
+                else
+                  FocusableSettingsTile(
+                    leading: const Icon(Icons.settings_outlined),
+                    title: Text("Open System Settings",
+                        style: Theme.of(context).textTheme.bodyMedium),
+                    onPressed: () => context.read<AppsService>().openSettings(),
+                  ),
                 FocusableSettingsTile(
                   leading: const Icon(Icons.refresh),
                   title: Text("Refresh Status",

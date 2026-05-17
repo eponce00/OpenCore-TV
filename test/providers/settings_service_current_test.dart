@@ -37,16 +37,24 @@ void main() {
     expect(service.inputIcon('opencore.input.hdmi1'), 'game');
   });
 
-  test('stores branded remote button assignments', () async {
+  test('stores learned remote button assignments', () async {
     final service = await buildService();
 
-    await service.setRemoteButtonAssignment(
-        'netflix', 'org.jellyfin.androidtv');
-
-    expect(
-      service.remoteButtonAssignment('netflix'),
-      'org.jellyfin.androidtv',
+    await service.upsertLearnedRemoteButton(
+      const LearnedRemoteButton(
+        id: 'key_123_scan_456',
+        label: 'Shortcut',
+        keyCode: 123,
+        scanCode: 456,
+        deviceId: 1,
+        source: 0,
+        packageName: 'org.jellyfin.androidtv',
+      ),
     );
+
+    expect(service.learnedRemoteButtons, hasLength(1));
+    expect(service.learnedRemoteButtons.first.packageName,
+        'org.jellyfin.androidtv');
   });
 
   test('stores appearance and wallpaper category settings', () async {

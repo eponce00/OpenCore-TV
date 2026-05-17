@@ -1,0 +1,15 @@
+# Copy this file to config/tv-fleet.local.yaml and edit it for your home.
+# The local file is gitignored because it can contain private names and LAN IPs.
+
+tvs:
+  - id: fire_tv
+    name: Living Room Fire TV
+    device: 192.168.1.206:5555
+    profile: fireTv
+    setHome: false
+
+  - id: google_tv
+    name: Upstairs Google TV
+    device: 192.168.1.12:5555
+    profile: googleTv
+    setHome: false
